@@ -220,6 +220,11 @@ func (h PlateHandler) List(w http.ResponseWriter, r *http.Request) {
 			filter.OwnerID = &id
 		}
 	}
+	if orgID := q.Get("organization_id"); orgID != "" {
+		if id, err := uuid.Parse(orgID); err == nil {
+			filter.OrganizationID = &id
+		}
+	}
 
 	if p := q.Get("page"); p != "" {
 		if n, err := strconv.Atoi(p); err == nil && n > 0 {
@@ -603,6 +608,60 @@ func (h PlateHandler) Stats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	respondJSON(w, http.StatusOK, stats)
+}
+
+func (h PlateHandler) StatsGrowth(w http.ResponseWriter, r *http.Request) {
+	months := 12
+	if m := r.URL.Query().Get("months"); m != "" {
+		if n, err := strconv.Atoi(m); err == nil && n > 0 && n <= 36 {
+			months = n
+		}
+	}
+	rows, err := h.plates.GetMonthlyGrowth(r.Context(), months)
+	if err != nil {
+		respondServiceError(w, err)
+		return
+	}
+	respondJSON(w, http.StatusOK, rows)
+}
+
+func (h PlateHandler) StatsCategories(w http.ResponseWriter, r *http.Request) {
+	rows, err := h.plates.GetCategoryCounts(r.Context())
+	if err != nil {
+		respondServiceError(w, err)
+		return
+	}
+	respondJSON(w, http.StatusOK, rows)
+}
+
+func (h PlateHandler) StatsTopBookmarked(w http.ResponseWriter, r *http.Request) {
+	limit := 10
+	if l := r.URL.Query().Get("limit"); l != "" {
+		if n, err := strconv.Atoi(l); err == nil && n > 0 && n <= 50 {
+			limit = n
+		}
+	}
+	rows, err := h.plates.GetTopBookmarked(r.Context(), limit)
+	if err != nil {
+		respondServiceError(w, err)
+		return
+	}
+	respondJSON(w, http.StatusOK, rows)
+}
+
+func (h PlateHandler) StatsTopRated(w http.ResponseWriter, r *http.Request) {
+	limit := 10
+	if l := r.URL.Query().Get("limit"); l != "" {
+		if n, err := strconv.Atoi(l); err == nil && n > 0 && n <= 50 {
+			limit = n
+		}
+	}
+	rows, err := h.plates.GetTopRated(r.Context(), limit)
+	if err != nil {
+		respondServiceError(w, err)
+		return
+	}
+	respondJSON(w, http.StatusOK, rows)
 }
 
 func (h PlateHandler) FilterOptions(w http.ResponseWriter, r *http.Request) {

@@ -131,6 +131,22 @@ func (s *plateService) GetFilterOptions(ctx context.Context) (*repository.PlateF
 	return s.plates.GetFilterOptions(ctx)
 }
 
+func (s *plateService) GetMonthlyGrowth(ctx context.Context, months int) ([]repository.MonthlyCount, error) {
+	return s.plates.GetMonthlyGrowth(ctx, months)
+}
+
+func (s *plateService) GetCategoryCounts(ctx context.Context) ([]repository.CategoryCount, error) {
+	return s.plates.GetCategoryCounts(ctx)
+}
+
+func (s *plateService) GetTopBookmarked(ctx context.Context, limit int) ([]repository.PlateRanked, error) {
+	return s.plates.GetTopBookmarked(ctx, limit)
+}
+
+func (s *plateService) GetTopRated(ctx context.Context, limit int) ([]repository.PlateRanked, error) {
+	return s.plates.GetTopRated(ctx, limit)
+}
+
 func (s *plateService) ListBookmarked(ctx context.Context, accountID uuid.UUID, limit int) ([]*model.Plate, error) {
 	members, err := s.members.ListByAccount(ctx, accountID)
 	if err != nil {

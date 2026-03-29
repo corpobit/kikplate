@@ -26,8 +26,17 @@ type SocialMediaLink struct {
 type Customization struct {
 	Logo            string            `mapstructure:"logo" json:"logo"`
 	BannerTitle     string            `mapstructure:"banner_title" json:"banner_title"`
+	BadgeRequestURL string            `mapstructure:"badge_request_url" json:"badge_request_url"`
 	SocialMedia     []SocialMediaLink `mapstructure:"social_media" json:"social_media"`
 	PreparedQueries []string          `mapstructure:"prepared_queries" json:"prepared_queries"`
+}
+
+type BadgeConfig struct {
+	Slug        string `mapstructure:"slug"`
+	Name        string `mapstructure:"name"`
+	Description string `mapstructure:"description"`
+	Icon        string `mapstructure:"icon"`
+	Tier        string `mapstructure:"tier"`
 }
 
 type Env struct {
@@ -47,6 +56,7 @@ type Env struct {
 	FrontendURL      string
 	OAuthProviders   []OAuthProvider
 	Customization    Customization
+	Badges           []BadgeConfig
 }
 
 func (e Env) GetOAuthProvider(name string) (OAuthProvider, bool) {
@@ -183,6 +193,11 @@ func NewEnv() Env {
 			{Type: "linkedin", Link: "#"},
 			{Type: "x", Link: "#"},
 		}
+	}
+
+	var badges []BadgeConfig
+	if err := viper.UnmarshalKey("badges", &badges); err == nil {
+		env.Badges = badges
 	}
 
 	return env

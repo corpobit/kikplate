@@ -9,13 +9,14 @@ import (
 )
 
 type PlateFilter struct {
-	Types      []model.PlateType
-	Categories []string
-	Tags       []string
-	OwnerID    *uuid.UUID
-	Search     string
-	Page       int
-	Limit      int
+	Types          []model.PlateType
+	Categories     []string
+	Tags           []string
+	OwnerID        *uuid.UUID
+	OrganizationID *uuid.UUID
+	Search         string
+	Page           int
+	Limit          int
 }
 
 type PlateSyncState struct {
@@ -33,6 +34,25 @@ type PlateStats struct {
 	TotalContributors int64 `json:"total_contributors"`
 	TotalCategories   int64 `json:"total_categories"`
 	TotalBookmarks    int64 `json:"total_bookmarks"`
+}
+
+type MonthlyCount struct {
+	Month string `json:"month"`
+	Count int64  `json:"count"`
+}
+
+type CategoryCount struct {
+	Category string `json:"category"`
+	Count    int64  `json:"count"`
+}
+
+type PlateRanked struct {
+	ID            uuid.UUID `json:"id"`
+	Slug          string    `json:"slug"`
+	Name          string    `json:"name"`
+	BookmarkCount int64     `json:"bookmark_count"`
+	AvgRating     float64   `json:"avg_rating"`
+	Category      string    `json:"category"`
 }
 
 type PlateFilterOptions struct {
@@ -76,6 +96,10 @@ type PlateRepository interface {
 	UpdateSyncState(ctx context.Context, id uuid.UUID, state PlateSyncState) error
 	ListDueForSync(ctx context.Context, limit int) ([]*model.Plate, error)
 	GetStats(ctx context.Context) (*PlateStats, error)
+	GetMonthlyGrowth(ctx context.Context, months int) ([]MonthlyCount, error)
+	GetCategoryCounts(ctx context.Context) ([]CategoryCount, error)
+	GetTopBookmarked(ctx context.Context, limit int) ([]PlateRanked, error)
+	GetTopRated(ctx context.Context, limit int) ([]PlateRanked, error)
 	GetFilterOptions(ctx context.Context) (*PlateFilterOptions, error)
 }
 

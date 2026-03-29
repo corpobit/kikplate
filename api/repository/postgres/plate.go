@@ -68,6 +68,9 @@ func (r *plateRepository) List(ctx context.Context, filter repository.PlateFilte
 	if filter.OwnerID != nil {
 		q = q.Where("owner_id = ?", *filter.OwnerID)
 	}
+	if filter.OrganizationID != nil {
+		q = q.Where("organization_id = ?", *filter.OrganizationID)
+	}
 	if filter.Search != "" {
 		q = q.Where(
 			`search_vector @@ websearch_to_tsquery('english', ?)
@@ -181,6 +184,55 @@ func (r *plateRepository) GetStats(ctx context.Context) (*repository.PlateStats,
 		Scan(&stats.TotalBookmarks)
 
 	return &stats, nil
+}
+
+func (r *plateRepository) GetMonthlyGrowth(ctx context.Context, months int) ([]repository.MonthlyCount, error) {
+	var rows []repository.MonthlyCount
+	err := r.db.WithContext(ctx).Raw(`
+		SELECT to_char(date_trunc('month', created_at), 'YYYY-MM') AS month,
+		       COUNT(*) AS count
+		FROM plate
+		WHERE status = ? AND created_at >= date_trunc('month', NOW()) - INTERVAL '1 month' * ?
+		GROUP BY date_trunc('month', created_at)
+		ORDER BY month
+	`, model.PlateStatusApproved, months).Scan(&rows).Error
+	return rows, err
+}
+
+func (r *plateRepository) GetCategoryCounts(ctx context.Context) ([]repository.CategoryCount, error) {
+	var rows []repository.CategoryCount
+	err := r.db.WithContext(ctx).Raw(`
+		SELECT category, COUNT(*) AS count
+		FROM plate
+		WHERE status = ? AND category <> ''
+		GROUP BY category
+		ORDER BY count DESC
+	`, model.PlateStatusApproved).Scan(&rows).Error
+	return rows, err
+}
+
+func (r *plateRepository) GetTopBookmarked(ctx context.Context, limit int) ([]repository.PlateRanked, error) {
+	var rows []repository.PlateRanked
+	err := r.db.WithContext(ctx).Raw(`
+		SELECT id, slug, name, bookmark_count, avg_rating, category
+		FROM plate
+		WHERE status = ? AND bookmark_count > 0
+		ORDER BY bookmark_count DESC
+		LIMIT ?
+	`, model.PlateStatusApproved, limit).Scan(&rows).Error
+	return rows, err
+}
+
+func (r *plateRepository) GetTopRated(ctx context.Context, limit int) ([]repository.PlateRanked, error) {
+	var rows []repository.PlateRanked
+	err := r.db.WithContext(ctx).Raw(`
+		SELECT id, slug, name, bookmark_count, avg_rating, category
+		FROM plate
+		WHERE status = ? AND avg_rating > 0
+		ORDER BY avg_rating DESC, bookmark_count DESC
+		LIMIT ?
+	`, model.PlateStatusApproved, limit).Scan(&rows).Error
+	return rows, err
 }
 
 func (r *plateRepository) GetFilterOptions(ctx context.Context) (*repository.PlateFilterOptions, error) {

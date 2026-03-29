@@ -97,6 +97,7 @@ export interface PlateFilter {
   tags?: string[]
   search?: string
   owner_id?: string
+  organization_id?: string
   page?: number
   limit?: number
 }

@@ -75,7 +75,7 @@ type Plate struct {
 	Tags         []PlateTag    `gorm:"foreignKey:PlateID"         json:"tags,omitempty"`
 	Members      []PlateMember `gorm:"foreignKey:PlateID"         json:"-"`
 	Reviews      []PlateReview `gorm:"foreignKey:PlateID"         json:"-"`
-	Badges       []PlateBadge  `gorm:"foreignKey:PlateID"         json:"-"`
+	Badges       []PlateBadge  `gorm:"foreignKey:PlateID"         json:"badges"`
 }
 
 func (Plate) TableName() string {

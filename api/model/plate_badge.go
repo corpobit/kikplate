@@ -15,7 +15,7 @@ type PlateBadge struct {
 	GrantedAt time.Time `gorm:"autoCreateTime"            json:"granted_at"`
 
 	Plate *Plate `gorm:"foreignKey:PlateID" json:"-"`
-	Badge *Badge `gorm:"foreignKey:BadgeID" json:"-"`
+	Badge *Badge `gorm:"foreignKey:BadgeID" json:"badge,omitempty"`
 }
 
 func (PlateBadge) TableName() string {

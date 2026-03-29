@@ -49,5 +49,9 @@ type PlateService interface {
 	GrantBadge(ctx context.Context, plateID uuid.UUID, adminAccountID uuid.UUID, badgeSlug string, reason *string) error
 	RevokeBadge(ctx context.Context, plateID uuid.UUID, adminAccountID uuid.UUID, badgeSlug string) error
 	GetStats(ctx context.Context) (*repository.PlateStats, error)
+	GetMonthlyGrowth(ctx context.Context, months int) ([]repository.MonthlyCount, error)
+	GetCategoryCounts(ctx context.Context) ([]repository.CategoryCount, error)
+	GetTopBookmarked(ctx context.Context, limit int) ([]repository.PlateRanked, error)
+	GetTopRated(ctx context.Context, limit int) ([]repository.PlateRanked, error)
 	GetFilterOptions(ctx context.Context) (*repository.PlateFilterOptions, error)
 }
