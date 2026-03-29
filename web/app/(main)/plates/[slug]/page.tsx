@@ -3,17 +3,21 @@ import { cookies } from "next/headers"
 import Link from "next/link"
 import {
   GitBranch, FileText, Heart, Star,
-  Shield, Tag, CheckCircle2, Calendar,
+  Tag, CheckCircle2, Calendar,
   ExternalLink, ArrowLeft
 } from "lucide-react"
 import { fetchRepoFile, fetchRepoTree } from "@/src/data/repositories/githubClient"
-import { formatCount, tierColour, relativeTime } from "@/src/presentation/utils/plateUtils"
+import { formatCount, relativeTime } from "@/src/presentation/utils/plateUtils"
 import { UseButtonClient } from "@/src/presentation/components/plates/UseButtonClient"
 import { BookmarkButtonClient } from "@/src/presentation/components/plates/BookmarkButtonClient"
 import { PlateContentTabs } from "@/src/presentation/components/plates/PlateContentTabs"
 import { PlateHeaderTabs } from "@/src/presentation/components/plates/PlateHeaderTabs"
 import { PlateRatingCard } from "@/src/presentation/components/plates/PlateRatingCard"
+import { BadgeShowcase } from "@/src/presentation/components/plates/BadgeShowcase"
+import { HeaderBadges } from "@/src/presentation/components/plates/HeaderBadges"
 import type { Plate } from "@/src/domain/entities/Plate"
+import type { Badge } from "@/src/domain/entities/Badge"
+import type { AppConfig } from "@/src/domain/entities/Config"
 
 interface Props {
   params: Promise<{ slug: string[] }>
@@ -40,6 +44,13 @@ export default async function PlateDetailPage({ params }: Props) {
   }
 
   const plate = (await res.json()) as Plate
+
+  const [badgesRes, configRes] = await Promise.all([
+    fetch(`${base}/badges`, { cache: "no-store" }),
+    fetch(`${base}/config`, { cache: "no-store" }),
+  ])
+  const allBadges: Badge[] = badgesRes.ok ? await badgesRes.json() : []
+  const appConfig: AppConfig | null = configRes.ok ? await configRes.json() : null
 
   let readme: string | null = null
   let license: string | null = null
@@ -101,6 +112,7 @@ export default async function PlateDetailPage({ params }: Props) {
             >
               {plate.visibility}
             </span>
+            <HeaderBadges badges={plate.badges ?? []} />
           </div>
 
           {plate.description && (
@@ -144,7 +156,7 @@ export default async function PlateDetailPage({ params }: Props) {
 
               {plate.organization ? (
                 <div className="mb-4 flex items-center gap-2.5 border-b border-border pb-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden border border-border bg-muted">
+                  <Link href={`/orgs/${encodeURIComponent(plate.organization.name)}`} className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden border border-border bg-muted hover:border-foreground/30 transition-colors">
                     {plate.organization.logo_url ? (
                       <img
                         src={plate.organization.logo_url}
@@ -156,20 +168,25 @@ export default async function PlateDetailPage({ params }: Props) {
                         {plate.organization.name.slice(0, 2)}
                       </span>
                     )}
-                  </div>
+                  </Link>
                   <div>
                     <p className="text-xs text-muted-foreground">Organization</p>
-                    <p className="text-sm font-semibold text-foreground">{plate.organization.name}</p>
+                    <Link href={`/orgs/${encodeURIComponent(plate.organization.name)}`} className="text-sm font-semibold text-foreground hover:underline">
+                      {plate.organization.name}
+                    </Link>
                     {plate.organization.owner && (
                       <p className="text-xs text-muted-foreground">
-                        Owner: {plate.organization.owner.username ?? plate.organization.owner.display_name ?? "Unknown"}
+                        Owner:{" "}
+                        <Link href={`/users/${encodeURIComponent(plate.organization.owner.username ?? "")}`} className="font-medium text-foreground hover:underline">
+                          {plate.organization.owner.username ?? plate.organization.owner.display_name ?? "Unknown"}
+                        </Link>
                       </p>
                     )}
                   </div>
                 </div>
               ) : plate.owner ? (
                 <div className="mb-4 flex items-center gap-2.5 border-b border-border pb-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden border border-border bg-muted">
+                  <Link href={`/users/${encodeURIComponent(plate.owner.username ?? "")}`} className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden border border-border bg-muted hover:border-foreground/30 transition-colors">
                     {plate.owner.avatar_url ? (
                       <img
                         src={plate.owner.avatar_url}
@@ -181,10 +198,12 @@ export default async function PlateDetailPage({ params }: Props) {
                         {(plate.owner.username ?? plate.owner.display_name ?? "?").slice(0, 2)}
                       </span>
                     )}
-                  </div>
+                  </Link>
                   <div>
                     <p className="text-xs text-muted-foreground">Owner</p>
-                    <p className="text-sm font-semibold text-foreground">{plate.owner.username ?? plate.owner.display_name ?? "Unknown"}</p>
+                    <Link href={`/users/${encodeURIComponent(plate.owner.username ?? "")}`} className="text-sm font-semibold text-foreground hover:underline">
+                      {plate.owner.username ?? plate.owner.display_name ?? "Unknown"}
+                    </Link>
                   </div>
                 </div>
               ) : null}
@@ -218,7 +237,7 @@ export default async function PlateDetailPage({ params }: Props) {
                 </div>
               </div>
 
-              {(plate.tags?.length ?? 0) > 0 || (plate.badges?.length ?? 0) > 0 ? (
+              {(plate.tags?.length ?? 0) > 0 ? (
                 <div className="mt-4 border-t border-border pt-4">
                   <div className="flex flex-wrap gap-2">
                     {plate.tags?.map((t) => (
@@ -231,21 +250,18 @@ export default async function PlateDetailPage({ params }: Props) {
                         {t.tag}
                       </Link>
                     ))}
-                    {plate.badges?.map((pb) =>
-                      pb.badge ? (
-                        <span
-                          key={pb.id}
-                          className={`inline-flex items-center gap-1 border px-2 py-0.5 text-xs font-semibold ${tierColour(pb.badge.tier)}`}
-                        >
-                          <Shield className="h-2.5 w-2.5" />
-                          {pb.badge.name}
-                        </span>
-                      ) : null,
-                    )}
                   </div>
                 </div>
               ) : null}
             </div>
+
+            <BadgeShowcase
+              allBadges={allBadges}
+              plateBadges={plate.badges ?? []}
+              plateOwnerId={plate.owner_id}
+              plateSlug={plate.slug}
+              requestUrl={appConfig?.badge_request_url}
+            />
 
             {plate.type === "repository" && plate.repo_url && (
               <div className="border border-border bg-card p-5">
@@ -269,23 +285,6 @@ export default async function PlateDetailPage({ params }: Props) {
               </div>
             )}
 
-            <div className="border border-border bg-card p-5">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Info</p>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Status</span>
-                  <span className="font-semibold capitalize text-foreground">{plate.status}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Visibility</span>
-                  <span className="font-semibold capitalize text-foreground">{plate.visibility}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Type</span>
-                  <span className="font-semibold capitalize text-foreground">{plate.type}</span>
-                </div>
-              </div>
-            </div>
           </aside>
         </div>
       </div>

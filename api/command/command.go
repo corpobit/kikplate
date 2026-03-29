@@ -12,7 +12,6 @@ import (
 var cmds = map[string]lib.Command{
 	"app:serve": NewServeCommand(),
 	"app:sync":  NewSyncCommand(),
-	"db:seed":   NewSeedCommand(),
 }
 
 func GetSubCommands(opt fx.Option) []*cobra.Command {

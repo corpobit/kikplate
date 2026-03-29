@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -9,16 +10,67 @@ import (
 	"github.com/google/uuid"
 	"github.com/kickplate/api/handler/middleware"
 	"github.com/kickplate/api/lib"
+	"github.com/kickplate/api/model"
+	"github.com/kickplate/api/repository"
 	organizationservice "github.com/kickplate/api/service/organization"
 )
 
 type OrganizationHandler struct {
 	orgs   organizationservice.OrganizationService
+	users  repository.UserRepository
 	logger lib.Logger
 }
 
-func NewOrganizationHandler(orgs organizationservice.OrganizationService, logger lib.Logger) OrganizationHandler {
-	return OrganizationHandler{orgs: orgs, logger: logger}
+func NewOrganizationHandler(orgs organizationservice.OrganizationService, users repository.UserRepository, logger lib.Logger) OrganizationHandler {
+	return OrganizationHandler{orgs: orgs, users: users, logger: logger}
+}
+
+type orgOwnerInfo struct {
+	ID          string  `json:"id"`
+	Username    *string `json:"username,omitempty"`
+	DisplayName *string `json:"display_name,omitempty"`
+	AvatarURL   *string `json:"avatar_url,omitempty"`
+}
+
+type orgResponse struct {
+	ID          uuid.UUID     `json:"id"`
+	Name        string        `json:"name"`
+	Description string        `json:"description"`
+	LogoURL     *string       `json:"logo_url,omitempty"`
+	OwnerID     uuid.UUID     `json:"owner_id"`
+	Owner       *orgOwnerInfo `json:"owner,omitempty"`
+	CreatedAt   interface{}   `json:"created_at"`
+	UpdatedAt   interface{}   `json:"updated_at"`
+}
+
+func (h OrganizationHandler) enrichOrg(ctx context.Context, org *model.Organization) orgResponse {
+	resp := orgResponse{
+		ID:          org.ID,
+		Name:        org.Name,
+		Description: org.Description,
+		LogoURL:     org.LogoURL,
+		OwnerID:     org.OwnerID,
+		CreatedAt:   org.CreatedAt,
+		UpdatedAt:   org.UpdatedAt,
+	}
+	if org.Owner != nil {
+		info := &orgOwnerInfo{
+			ID:          org.Owner.ID.String(),
+			DisplayName: org.Owner.DisplayName,
+			AvatarURL:   org.Owner.AvatarURL,
+		}
+		if org.Owner.UserID != nil {
+			user, _ := h.users.GetByID(ctx, *org.Owner.UserID)
+			if user != nil {
+				info.Username = &user.Username
+				if user.AvatarURL != nil {
+					info.AvatarURL = user.AvatarURL
+				}
+			}
+		}
+		resp.Owner = info
+	}
+	return resp
 }
 
 func (h OrganizationHandler) Create(w http.ResponseWriter, r *http.Request) {
@@ -57,7 +109,7 @@ func (h OrganizationHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondJSON(w, http.StatusOK, org)
+	respondJSON(w, http.StatusOK, h.enrichOrg(r.Context(), org))
 }
 
 func (h OrganizationHandler) GetByName(w http.ResponseWriter, r *http.Request) {
@@ -73,7 +125,7 @@ func (h OrganizationHandler) GetByName(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondJSON(w, http.StatusOK, org)
+	respondJSON(w, http.StatusOK, h.enrichOrg(r.Context(), org))
 }
 
 func (h OrganizationHandler) ListMine(w http.ResponseWriter, r *http.Request) {
@@ -89,7 +141,12 @@ func (h OrganizationHandler) ListMine(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondJSON(w, http.StatusOK, orgs)
+	result := make([]orgResponse, len(orgs))
+	for i, org := range orgs {
+		result[i] = h.enrichOrg(r.Context(), org)
+	}
+
+	respondJSON(w, http.StatusOK, result)
 }
 
 func (h OrganizationHandler) ListPublic(w http.ResponseWriter, r *http.Request) {
@@ -114,8 +171,13 @@ func (h OrganizationHandler) ListPublic(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	result := make([]orgResponse, len(orgs))
+	for i, org := range orgs {
+		result[i] = h.enrichOrg(r.Context(), org)
+	}
+
 	respondJSON(w, http.StatusOK, map[string]interface{}{
-		"organizations": orgs,
+		"organizations": result,
 		"total":         total,
 		"limit":         limit,
 		"offset":        offset,

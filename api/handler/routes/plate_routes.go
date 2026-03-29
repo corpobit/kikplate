@@ -19,6 +19,10 @@ func (r PlateRoutes) Setup() {
 	r.rh.Mux.Route("/plates", func(m chi.Router) {
 		m.Get("/", r.handler.List)
 		m.Get("/stats", r.handler.Stats)
+		m.Get("/stats/growth", r.handler.StatsGrowth)
+		m.Get("/stats/categories", r.handler.StatsCategories)
+		m.Get("/stats/top-bookmarked", r.handler.StatsTopBookmarked)
+		m.Get("/stats/top-rated", r.handler.StatsTopRated)
 		m.Get("/filters", r.handler.FilterOptions)
 		m.Get("/bookmarked", r.handler.ListBookmarked)
 		m.Post("/repository", r.handler.SubmitRepository)
