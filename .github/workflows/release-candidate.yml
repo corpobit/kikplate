@@ -140,20 +140,20 @@ jobs:
       - name: Prepare prerelease notes file
         run: |
           if [ -n "${{ inputs.changelog }}" ]; then
-            cat <<'EOF' > RC_NOTES.md
-            ${{ inputs.changelog }}
-            EOF
+            cat > RC_NOTES.md <<'EOF'
+          ${{ inputs.changelog }}
+          EOF
           elif [ -f "${{ inputs.changelog_file }}" ]; then
             cp "${{ inputs.changelog_file }}" RC_NOTES.md
           else
-            cat <<'EOF' > RC_NOTES.md
-            ## Release Candidate
+            cat > RC_NOTES.md <<'EOF'
+          ## Release Candidate
 
-            - Ref: ${{ needs.resolve-ref.outputs.ref }}
-            - Image tag: ${{ steps.prep.outputs.rc_tag }}
-            - API image: ghcr.io/${{ steps.prep.outputs.owner }}/kikplate-api:${{ steps.prep.outputs.rc_tag }}
-            - Web image: ghcr.io/${{ steps.prep.outputs.owner }}/kikplate-web:${{ steps.prep.outputs.rc_tag }}
-            EOF
+          - Ref: ${{ needs.resolve-ref.outputs.ref }}
+          - Image tag: ${{ steps.prep.outputs.rc_tag }}
+          - API image: ghcr.io/${{ steps.prep.outputs.owner }}/kikplate-api:${{ steps.prep.outputs.rc_tag }}
+          - Web image: ghcr.io/${{ steps.prep.outputs.owner }}/kikplate-web:${{ steps.prep.outputs.rc_tag }}
+          EOF
           fi
 
       - name: Set up QEMU
