@@ -1,0 +1,27 @@
+apiVersion: v1
+entries:
+  kikplate:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2026-04-04T15:45:25.990684745Z"
+    description: Kikplate – the home of your starter boilerplates. A self-hosted platform
+      for discovering, sharing, and submitting project templates.
+    digest: 6085fc78fcbfeb3578f9ac8bf723e436e1d3de1c0cd3eda337fc1b4b42438557
+    home: https://github.com/MoeidHeidari/kikplate
+    icon: https://raw.githubusercontent.com/MoeidHeidari/kikplate/main/web/public/kikplate-logo-on-dark.svg
+    keywords:
+    - kikplate
+    - boilerplate
+    - starter
+    - templates
+    maintainers:
+    - name: MoeidHeidari
+      url: https://github.com/MoeidHeidari
+    name: kikplate
+    sources:
+    - https://github.com/MoeidHeidari/kikplate
+    type: application
+    urls:
+    - https://MoeidHeidari.github.io/kikplate/kikplate-0.1.0.tgz
+    version: 0.1.0
+generated: "2026-04-04T15:45:25.989723875Z"
