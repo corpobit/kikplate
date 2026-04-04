@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
@@ -177,6 +178,12 @@ func NewEnv() Env {
 	var providers []OAuthProvider
 	if err := viper.UnmarshalKey("sso.providers", &providers); err == nil {
 		env.OAuthProviders = providers
+	}
+	for i, p := range env.OAuthProviders {
+		envKey := "SSO_" + strings.ToUpper(p.Name) + "_CLIENT_SECRET"
+		if secret := os.Getenv(envKey); secret != "" {
+			env.OAuthProviders[i].ClientSecret = secret
+		}
 	}
 
 	if err := viper.UnmarshalKey("customization", &env.Customization); err != nil || env.Customization.BannerTitle == "" {

@@ -6,12 +6,14 @@ import {
   GetMyOrganizationsUseCase,
   CreateOrganizationUseCase,
   UpdateOrganizationUseCase,
+  RemoveOrganizationUseCase,
 } from "@/src/domain/usecases/OrganizationUseCases"
 import type { CreateOrganizationInput, UpdateOrganizationInput } from "@/src/domain/entities/Organization"
 
 const getMyOrganizations = new GetMyOrganizationsUseCase(organizationRepository)
 const createOrganization = new CreateOrganizationUseCase(organizationRepository)
 const updateOrganization = new UpdateOrganizationUseCase(organizationRepository)
+const removeOrganization = new RemoveOrganizationUseCase(organizationRepository)
 
 export function useMyOrganizations() {
   return useQuery({
@@ -37,6 +39,17 @@ export function useUpdateOrganization() {
   return useMutation({
     mutationFn: ({ id, input }: { id: string; input: UpdateOrganizationInput }) =>
       updateOrganization.execute(id, input),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["organizations"] })
+      qc.invalidateQueries({ queryKey: ["organizations", "me"] })
+    },
+  })
+}
+
+export function useRemoveOrganization() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => removeOrganization.execute(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["organizations"] })
       qc.invalidateQueries({ queryKey: ["organizations", "me"] })

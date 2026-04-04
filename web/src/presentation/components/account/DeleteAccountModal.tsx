@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { X, Loader2, TriangleAlert } from "lucide-react"
+import { useDeleteMe } from "@/src/presentation/hooks/useAuth"
 
 interface Props {
   username: string
@@ -11,20 +12,19 @@ interface Props {
 
 export function DeleteAccountModal({ username, onClose, onDeleted }: Props) {
   const [confirm, setConfirm] = useState("")
-  const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const deleteMe = useDeleteMe()
+  const deleting = deleteMe.isPending
   const canDelete = confirm === username
 
   async function handleDelete() {
     if (!canDelete) return
-    setDeleting(true)
     setError(null)
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await deleteMe.mutateAsync()
       onDeleted()
     } catch (error) {
       setError(error instanceof Error ? error.message : "Failed to delete account")
-      setDeleting(false)
     }
   }
 

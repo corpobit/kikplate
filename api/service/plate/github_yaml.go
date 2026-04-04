@@ -8,18 +8,30 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"gopkg.in/yaml.v3"
 )
 
 func (s *plateService) fetchKickplateYAML(repoURL, branch string) (*KickplateYAML, error) {
+	return s.fetchKickplateYAMLWithOptions(repoURL, branch, false)
+}
+
+func (s *plateService) fetchKickplateYAMLWithOptions(repoURL, branch string, forceRefresh bool) (*KickplateYAML, error) {
 	apiURL := repoURLToContentsURL(repoURL, branch)
+	if forceRefresh {
+		apiURL = fmt.Sprintf("%s&_nonce=%d", apiURL, time.Now().UnixNano())
+	}
 	req, err := http.NewRequest(http.MethodGet, apiURL, nil)
 	if err != nil {
 		return nil, ErrFetchFailed
 	}
 	req.Header.Set("Accept", "application/vnd.github+json")
 	req.Header.Set("User-Agent", "kickplate-api")
+	if forceRefresh {
+		req.Header.Set("Cache-Control", "no-cache")
+		req.Header.Set("Pragma", "no-cache")
+	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

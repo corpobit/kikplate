@@ -7,7 +7,8 @@ import { useMyOrganizations } from "@/src/presentation/hooks/useOrganizations"
 import { LoadingSpinner } from "@/src/presentation/components/common/LoadingSpinner"
 import { PendingVerification } from "@/src/presentation/components/plates/PendingVerification"
 import { Button } from "@/components/ui/button"
-import { GitBranch, Plus, Trash2 } from "lucide-react"
+import { GitBranch, Plus, Trash2, Key, ChevronDown, Copy, Check } from "lucide-react"
+import { toast } from "sonner"
 
 export function OwnedPlates({ accountId }: { accountId: string }) {
   const { data, isLoading, isError } = usePlates({ owner_id: accountId, limit: 48 })
@@ -24,6 +25,8 @@ export function OwnedPlates({ accountId }: { accountId: string }) {
     targetOrgName: string
   } | null>(null)
   const [moveError, setMoveError] = useState<string | null>(null)
+  const [visibleTokenIds, setVisibleTokenIds] = useState<Set<string>>(new Set())
+  const [tokenCopiedId, setTokenCopiedId] = useState<string | null>(null)
   const [confirmingPlate, setConfirmingPlate] = useState<{ id: string; name: string } | null>(null)
   const [removeError, setRemoveError] = useState<string | null>(null)
   const [confirmNameInput, setConfirmNameInput] = useState("")
@@ -204,6 +207,52 @@ export function OwnedPlates({ accountId }: { accountId: string }) {
                   {removePlate.isPending && removingId === plate.id ? "Removing..." : "Remove"}
                 </button>
               </div>
+
+              {plate.verification_token && (
+                <div className="mt-3 border-t border-border pt-3 space-y-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setVisibleTokenIds((prev) => {
+                        const next = new Set(prev)
+                        if (next.has(plate.id)) next.delete(plate.id)
+                        else next.add(plate.id)
+                        return next
+                      })
+                    }
+                    className="flex w-full items-center gap-1.5 text-[11px] uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    <Key className="h-3 w-3" />
+                    <span className="flex-1 text-left">Verification token</span>
+                    <ChevronDown
+                      className={`h-3 w-3 transition-transform ${
+                        visibleTokenIds.has(plate.id) ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+                  {visibleTokenIds.has(plate.id) && (
+                    <div className="flex items-center gap-0 border border-border">
+                      <code className="flex-1 truncate bg-muted/20 px-3 py-2 text-[11px] font-mono text-foreground">
+                        {plate.verification_token}
+                      </code>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          await navigator.clipboard.writeText(plate.verification_token!)
+                          setTokenCopiedId(plate.id)
+                          toast.success("Token copied to clipboard")
+                          setTimeout(() => setTokenCopiedId(null), 2000)
+                        }}
+                        className="border-l border-border px-3 py-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                      >
+                        {tokenCopiedId === plate.id
+                          ? <Check className="h-3.5 w-3.5 text-green-500" />
+                          : <Copy className="h-3.5 w-3.5" />}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="mt-3 space-y-2 border-t border-border pt-3">
                 <label className="text-[11px] uppercase tracking-wide text-muted-foreground">Organization</label>

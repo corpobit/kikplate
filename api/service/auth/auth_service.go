@@ -16,6 +16,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/endpoints"
+	"gorm.io/gorm"
 )
 
 type authService struct {
@@ -24,12 +25,14 @@ type authService struct {
 	emailVerRepo repository.EmailVerificationRepository
 	logger       lib.Logger
 	env          lib.Env
+	db           *gorm.DB
 }
 
 func NewAuthService(
 	userRepo repository.UserRepository,
 	accountRepo repository.AccountRepository,
 	emailVerRepo repository.EmailVerificationRepository,
+	db lib.Database,
 	logger lib.Logger,
 	env lib.Env,
 ) AuthService {
@@ -39,6 +42,7 @@ func NewAuthService(
 		emailVerRepo: emailVerRepo,
 		logger:       logger,
 		env:          env,
+		db:           db.DB,
 	}
 }
 
@@ -177,6 +181,7 @@ func (s *authService) OAuthCallback(ctx context.Context, input OAuthCallbackInpu
 
 	token, err := cfg.Exchange(ctx, input.Code)
 	if err != nil {
+		s.logger.Errorf("oauth token exchange failed for provider %s: %v", input.Provider, err)
 		return nil, ErrOAuthFailed
 	}
 
@@ -561,4 +566,73 @@ func (s *authService) GetMe(ctx context.Context, accountID uuid.UUID) (*MeResult
 	}
 
 	return result, nil
+}
+
+func (s *authService) DeleteMe(ctx context.Context, accountID uuid.UUID) error {
+	account, err := s.accountRepo.GetByID(ctx, accountID)
+	if err != nil {
+		return err
+	}
+	if account == nil {
+		return ErrNotFound
+	}
+
+	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var ownedPlateIDs []uuid.UUID
+		if err := tx.Model(&model.Plate{}).
+			Where("owner_id = ?", accountID).
+			Pluck("id", &ownedPlateIDs).Error; err != nil {
+			return err
+		}
+
+		if len(ownedPlateIDs) > 0 {
+			if err := tx.Where("plate_id IN ?", ownedPlateIDs).Delete(&model.PlateBadge{}).Error; err != nil {
+				return err
+			}
+			if err := tx.Where("plate_id IN ?", ownedPlateIDs).Delete(&model.PlateReview{}).Error; err != nil {
+				return err
+			}
+			if err := tx.Where("plate_id IN ?", ownedPlateIDs).Delete(&model.PlateMember{}).Error; err != nil {
+				return err
+			}
+			if err := tx.Where("plate_id IN ?", ownedPlateIDs).Delete(&model.PlateTag{}).Error; err != nil {
+				return err
+			}
+			if err := tx.Where("id IN ?", ownedPlateIDs).Delete(&model.Plate{}).Error; err != nil {
+				return err
+			}
+		}
+
+		if err := tx.Where("owner_id = ?", accountID).Delete(&model.Organization{}).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Where("account_id = ?", accountID).Delete(&model.PlateReview{}).Error; err != nil {
+			return err
+		}
+		if err := tx.Where("account_id = ?", accountID).Delete(&model.PlateMember{}).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Where("id = ?", accountID).Delete(&model.Account{}).Error; err != nil {
+			return err
+		}
+
+		if account.UserID != nil {
+			var remaining int64
+			if err := tx.Model(&model.Account{}).Where("user_id = ?", *account.UserID).Count(&remaining).Error; err != nil {
+				return err
+			}
+			if remaining == 0 {
+				if err := tx.Where("user_id = ?", *account.UserID).Delete(&model.EmailVerification{}).Error; err != nil {
+					return err
+				}
+				if err := tx.Where("id = ?", *account.UserID).Delete(&model.User{}).Error; err != nil {
+					return err
+				}
+			}
+		}
+
+		return nil
+	})
 }

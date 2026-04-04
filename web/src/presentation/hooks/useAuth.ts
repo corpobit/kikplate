@@ -1,5 +1,6 @@
 "use client"
 
+import { useSyncExternalStore } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { authRepository } from "@/src/data/repositories/AuthRepository"
 import { LoginUseCase }       from "@/src/domain/usecases/LoginUseCase"
@@ -14,11 +15,21 @@ const registerUseCase    = new RegisterUseCase(authRepository)
 const getMeUseCase       = new GetMeUseCase(authRepository)
 const verifyEmailUseCase = new VerifyEmailUseCase(authRepository)
 
+function useAuthToken() {
+  return useSyncExternalStore(
+    AuthService.subscribe,
+    () => AuthService.getToken(),
+    () => null,
+  )
+}
+
 export function useMe() {
+  const token = useAuthToken()
+
   return useQuery({
     queryKey: ["me"],
     queryFn: () => getMeUseCase.execute(),
-    enabled: typeof window !== "undefined" && AuthService.isAuthenticated(),
+    enabled: Boolean(token),
     retry: false,
     staleTime: 5 * 60_000,
   })
@@ -51,6 +62,12 @@ export function useUpdateProfile() {
   return useMutation({
     mutationFn: (input: { display_name?: string; avatar_url?: string }) => authRepository.updateProfile(input),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["me"] }),
+  })
+}
+
+export function useDeleteMe() {
+  return useMutation({
+    mutationFn: () => authRepository.deleteMe(),
   })
 }
 

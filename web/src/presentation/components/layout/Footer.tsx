@@ -51,7 +51,7 @@ export function Footer() {
             </p>
             <ul className="space-y-2">
               {[
-                { label: "GitHub", href: "https://github.com/kickplate" },
+                { label: "GitHub", href: "https://github.com/kikplate" },
                 { label: "Slack", href: "#" },
                 { label: "Twitter / X", href: "#" },
               ].map((link) => (
@@ -78,7 +78,7 @@ export function Footer() {
                 { label: "Documentation", href: "#" },
                 { label: "CLI", href: "#" },
                 { label: "Changelog", href: "#" },
-                { label: "Contributing", href: "https://github.com/kickplate/kickplate/blob/main/CONTRIBUTING.md" },
+                { label: "Contributing", href: "https://github.com/kikplate/kikplate/blob/main/CONTRIBUTING.md" },
               ].map((link) => (
                 <li key={link.label}>
                   <Link

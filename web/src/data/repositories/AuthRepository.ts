@@ -16,6 +16,9 @@ class AuthRepository implements IAuthRepository {
   me(): Promise<MeResult> {
     return http.get("/me")
   }
+  deleteMe(): Promise<void> {
+    return http.delete("/me")
+  }
   updateProfile(input: { display_name?: string; avatar_url?: string }): Promise<MeResult> {
     return http.patch("/me/profile", input)
   }

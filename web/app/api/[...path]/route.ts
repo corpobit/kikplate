@@ -34,8 +34,20 @@ async function proxy(request: NextRequest, context: { params: Promise<{ path: st
   responseHeaders.delete("content-length")
   responseHeaders.delete("transfer-encoding")
 
+  const status = upstream.status
+  const isHeadRequest = request.method === "HEAD"
+  const isBodylessStatus = status === 204 || status === 205 || status === 304
+
+  if (isHeadRequest || isBodylessStatus) {
+    return new NextResponse(null, {
+      status,
+      statusText: upstream.statusText,
+      headers: responseHeaders,
+    })
+  }
+
   return new NextResponse(await upstream.arrayBuffer(), {
-    status: upstream.status,
+    status,
     statusText: upstream.statusText,
     headers: responseHeaders,
   })

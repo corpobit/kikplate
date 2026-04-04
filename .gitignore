@@ -27,3 +27,9 @@ dist-ssr
 # Configuration files (contain sensitive info)
 config/database.json
 config/config.yaml
+
+# Kubernetes secret manifests (contain real credentials)
+kubernetes/base/app-credentials-secret.yaml
+
+# Local CLI build scratch space
+cli/dist-local/

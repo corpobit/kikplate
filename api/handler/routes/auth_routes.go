@@ -41,6 +41,7 @@ func (r AuthRoutes) Setup() {
 	r.mux.Mux.Group(func(router chi.Router) {
 		router.Use(middleware.RequireAuth)
 		router.Get("/me", r.handler.Me)
+		router.Delete("/me", r.handler.DeleteMe)
 		router.Patch("/me/profile", r.handler.UpdateProfile)
 		router.Patch("/me/username", r.handler.SetUsername)
 	})

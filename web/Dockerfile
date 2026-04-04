@@ -26,9 +26,9 @@ ENV API_INTERNAL_URL=http://localhost:3001
 
 RUN addgroup -S app && adduser -S app -G app
 
-COPY --from=builder /app/public ./public
-COPY --from=builder --chown=app:app /app/.next/standalone ./
-COPY --from=builder --chown=app:app /app/.next/static ./.next/static
+COPY --from=builder /app/public ./app/public
+COPY --from=builder --chown=app:app /app/.next/standalone/app ./app
+COPY --from=builder --chown=app:app /app/.next/static ./app/.next/static
 
 USER app
 
@@ -37,4 +37,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+CMD ["node", "app/server.js"]

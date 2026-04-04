@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useSubmitRepository } from "@/src/presentation/hooks/usePlates"
 import { useMyOrganizations } from "@/src/presentation/hooks/useOrganizations"
 import { useMe } from "@/src/presentation/hooks/useAuth"
-import { Loader2, AlertCircle, Info } from "lucide-react"
+import { Loader2, AlertCircle, Info, Copy, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 
@@ -20,6 +20,10 @@ export function SubmitRepositoryForm() {
   const selectedOrganization = organizations?.find((org) => org.id === organizationId)
   const isPersonalSubmission = !organizationId
   const ownerHint = selectedOrganization?.name ?? me?.username ?? "your-username"
+  const [ownerCopied, setOwnerCopied] = useState(false)
+  const kikplateFileUrl = repoUrl
+    ? `${repoUrl.replace(/\.git$/, "").replace(/\/$/, "")}/blob/${branch || "main"}/kikplate.yaml`
+    : null
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -49,7 +53,7 @@ export function SubmitRepositoryForm() {
           <li>· The repository must be public</li>
           <li>
             · It must contain a{" "}
-            <code className="font-mono bg-muted px-1 py-0.5">kickplate.yaml</code>{" "}
+            <code className="font-mono bg-muted px-1 py-0.5">kikplate.yaml</code>{" "}
             at the root
           </li>
           <li>
@@ -121,29 +125,60 @@ export function SubmitRepositoryForm() {
             <span className="font-medium">{errorMsg}</span>
           </div>
           {errorMsg.includes("owner field") && (
-            <p className="text-xs text-muted-foreground pl-6">
-              Open your <code className="font-mono bg-muted px-1 py-0.5">kickplate.yaml</code> and
-              set <code className="font-mono bg-muted px-1 py-0.5">owner: {ownerHint}</code> then push and try again.
-            </p>
+            <div className="pl-6 space-y-2 text-xs text-muted-foreground">
+              <p>
+                Open{" "}
+                {kikplateFileUrl ? (
+                  <a
+                    href={kikplateFileUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-mono underline underline-offset-2 hover:text-foreground"
+                  >
+                    kikplate.yaml
+                  </a>
+                ) : (
+                  <code className="font-mono bg-muted px-1 py-0.5">kikplate.yaml</code>
+                )}{" "}
+                and update the <code className="font-mono bg-muted px-1 py-0.5">owner</code> field, then push and try again.
+              </p>
+              <div className="flex items-center gap-0 border border-border">
+                <code className="flex-1 truncate bg-muted/20 px-3 py-2.5 text-xs font-mono text-foreground">
+                  owner: {ownerHint}
+                </code>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await navigator.clipboard.writeText(`owner: ${ownerHint}`)
+                    setOwnerCopied(true)
+                    toast.success("Copied to clipboard")
+                    setTimeout(() => setOwnerCopied(false), 2000)
+                  }}
+                  className="border-l border-border px-3 py-2.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                >
+                  {ownerCopied
+                    ? <Check className="h-3.5 w-3.5 text-green-500" />
+                    : <Copy className="h-3.5 w-3.5" />}
+                </button>
+              </div>
+            </div>
           )}
-          {errorMsg.includes("username") && (
+          {errorMsg.includes("Account settings to set one") && (
             <p className="text-xs text-muted-foreground pl-6">
-              Repository plates require a local account with a username. Your account was
-              created via SSO and does not have one. Register a new account with email and
-              password.
+              Go to <strong>Account → Profile</strong> and set a username before submitting a plate.
             </p>
           )}
           {(errorMsg.includes("not found") || errorMsg.includes("fetch")) && (
             <p className="text-xs text-muted-foreground pl-6">
               Make sure the repository is public, the URL is correct, and
-              the <code className="font-mono bg-muted px-1 py-0.5">kickplate.yaml</code> exists
+              the <code className="font-mono bg-muted px-1 py-0.5">kikplate.yaml</code> exists
               on the <code className="font-mono bg-muted px-1 py-0.5">{branch}</code> branch.
             </p>
           )}
           {errorMsg.includes("conflict") && (
             <p className="text-xs text-muted-foreground pl-6">
               A plate with this name already exists. Rename your plate in{" "}
-              <code className="font-mono bg-muted px-1 py-0.5">kickplate.yaml</code> and try again.
+              <code className="font-mono bg-muted px-1 py-0.5">kikplate.yaml</code> and try again.
             </p>
           )}
         </div>
