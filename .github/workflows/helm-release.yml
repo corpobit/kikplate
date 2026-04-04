@@ -20,6 +20,8 @@ on:
 permissions:
   contents: write
   packages: write
+  pages: write
+  id-token: write
 
 jobs:
   release:
@@ -129,3 +131,13 @@ jobs:
           files: ./dist/kikplate-${{ steps.version.outputs.chart_version }}.tgz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+      - name: Deploy to GitHub Pages
+        if: github.event_name == 'workflow_dispatch'
+        id: deployment
+        uses: actions/deploy-pages@v4
