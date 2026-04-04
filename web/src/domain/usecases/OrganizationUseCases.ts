@@ -20,3 +20,10 @@ export class UpdateOrganizationUseCase {
     return this.repo.update(id, input)
   }
 }
+
+export class RemoveOrganizationUseCase {
+  constructor(private readonly repo: IOrganizationRepository) {}
+  execute(id: string) {
+    return this.repo.remove(id)
+  }
+}

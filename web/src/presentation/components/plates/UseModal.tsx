@@ -82,14 +82,14 @@ export function UseModal({ open, onClose, repoUrl, slug }: Props) {
           <CopyField
             label="Scaffold with KikPlate CLI"
             icon={<Terminal className="h-3.5 w-3.5" />}
-            value={`kickplate scaf ${slug}`}
+            value={`kikplate scaf ${slug}`}
           />
 
           <div className="border-t border-border pt-4">
             <p className="text-xs text-muted-foreground">
               Don&apos;t have the CLI?{" "}
               <span className="text-foreground underline underline-offset-4 cursor-pointer">
-                Install kickplate
+                Install kikplate
               </span>
             </p>
           </div>

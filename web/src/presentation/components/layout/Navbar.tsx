@@ -110,7 +110,7 @@ export function Navbar() {
               stats
             </Link>
             <Link
-              href="https://github.com/kickplate"
+              href="https://github.com/kikplate"
               target="_blank"
               className="hover:text-white transition-colors"
               title="GitHub"

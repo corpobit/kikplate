@@ -18,6 +18,10 @@ class OrganizationRepository implements IOrganizationRepository {
   update(id: string, input: UpdateOrganizationInput): Promise<Organization> {
     return http.put(`/organizations/${id}`, input)
   }
+
+  remove(id: string): Promise<void> {
+    return http.delete(`/organizations/${id}`)
+  }
 }
 
 export const organizationRepository = new OrganizationRepository()

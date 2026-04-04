@@ -158,6 +158,22 @@ func (h AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, result)
 }
 
+func (h AuthHandler) DeleteMe(w http.ResponseWriter, r *http.Request) {
+	accountID, ok := middleware.GetAccountID(r.Context())
+	if !ok {
+		respondError(w, http.StatusUnauthorized, "authentication required")
+		return
+	}
+
+	if err := h.authService.DeleteMe(r.Context(), accountID); err != nil {
+		h.logger.Errorf("delete me failed: %v", err)
+		respondServiceError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func (h AuthHandler) SetUsername(w http.ResponseWriter, r *http.Request) {
 	accountID, ok := middleware.GetAccountID(r.Context())
 	if !ok {

@@ -59,7 +59,7 @@ export default function SetUsernamePage() {
           <p className="text-sm text-muted-foreground">
             Your username identifies you on KikPlate and is used as the{" "}
             <code className="font-mono bg-muted px-1 py-0.5 text-xs">owner</code>{" "}
-            field in <code className="font-mono bg-muted px-1 py-0.5 text-xs">kickplate.yaml</code>.
+            field in <code className="font-mono bg-muted px-1 py-0.5 text-xs">kikplate.yaml</code>.
           </p>
         </div>
 

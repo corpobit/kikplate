@@ -11,7 +11,7 @@ import { Toaster } from "@/components/ui/sonner"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Kickplate — template registry",
+  title: "kikplate — template registry",
   description: "Discover, share, and scaffold production-ready project templates.",
 }
 

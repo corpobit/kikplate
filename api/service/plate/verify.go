@@ -2,6 +2,7 @@ package plate
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -29,15 +30,31 @@ func (s *plateService) VerifyRepository(ctx context.Context, plateID uuid.UUID, 
 		return nil, fmt.Errorf("%w: plate missing repository information", ErrInvalidInput)
 	}
 
-	kp, err := s.fetchKickplateYAML(*plate.RepoURL, *plate.Branch)
-	if err != nil {
-		s.logger.Errorf("fetch kickplate.yaml failed: %v", err)
-		return nil, fmt.Errorf("failed to fetch repository: %w", err)
-	}
-
 	expectedToken := strings.ToLower(strings.TrimSpace(*plate.VerificationToken))
-	manifestToken := strings.ToLower(strings.TrimSpace(kp.VerificationToken))
-	if manifestToken != expectedToken {
+
+	var kp *KickplateYAML
+	var err error
+	for attempt := 0; attempt < 2; attempt++ {
+		kp, err = s.fetchKickplateYAMLWithOptions(*plate.RepoURL, *plate.Branch, attempt > 0)
+		if err != nil {
+			if attempt == 0 && (errors.Is(err, ErrFetchFailed) || errors.Is(err, ErrMissingYAML)) {
+				time.Sleep(1200 * time.Millisecond)
+				continue
+			}
+			s.logger.Errorf("fetch kickplate.yaml failed: %v", err)
+			return nil, fmt.Errorf("failed to fetch repository: %w", err)
+		}
+
+		manifestToken := strings.ToLower(strings.TrimSpace(kp.VerificationToken))
+		if manifestToken == expectedToken {
+			break
+		}
+
+		if attempt == 0 {
+			time.Sleep(1200 * time.Millisecond)
+			continue
+		}
+
 		return nil, fmt.Errorf(
 			"%w: expected verification_token %q, found %q in branch %q",
 			ErrVerificationTokenMismatch,
