@@ -84,86 +84,22 @@ jobs:
           echo "rc_tag=${rc_tag}" >> "${GITHUB_OUTPUT}"
 
   api-quality:
-    name: API Quality
-    runs-on: ubuntu-latest
     needs: resolve-ref
-    defaults:
-      run:
-        working-directory: api
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.resolve-ref.outputs.ref }}
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: api/go.mod
-          cache-dependency-path: api/go.sum
-
-      - name: Download dependencies
-        run: go mod download
-
-      - name: Run tests
-        run: go test ./...
-
-      - name: Verify build
-        run: go build ./...
+    uses: ./.github/workflows/reusable-api-quality.yml
+    with:
+      ref: ${{ needs.resolve-ref.outputs.ref }}
 
   web-quality:
-    name: Web Quality
-    runs-on: ubuntu-latest
     needs: resolve-ref
-    defaults:
-      run:
-        working-directory: web
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.resolve-ref.outputs.ref }}
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: web/package-lock.json
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run production build
-        run: npm run build
+    uses: ./.github/workflows/reusable-web-quality.yml
+    with:
+      ref: ${{ needs.resolve-ref.outputs.ref }}
 
   cli-quality:
-    name: CLI Quality
-    runs-on: ubuntu-latest
     needs: resolve-ref
-    defaults:
-      run:
-        working-directory: cli
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.resolve-ref.outputs.ref }}
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: cli/go.mod
-          cache-dependency-path: cli/go.sum
-
-      - name: Download dependencies
-        run: go mod download
-
-      - name: Run tests
-        run: go test ./...
-
-      - name: Verify build
-        run: go build ./...
+    uses: ./.github/workflows/reusable-cli-quality.yml
+    with:
+      ref: ${{ needs.resolve-ref.outputs.ref }}
 
   build-rc-images:
     name: Build RC Docker Images
