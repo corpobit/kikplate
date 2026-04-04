@@ -121,7 +121,7 @@ jobs:
           Add the OCI repository:
           \`\`\`bash
           helm registry login ghcr.io -u <username> -p <token>
-          helm repo add kikplate oci://ghcr.io/${{ github.repository_owner | lower }}/helm-charts
+          helm repo add kikplate oci://ghcr.io/${{ github.repository_owner }}/helm-charts
           \`\`\`
 
           Install the chart:
