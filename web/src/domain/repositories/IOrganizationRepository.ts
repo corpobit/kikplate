@@ -8,4 +8,5 @@ export interface IOrganizationRepository {
   create(input: CreateOrganizationInput): Promise<Organization>
   listMine(): Promise<Organization[]>
   update(id: string, input: UpdateOrganizationInput): Promise<Organization>
+  remove(id: string): Promise<void>
 }

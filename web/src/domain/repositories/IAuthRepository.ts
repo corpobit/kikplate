@@ -5,6 +5,7 @@ export interface IAuthRepository {
   login(input: LoginInput): Promise<AuthResult>
   verifyEmail(token: string): Promise<AuthResult>
   me(): Promise<MeResult>
+  deleteMe(): Promise<void>
   updateProfile(input: { display_name?: string; avatar_url?: string }): Promise<MeResult>
   setUsername(username: string): Promise<{ message: string }>
   oauthRedirectURL(provider: string): string

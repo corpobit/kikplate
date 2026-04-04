@@ -1,0 +1,130 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: kikplate
+data:
+  config.yaml: |
+    database:
+      host: postgres
+      port: 5432
+      database: kikplate
+
+    server:
+      port: 3001
+      frontend_url: http://localhost:3000
+      log:
+        level: info
+
+    sync:
+      interval: 20m
+      poll_interval: 5m
+      batch_size: 25
+
+    sso:
+      providers:
+        - name: github
+          client_id: Ov23lid5LSBSn2mplIvf
+          redirect_url: http://localhost:3000/api/auth/github/callback
+          scopes:
+            - read:user
+            - user:email
+        - name: google
+          client_id: your_google_client_id
+          redirect_url: http://localhost:3000/api/auth/google/callback
+          scopes:
+            - openid
+            - email
+            - profile
+        - name: gitlab
+          client_id: your_gitlab_client_id
+          redirect_url: http://localhost:3000/api/auth/gitlab/callback
+          scopes:
+            - openid
+            - email
+            - profile
+
+    customization:
+      logo: /kikplate-logo-on-dark.svg
+      banner_title: The Home of your starter boilerplates
+      badge_request_url: https://github.com/MoeidHeidari/kikplate/issues/new?template=badge-request.yml
+      social_media:
+        - type: github
+          link: https://github.com/kickplate
+        - type: slack
+          link: https://your-workspace.slack.com
+        - type: linkedin
+          link: https://www.linkedin.com/company/your-company
+        - type: x
+          link: https://x.com/your-handle
+      prepared_queries:
+        - Golang starter
+        - Clean architecture boilerplate for Nodejs
+        - Go Chi REST
+        - Python http server
+        - Next.js
+        - Gin framework
+        - Postgresql docker-compose
+        - Nginx
+
+    badges:
+      - slug: official
+        name: Official
+        description: Officially recognized and maintained by the project owners
+        icon: award
+        tier: official
+      - slug: production-ready
+        name: Production Ready
+        description: Ready for production environments with high reliability
+        icon: rocket
+        tier: official
+      - slug: security-friendly
+        name: Security Friendly
+        description: Follows security best practices and has strong security measures
+        icon: shield-check
+        tier: official
+      - slug: clean
+        name: Clean
+        description: Clean and well-organized codebase
+        icon: sparkles
+        tier: community
+      - slug: clean-code
+        name: Clean Code
+        description: Follows clean code principles and best practices
+        icon: code
+        tier: community
+      - slug: documented
+        name: Documented
+        description: Well-documented with clear and comprehensive documentation
+        icon: book-open
+        tier: community
+      - slug: well-tested
+        name: Well Tested
+        description: Comes with comprehensive unit, integration, and end-to-end tests
+        icon: flask-conical
+        tier: community
+      - slug: docker-ready
+        name: Docker Ready
+        description: Fully containerized and easy to run with Docker
+        icon: container
+        tier: community
+      - slug: cloud-native
+        name: Cloud Native
+        description: Designed for cloud-native environments and orchestration
+        icon: cloud
+        tier: community
+      - slug: microservice
+        name: Microservice
+        description: Built using microservices architecture
+        icon: layers
+        tier: community
+      - slug: active
+        name: Active
+        description: Actively maintained with regular updates
+        icon: zap
+        tier: community
+      - slug: beginner-friendly
+        name: Beginner Friendly
+        description: Easy to understand and get started for beginners
+        icon: graduation-cap
+        tier: community

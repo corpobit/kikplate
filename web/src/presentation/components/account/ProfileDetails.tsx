@@ -1,10 +1,12 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Copy, Check, CheckCircle2, XCircle, Pencil, Trash2 } from "lucide-react"
 import type { MeResult } from "@/src/domain/entities/User"
 import { EditProfileModal } from "./EditProfileModal"
 import { DeleteAccountModal } from "./DeleteAccountModal"
+import { useLogout } from "@/src/presentation/hooks/useAuth"
 
 function CopyButton({ value }: { value: string }) {
   const [copied, setCopied] = useState(false)
@@ -33,6 +35,8 @@ interface Row {
 export function ProfileDetails({ me }: { me: MeResult }) {
   const [editOpen, setEditOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
+  const router = useRouter()
+  const logout = useLogout()
 
   const rows: Row[] = [
     {
@@ -131,7 +135,12 @@ export function ProfileDetails({ me }: { me: MeResult }) {
         <DeleteAccountModal
           username={me.username ?? me.account_id}
           onClose={() => setDeleteOpen(false)}
-          onDeleted={() => setDeleteOpen(false)}
+          onDeleted={() => {
+            setDeleteOpen(false)
+            logout()
+            router.push("/")
+            router.refresh()
+          }}
         />
       )}
     </>

@@ -48,7 +48,7 @@ export function PendingVerification({ plate, onRemove, removing = false }: Props
           <div>
             <p className="font-semibold text-amber-900 dark:text-amber-100">Verification Pending</p>
             <p className="mt-1 text-sm text-amber-800 dark:text-amber-200">
-              To publish this plate, add the verification token to your kickplate.yaml and push it to the repository.
+              To publish this plate, add the verification token to your kikplate.yaml and push it to the repository.
             </p>
           </div>
 

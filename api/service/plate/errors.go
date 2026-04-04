@@ -10,7 +10,7 @@ var (
 	ErrNotPendingVerification    = errors.New("plate is not pending verification")
 	ErrVerificationTokenMismatch = errors.New("verification token mismatch")
 	ErrOrganizationRequired      = errors.New("organization is required")
-	ErrNoUsername                = errors.New("repository plates require a username — your account was created via SSO and has no username set")
+	ErrNoUsername                = errors.New("repository plates require a username — go to Account settings to set one before submitting")
 	ErrOwnerMismatch             = errors.New("owner field does not match the expected owner (username for personal, organization name for org submissions)")
 	ErrMissingYAML               = errors.New("kikplate.yaml not found in repository")
 	ErrFetchFailed               = errors.New("failed to fetch repository")
