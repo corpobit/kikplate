@@ -20,8 +20,6 @@ on:
 permissions:
   contents: write
   packages: write
-  pages: write
-  id-token: write
 
 jobs:
   release:
@@ -132,21 +130,32 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload to GitHub Pages
+      - name: Checkout gh-pages branch
         if: github.event_name == 'workflow_dispatch'
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/checkout@v4
         with:
-          path: ./dist
+          ref: gh-pages
+          path: gh-pages
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-  deploy-pages:
-    name: Deploy to GitHub Pages
-    needs: release
-    if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Copy chart to gh-pages
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          mkdir -p gh-pages
+          cp ./dist/kikplate-${{ steps.version.outputs.chart_version }}.tgz gh-pages/
+          [ -f ./dist/index.html ] && cp ./dist/index.html gh-pages/index.html || true
+          [ -f ./dist/artifacthub-repo.yml ] && cp ./dist/artifacthub-repo.yml gh-pages/artifacthub-repo.yml || true
+
+      - name: Commit and push to gh-pages
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          cd gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update Helm chart to version ${{ steps.version.outputs.chart_version }}"
+            git push origin gh-pages
+          fi
