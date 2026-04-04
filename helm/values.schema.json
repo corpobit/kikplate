@@ -1,0 +1,426 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Kikplate values",
+  "description": "Schema for configuring the Kikplate Helm chart.",
+  "properties": {
+    "nameOverride": {
+      "type": "string",
+      "title": "Name override",
+      "description": "Optional short name override used in generated resource names."
+    },
+    "fullnameOverride": {
+      "type": "string",
+      "title": "Full name override",
+      "description": "Optional full resource name override."
+    },
+    "namespace": {
+      "type": "string",
+      "title": "Namespace override",
+      "description": "Optional namespace override. Leave empty to use the Helm release namespace."
+    },
+    "api": {
+      "type": "object",
+      "title": "API",
+      "description": "Settings for the Kikplate backend deployment.",
+      "properties": {
+        "replicaCount": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of backend replicas."
+        },
+        "image": { "$ref": "#/definitions/imageConfig" },
+        "service": {
+          "type": "object",
+          "properties": {
+            "port": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535,
+              "description": "Service port exposed by the backend."
+            }
+          }
+        },
+        "resources": { "$ref": "#/definitions/resources" },
+        "readinessProbe": { "$ref": "#/definitions/probeTiming" },
+        "livenessProbe": { "$ref": "#/definitions/probeTiming" }
+      }
+    },
+    "sync": {
+      "type": "object",
+      "title": "Sync worker",
+      "description": "Settings for the background sync worker deployment.",
+      "properties": {
+        "replicaCount": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of sync worker replicas."
+        },
+        "image": { "$ref": "#/definitions/imageConfig" },
+        "resources": { "$ref": "#/definitions/resources" }
+      }
+    },
+    "web": {
+      "type": "object",
+      "title": "Web",
+      "description": "Settings for the frontend deployment.",
+      "properties": {
+        "replicaCount": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of frontend replicas."
+        },
+        "image": { "$ref": "#/definitions/imageConfig" },
+        "service": {
+          "type": "object",
+          "properties": {
+            "port": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535,
+              "description": "Service port exposed by the frontend."
+            }
+          }
+        },
+        "resources": { "$ref": "#/definitions/resources" },
+        "readinessProbe": { "$ref": "#/definitions/probeTiming" },
+        "livenessProbe": { "$ref": "#/definitions/probeTiming" }
+      }
+    },
+    "postgres": {
+      "type": "object",
+      "title": "PostgreSQL workload",
+      "description": "Settings for the PostgreSQL deployment and persistent storage.",
+      "properties": {
+        "replicaCount": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of PostgreSQL replicas."
+        },
+        "image": { "$ref": "#/definitions/imageConfig" },
+        "service": {
+          "type": "object",
+          "properties": {
+            "port": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535,
+              "description": "Service port exposed by PostgreSQL."
+            }
+          }
+        },
+        "resources": { "$ref": "#/definitions/resources" },
+        "readinessProbe": { "$ref": "#/definitions/probeTiming" },
+        "livenessProbe": { "$ref": "#/definitions/probeTiming" },
+        "persistence": {
+          "type": "object",
+          "properties": {
+            "size": {
+              "type": "string",
+              "description": "Persistent volume claim size for PostgreSQL data."
+            },
+            "accessMode": {
+              "type": "string",
+              "description": "Persistent volume access mode."
+            }
+          }
+        }
+      }
+    },
+    "ingress": {
+      "type": "object",
+      "title": "Ingress",
+      "description": "Ingress settings for exposing the web service.",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable or disable ingress generation."
+        },
+        "className": {
+          "type": "string",
+          "description": "Ingress class name used by the controller."
+        },
+        "host": {
+          "type": "string",
+          "description": "Hostname served by the ingress."
+        },
+        "annotations": {
+          "type": "object",
+          "description": "Additional annotations added to the ingress resource.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "secrets": {
+      "type": "object",
+      "title": "Secrets",
+      "description": "Application secrets rendered into Kubernetes secrets.",
+      "properties": {
+        "jwtSecret": {
+          "type": "string",
+          "description": "JWT signing secret used by the application."
+        },
+        "sso": {
+          "type": "object",
+          "properties": {
+            "githubClientSecret": {
+              "type": "string",
+              "description": "GitHub OAuth client secret."
+            },
+            "googleClientSecret": {
+              "type": "string",
+              "description": "Google OAuth client secret."
+            },
+            "gitlabClientSecret": {
+              "type": "string",
+              "description": "GitLab OAuth client secret."
+            }
+          }
+        }
+      }
+    },
+    "postgresql": {
+      "type": "object",
+      "title": "PostgreSQL credentials",
+      "description": "Database credentials used by the application and PostgreSQL container.",
+      "properties": {
+        "database": {
+          "type": "string",
+          "description": "Database name."
+        },
+        "username": {
+          "type": "string",
+          "description": "Database username."
+        },
+        "password": {
+          "type": "string",
+          "description": "Database password."
+        }
+      }
+    },
+    "config": {
+      "type": "object",
+      "title": "Application config",
+      "description": "Configuration rendered into the Kikplate application config map.",
+      "properties": {
+        "server": {
+          "type": "object",
+          "properties": {
+            "port": {
+              "type": "integer",
+              "description": "Backend listen port."
+            },
+            "frontendUrl": {
+              "type": "string",
+              "description": "Public frontend URL used by the backend."
+            },
+            "log": {
+              "type": "object",
+              "properties": {
+                "level": {
+                  "type": "string",
+                  "description": "Log level for the backend."
+                }
+              }
+            }
+          }
+        },
+        "sync": {
+          "type": "object",
+          "properties": {
+            "interval": {
+              "type": "string",
+              "description": "Full sync interval."
+            },
+            "pollInterval": {
+              "type": "string",
+              "description": "Polling interval for updates."
+            },
+            "batchSize": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Maximum number of records processed per batch."
+            }
+          }
+        },
+        "sso": {
+          "type": "object",
+          "properties": {
+            "providers": {
+              "type": "array",
+              "description": "List of configured OAuth providers.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Provider name such as github, google, or gitlab."
+                  },
+                  "clientId": {
+                    "type": "string",
+                    "description": "OAuth client identifier."
+                  },
+                  "redirectUrl": {
+                    "type": "string",
+                    "description": "OAuth redirect callback URL."
+                  },
+                  "scopes": {
+                    "type": "array",
+                    "description": "Requested OAuth scopes.",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "customization": {
+          "type": "object",
+          "title": "Customization",
+          "description": "Branding and public UI configuration.",
+          "properties": {
+            "logo": {
+              "type": "string",
+              "description": "Logo path or URL used by the frontend."
+            },
+            "bannerTitle": {
+              "type": "string",
+              "description": "Homepage banner title shown in the UI."
+            },
+            "badgeRequestUrl": {
+              "type": "string",
+              "description": "URL used when users request a badge."
+            },
+            "socialMedia": {
+              "type": "array",
+              "description": "List of social links displayed by the frontend.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "description": "Social platform type."
+                  },
+                  "link": {
+                    "type": "string",
+                    "description": "Target URL for the social platform."
+                  }
+                }
+              }
+            },
+            "preparedQueries": {
+              "type": "array",
+              "description": "Prepared search suggestions shown by the frontend.",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "badges": {
+          "type": "array",
+          "title": "Badges",
+          "description": "Badge catalog rendered by the application and documented in Artifact Hub.",
+          "items": {
+            "type": "object",
+            "title": "Badge",
+            "description": "Badge definition entry.",
+            "properties": {
+              "slug": {
+                "type": "string",
+                "description": "Stable unique badge identifier used internally and in URLs."
+              },
+              "name": {
+                "type": "string",
+                "description": "Display name shown in the application UI."
+              },
+              "description": {
+                "type": "string",
+                "description": "Longer explanation of what the badge means."
+              },
+              "icon": {
+                "type": "string",
+                "description": "Frontend icon name used for the badge."
+              },
+              "tier": {
+                "type": "string",
+                "enum": ["official", "community"],
+                "description": "Badge ownership tier."
+              }
+            },
+            "required": ["slug", "name", "description", "icon", "tier"]
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "imageConfig": {
+      "type": "object",
+      "properties": {
+        "repository": {
+          "type": "string",
+          "description": "Container image repository."
+        },
+        "tag": {
+          "type": ["string", "number"],
+          "description": "Container image tag."
+        },
+        "pullPolicy": {
+          "type": "string",
+          "description": "Image pull policy."
+        }
+      }
+    },
+    "resources": {
+      "type": "object",
+      "properties": {
+        "requests": {
+          "type": "object",
+          "properties": {
+            "cpu": {
+              "type": "string",
+              "description": "Requested CPU amount."
+            },
+            "memory": {
+              "type": "string",
+              "description": "Requested memory amount."
+            }
+          }
+        },
+        "limits": {
+          "type": "object",
+          "properties": {
+            "cpu": {
+              "type": "string",
+              "description": "CPU limit."
+            },
+            "memory": {
+              "type": "string",
+              "description": "Memory limit."
+            }
+          }
+        }
+      }
+    },
+    "probeTiming": {
+      "type": "object",
+      "properties": {
+        "initialDelaySeconds": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Initial delay before probe execution."
+        },
+        "periodSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Probe interval in seconds."
+        }
+      }
+    }
+  }
+}
