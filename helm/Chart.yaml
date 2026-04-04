@@ -15,4 +15,20 @@ sources:
 maintainers:
   - name: MoeidHeidari
     url: https://github.com/MoeidHeidari
+annotations:
+  artifacthub.io/license: MIT
+  artifacthub.io/links: |
+    - name: source
+      url: https://github.com/MoeidHeidari/kikplate
+    - name: support
+      url: https://github.com/MoeidHeidari/kikplate/issues
+    - name: chart
+      url: https://github.com/MoeidHeidari/kikplate/tree/helm/helm
+  artifacthub.io/images: |
+    - name: kikplate-api
+      image: ghcr.io/moeidheidari/kikplate-api:main
+    - name: kikplate-web
+      image: ghcr.io/moeidheidari/kikplate-web:main
+    - name: postgres
+      image: postgres:16
 icon: https://raw.githubusercontent.com/MoeidHeidari/kikplate/main/web/public/kikplate-logo-on-dark.svg
