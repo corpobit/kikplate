@@ -514,19 +514,13 @@
             <div class="container">
                 <div class="section-block">
                     <div class="section-row">
-                        <h3>1. Authenticate with GHCR</h3>
-                        <p>Use a GitHub token that can read packages.</p>
-                        <code class="inline-code">helm registry login ghcr.io -u moeidheidari -p YOUR_GITHUB_TOKEN</code>
-                    </div>
-
-                    <div class="section-row">
-                        <h3>2. Inspect available versions</h3>
+                        <h3>1. Inspect available versions</h3>
                         <p>Query the OCI chart directly when you need a specific release.</p>
                         <code class="inline-code">helm show chart oci://ghcr.io/moeidheidari/helm-charts/kikplate --version 0.1.1</code>
                     </div>
 
                     <div class="section-row">
-                        <h3>3. Install with overrides</h3>
+                        <h3>2. Install with overrides</h3>
                         <p>Pass runtime secrets and install in one command.</p>
                         <code class="inline-code">helm install kikplate oci://ghcr.io/moeidheidari/helm-charts/kikplate \
   --namespace kikplate \
@@ -536,7 +530,7 @@
                     </div>
 
                     <div class="section-row">
-                        <h3>4. Verify the deployment</h3>
+                        <h3>3. Verify the deployment</h3>
                         <p>Check the workload and forward the web service locally.</p>
                         <code class="inline-code">kubectl get pods -n kikplate
 kubectl port-forward -n kikplate svc/web 3000:3000</code>
