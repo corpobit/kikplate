@@ -138,7 +138,15 @@ jobs:
         with:
           path: ./dist
 
+  deploy-pages:
+    name: Deploy to GitHub Pages
+    needs: release
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: Deploy to GitHub Pages
-        if: github.event_name == 'workflow_dispatch'
         id: deployment
         uses: actions/deploy-pages@v4
