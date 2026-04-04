@@ -1,19 +1,29 @@
 name: Release Helm Chart
 
 on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Chart version to release (e.g., 0.1.0, 0.2.0)'
+        required: true
+        type: string
+      app_version:
+        description: 'App version tag (image tag from GHCR)'
+        required: true
+        type: string
   push:
     branches:
       - helm
     paths:
       - "helm/**"
-  workflow_dispatch:
 
 permissions:
   contents: write
+  packages: write
 
 jobs:
   release:
-    name: Package & Publish to GitHub Pages
+    name: Package & Publish to OCI Registry
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -26,24 +36,118 @@ jobs:
         with:
           version: latest
 
-      - name: Package chart
+      - name: Import GPG key for chart signing
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.HELM_GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.HELM_GPG_PASSPHRASE }}
         run: |
-          mkdir -p ./dist/charts
-          helm package helm/ --destination ./dist/charts
+          echo "$GPG_PRIVATE_KEY" | gpg --import --batch --passphrase "$GPG_PASSPHRASE"
+          gpg --list-keys
 
-      - name: Generate index.yaml
+      - name: Determine version and app_version
+        id: version
         run: |
-          helm repo index ./dist/charts \
-            --url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/charts
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            CHART_VERSION="${{ inputs.version }}"
+            APP_VERSION="${{ inputs.app_version }}"
+          else
+            # For push events, use semantic version from git tag or default
+            CHART_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "0.1.0")
+            APP_VERSION="main"
+          fi
+          
+          echo "chart_version=${CHART_VERSION}" >> "${GITHUB_OUTPUT}"
+          echo "app_version=${APP_VERSION}" >> "${GITHUB_OUTPUT}"
 
-      - name: Copy landing page
+      - name: Update Chart.yaml with version
         run: |
-          cp helm/index.html ./dist/index.html
+          sed -i "s/version: .*/version: ${{ steps.version.outputs.chart_version }}/" helm/Chart.yaml
+          sed -i "s/appVersion: .*/appVersion: \"${{ steps.version.outputs.app_version }}\"/" helm/Chart.yaml
 
-      - name: Deploy to gh-pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Update values.yaml with image tags
+        run: |
+          sed -i "s/tag: .*/tag: ${{ steps.version.outputs.app_version }}/" helm/values.yaml
+
+      - name: Verify Chart
+        run: helm lint helm/
+
+      - name: Package and sign chart
+        env:
+          GPG_PASSPHRASE: ${{ secrets.HELM_GPG_PASSPHRASE }}
+        run: |
+          mkdir -p ./dist
+          # Get the GPG key name from imported keys
+          KEY_ID=$(gpg --list-secret-keys --keyid-format=long | grep "sec" | awk '{print $(NF)}' | head -1)
+          if [ -z "$KEY_ID" ]; then
+            echo "Error: No GPG key found. Please configure HELM_GPG_PRIVATE_KEY secret."
+            exit 1
+          fi
+          echo "Signing chart with key: $KEY_ID"
+          helm package helm/ --destination ./dist --sign --key "$KEY_ID"
+          ls -la ./dist/
+
+      - name: Copy landing page and metadata
+        run: |
+          [ -f helm/index.html ] && cp helm/index.html ./dist/index.html || true
+          [ -f helm/artifacthub-repo.yml ] && cp helm/artifacthub-repo.yml ./dist/artifacthub-repo.yml || true
+
+      - name: Log in to GHCR
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io \
+            --username ${{ github.actor }} \
+            --password-stdin
+
+      - name: Push chart and provenance to OCI registry
+        run: |
+          owner=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          # Push the signed chart
+          helm push ./dist/kikplate-${{ steps.version.outputs.chart_version }}.tgz \
+            oci://ghcr.io/${owner}/helm-charts
+          # Note: Provenance file is attached to the chart in OCI registry
+          echo "Chart signed and pushed to oci://ghcr.io/${owner}/helm-charts"
+          echo "Provenance file: ./dist/kikplate-${{ steps.version.outputs.chart_version }}.tgz.prov"
+
+      - name: Create release notes
+        id: release_notes
+        run: |
+          cat > /tmp/release_notes.md << 'EOF'
+          # Kikplate Helm Chart v${{ steps.version.outputs.chart_version }}
+
+          **Chart Version:** ${{ steps.version.outputs.chart_version }}  
+          **App Version:** ${{ steps.version.outputs.app_version }}
+
+          ## Installation
+
+          Add the OCI repository:
+          \`\`\`bash
+          helm registry login ghcr.io -u <username> -p <token>
+          helm repo add kikplate oci://ghcr.io/${{ github.repository_owner | lower }}/helm-charts
+          \`\`\`
+
+          Install the chart:
+          \`\`\`bash
+          helm install kikplate kikplate/kikplate \
+            --version ${{ steps.version.outputs.chart_version }} \
+            --namespace kikplate \
+            --create-namespace
+          \`\`\`
+
+          ## What's Changed
+
+          - Updated application images to `${{ steps.version.outputs.app_version }}`
+          - Chart version bumped to `${{ steps.version.outputs.chart_version }}`
+
+          For full changelog, visit the [repository](https://github.com/${{ github.repository }}).
+          EOF
+          cat /tmp/release_notes.md
+
+      - name: Create GitHub Release
+        if: github.event_name == 'workflow_dispatch'
+        uses: softprops/action-gh-release@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
-          keep_files: true
-          commit_message: "chore: update helm chart index [skip ci]"
+          tag_name: helm-v${{ steps.version.outputs.chart_version }}
+          name: Helm Chart v${{ steps.version.outputs.chart_version }}
+          body_path: /tmp/release_notes.md
+          files: ./dist/kikplate-${{ steps.version.outputs.chart_version }}.tgz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
