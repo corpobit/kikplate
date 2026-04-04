@@ -160,6 +160,7 @@ jobs:
         run: |
           cd gh-pages/charts
           helm repo index . --url https://moeidheidari.github.io/kikplate/charts
+          cp index.yaml ../index.yaml
 
       - name: Commit and push to gh-pages
         run: |
