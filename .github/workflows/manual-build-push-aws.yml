@@ -8,8 +8,13 @@ on:
         required: true
         default: main
         type: string
-      build_docker:
-        description: Build API and Web Docker images
+      build_api:
+        description: Build and push API Docker image
+        required: true
+        default: true
+        type: boolean
+      build_web:
+        description: Build and push Web Docker image
         required: true
         default: true
         type: boolean
@@ -52,14 +57,14 @@ jobs:
           echo "docker_tag=${docker_tag}" >> "${GITHUB_OUTPUT}"
 
   api-quality:
-    if: inputs.build_docker
+    if: inputs.build_api
     needs: prepare-meta
     uses: ./.github/workflows/reusable-api-quality.yml
     with:
       ref: ${{ inputs.ref }}
 
   web-quality:
-    if: inputs.build_docker
+    if: inputs.build_web
     needs: prepare-meta
     uses: ./.github/workflows/reusable-web-quality.yml
     with:
@@ -67,7 +72,6 @@ jobs:
 
   build-and-push-images:
     name: Build and Push Docker Images to ECR
-    if: inputs.build_docker
     runs-on: ubuntu-latest
     needs:
       - prepare-meta
@@ -97,6 +101,7 @@ jobs:
         id: login-ecr
 
       - name: Build and push API image to ECR
+        if: inputs.build_api
         uses: docker/build-push-action@v6
         with:
           context: ./api
@@ -109,6 +114,7 @@ jobs:
             ${{ secrets.AWS_ECR_REGISTRY_ADDRESS }}/${{ secrets.ECR_REPOSITORY_API }}:${{ needs.prepare-meta.outputs.docker_tag }}
 
       - name: Build and push web image to ECR
+        if: inputs.build_web
         uses: docker/build-push-action@v6
         with:
           context: ./web
