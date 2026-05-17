@@ -24,6 +24,7 @@ on:
         description: Optional. GitHub org that owns the homebrew-core fork (brew bump-formula-pr --fork-org)
         required: false
         type: string
+
   release:
     types: [published]
 
@@ -53,15 +54,19 @@ jobs:
           else
             TAG="$RELEASE_TAG"
           fi
+
           if [ -z "$TAG" ]; then
             echo "No tag resolved" >&2
             exit 1
           fi
+
           case "$TAG" in
             v*) ;;
             *) TAG="v${TAG}" ;;
           esac
+
           VERSION_PLAIN="${TAG#v}"
+
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
           echo "version_plain=${VERSION_PLAIN}" >> "$GITHUB_OUTPUT"
 
@@ -69,6 +74,7 @@ jobs:
     name: Generate formula and brew audit
     needs: resolve
     runs-on: macos-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -95,26 +101,40 @@ jobs:
           HOMEBREW_NO_AUTO_UPDATE: "1"
         run: |
           set -euo pipefail
+
           brew uninstall stub/kikplate/kikplate 2>/dev/null || true
           brew untap stub/kikplate 2>/dev/null || true
+
           TAP_DIR=$(mktemp -d)
           mkdir -p "${TAP_DIR}/Formula"
-          cp kikplate.rb "${TAP_DIR}/Formula/"
+
+          cp kikplate.rb "${TAP_DIR}/Formula/kikplate.rb"
+
           git -C "${TAP_DIR}" init -q
           git -C "${TAP_DIR}" add Formula/kikplate.rb
-          git -C "${TAP_DIR}" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" -c user.name="github-actions[bot]" commit -qm "Add kikplate for CI"
+          git -C "${TAP_DIR}" \
+            -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            -c user.name="github-actions[bot]" \
+            commit -qm "Add kikplate for CI"
+
           brew tap stub/kikplate "${TAP_DIR}"
+
           FORMULA_FULL="stub/kikplate/kikplate"
+
           brew update
+
           new_flag=()
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.audit_new }}" = "true" ]; then
             new_flag+=(--new)
           fi
+
           brew audit --strict --online "${new_flag[@]}" "${FORMULA_FULL}"
+
           brew uninstall kikplate 2>/dev/null || true
           brew install --build-from-source "${FORMULA_FULL}"
           brew test "${FORMULA_FULL}"
           brew uninstall "${FORMULA_FULL}" || true
+
           brew untap stub/kikplate
 
       - name: Upload formula artifact
@@ -123,15 +143,43 @@ jobs:
           name: homebrew-kikplate-rb
           path: kikplate.rb
 
+      - name: Publish formula to tap
+        env:
+          TAP_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
+          VERSION: ${{ needs.resolve.outputs.version_plain }}
+        run: |
+          set -euo pipefail
+
+          git clone https://x-access-token:${TAP_TOKEN}@github.com/kikplate/homebrew-kikplate.git tap
+
+          mkdir -p tap/Formula
+          cp kikplate.rb tap/Formula/kikplate.rb
+
+          cd tap
+
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+
+          git add Formula/kikplate.rb
+
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+
+          git commit -m "Update kikplate ${VERSION}"
+          git push
+
   bump:
     name: Open Homebrew core bump PR
     needs:
       - resolve
       - audit
     runs-on: macos-latest
+
     if: >
       github.event_name == 'release' ||
       (github.event_name == 'workflow_dispatch' && inputs.mode == 'bump')
+
     steps:
       - name: Check bump token
         id: gate
@@ -140,7 +188,6 @@ jobs:
         run: |
           if [ -z "$TOKEN" ]; then
             echo "run=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::HOMEBREW_BUMP_GITHUB_TOKEN is not set; skipping brew bump-formula-pr."
           else
             echo "run=true" >> "$GITHUB_OUTPUT"
           fi
