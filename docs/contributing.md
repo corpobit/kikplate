@@ -181,8 +181,8 @@ Releases are created manually by maintainers from the GitHub Actions UI. The Rel
 2. Computing the next semantic version from the latest git tag.
 3. Running all quality jobs.
 4. Building and pushing multi-platform Docker images to GHCR.
-5. Building CLI binaries for Linux and macOS (amd64 and arm64).
-6. Creating a GitHub Release with attached binaries.
+5. Creating a GitHub Release (release notes only; no CLI binaries).
+6. Publishing CLI binaries and package-manager metadata via the Release packages workflow (`release-packages.yml`, GoReleaser), triggered when the release is published.
 
 The Helm chart is released separately using the Helm Chart Release workflow (`helm-release.yml`). It validates the requested version against an existing application release, runs Helm lint and template checks, packages the chart, and pushes it to both GHCR and the gh-pages Helm repository.
 

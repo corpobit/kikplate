@@ -31,12 +31,12 @@ archives:
     ids:
       - cli
     formats: [tar.gz]
-    name_template: "{{ .Binary }}"
+    name_template: "kikplate-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
   - id: cli-windows-archives
     ids:
       - cli-windows
     formats: [zip]
-    name_template: "{{ .Binary }}"
+    name_template: "kikplate-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
 
 checksum:
   name_template: checksums.txt
@@ -79,4 +79,6 @@ scoops:
     url_template: "https://github.com/kikplate/kikplate/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
 
 release:
-  disable: true
+  disable: false
+  name_template: "{{ .Tag }}"
+  mode: keep-existing
