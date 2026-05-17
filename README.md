@@ -69,20 +69,6 @@ scoop bucket add kikplate https://github.com/kikplate/scoop-bucket.git
 scoop install kikplate
 ```
 
-### Linux via `.deb` / `.rpm` packages (from GitHub Releases)
-
-Download the package matching your CPU architecture from [GitHub Releases](https://github.com/kikplate/kikplate/releases), then install it:
-
-```sh
-# Debian/Ubuntu
-sudo dpkg -i kikplate_<version>_amd64.deb
-
-# RHEL/Fedora/openSUSE
-sudo rpm -i kikplate_<version>_amd64.rpm
-# or, on dnf-based systems:
-sudo dnf install ./kikplate_<version>_amd64.rpm
-```
-
 ### Manual install from release archives (all platforms)
 
 ```sh
