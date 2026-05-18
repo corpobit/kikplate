@@ -4,16 +4,28 @@ The Kikplate CLI (`kikplate`) is a standalone Go binary that lets you browse, su
 
 ## Installation
 
-### From a Release (Recommended)
+### macOS/Linux via Homebrew tap
 
-Download the binary for your platform from the [GitHub Releases](https://github.com/kikplate/kikplate/releases) page.
+```
+brew tap kikplate/kikplate
+brew install kikplate
+```
+
+### Windows via Scoop (alternative)
+
+```
+scoop bucket add kikplate https://github.com/kikplate/scoop-bucket.git
+scoop install kikplate
+```
+
+### From release archives
+
+Download the archive for your platform from [GitHub Releases](https://github.com/kikplate/kikplate/releases).
 
 ```
 tar -xzf kikplate-<version>-linux-amd64.tar.gz
-sudo mv kikplate /usr/local/bin/kikplate
+sudo mv kikplate-<version>-linux-amd64 /usr/local/bin/kikplate
 ```
-
-Supported platforms: Linux amd64, Linux arm64, macOS amd64, macOS arm64.
 
 ### From Source
 

@@ -1,0 +1,84 @@
+version: 2
+
+project_name: kikplate
+
+builds:
+  - id: cli
+    dir: cli
+    main: .
+    binary: kikplate
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - arm64
+  - id: cli-windows
+    dir: cli
+    main: .
+    binary: kikplate
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - windows
+    goarch:
+      - amd64
+
+archives:
+  - id: cli-unix-archives
+    ids:
+      - cli
+    formats: [tar.gz]
+    name_template: "kikplate-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
+  - id: cli-windows-archives
+    ids:
+      - cli-windows
+    formats: [zip]
+    name_template: "kikplate-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
+
+checksum:
+  name_template: checksums.txt
+  algorithm: sha256
+
+brews:
+  - name: kikplate
+    ids:
+      - cli-unix-archives
+    url_template: "https://github.com/kikplate/kikplate/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    repository:
+      owner: kikplate
+      name: homebrew-kikplate
+      branch: main
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    commit_author:
+      name: github-actions[bot]
+      email: 41898282+github-actions[bot]@users.noreply.github.com
+    directory: Formula
+    homepage: "https://github.com/kikplate/kikplate"
+    description: "Command-line interface for the Kikplate plate registry"
+    license: "Apache-2.0"
+
+scoops:
+  - name: kikplate
+    ids:
+      - cli-windows-archives
+    repository:
+      owner: kikplate
+      name: scoop-bucket
+      branch: main
+      token: "{{ .Env.SCOOP_BUCKET_GITHUB_TOKEN }}"
+    commit_author:
+      name: github-actions[bot]
+      email: 41898282+github-actions[bot]@users.noreply.github.com
+    commit_msg_template: "Scoop update for {{ .ProjectName }} version {{ .Tag }}"
+    homepage: "https://github.com/kikplate/kikplate"
+    description: "Command-line interface for the Kikplate plate registry"
+    license: "Apache-2.0"
+    url_template: "https://github.com/kikplate/kikplate/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+
+release:
+  disable: false
+  name_template: "{{ .Tag }}"
+  mode: keep-existing
