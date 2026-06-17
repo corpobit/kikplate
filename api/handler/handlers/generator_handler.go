@@ -52,6 +52,7 @@ func (h GeneratorHandler) Generate(w http.ResponseWriter, r *http.Request) {
 		Values:    body.Values,
 	})
 	if err != nil {
+		h.logger.Debugf("generate error for %s: %v", slug, err)
 		respondGeneratorError(w, err)
 		return
 	}
