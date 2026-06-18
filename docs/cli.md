@@ -217,11 +217,11 @@ Example for an organization-scoped plate:
 kikplate submit https://github.com/myorg/my-template --org <org-uuid> --branch main
 ```
 
-After submission, the CLI prints the assigned slug and the `verification_token` you need to add to your `kikplate.yaml`.
+After submission, the CLI prints the assigned slug and the `verification_token` you need to add to your `plate.yaml`.
 
 ## Verifying a Plate
 
-After adding the verification token to `kikplate.yaml` and pushing the commit:
+After adding the verification token to `plate.yaml` and pushing the commit:
 
 ```
 kikplate verify myorg/my-template
@@ -231,7 +231,7 @@ On success the plate becomes approved, public, and verified. The CLI confirms th
 
 ## Scaffolding a Project
 
-Scaffolding creates a new project from a plate. The source repository is cloned, the `kikplate.yaml` manifest is stripped, and `.kikplate.origin` is written to record the provenance.
+Scaffolding creates a new project from a plate. The source repository is cloned, the `plate.yaml` manifest is stripped, and `.kikplate.origin` is written to record the provenance.
 
 ### Scaffold to a Local Directory
 
