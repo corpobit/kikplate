@@ -49,9 +49,9 @@ export function SubmitRepositoryForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-10 lg:items-start"
+      className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-10 lg:items-start"
     >
-      <div className="border border-border bg-card lg:sticky lg:top-8 self-start">
+      <div className="border border-border bg-card lg:sticky lg:top-8 self-start order-2 lg:order-2">
         <div className="border-b border-border bg-muted/20 px-4 py-3 flex items-start gap-2.5">
           <FileCode2 className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
           <div>
@@ -76,6 +76,9 @@ export function SubmitRepositoryForm() {
               <li>
                 It must include <code className="font-mono bg-muted px-1 py-0.5">plate.yaml</code> at the root on
                 the branch you enter below.
+              </li>
+              <li>
+                Ensure the template is generation-ready so users can produce a working project output.
               </li>
             </ul>
 
@@ -145,6 +148,11 @@ export function SubmitRepositoryForm() {
                 <code className="font-mono bg-muted px-1 py-0.5">tags</code>.
               </li>
               <li>
+                You can also include <code className="font-mono bg-muted px-1 py-0.5">schema</code> and{" "}
+                <code className="font-mono bg-muted px-1 py-0.5">files</code> sections to define configurable inputs
+                and generated project files.
+              </li>
+              <li>
                 <span className="text-foreground">After submit:</span> add{" "}
                 <code className="font-mono bg-muted px-1 py-0.5">verification_token</code> from your account, push,
                 then verify so the plate can go public. Sync keeps re-reading this file.
@@ -188,7 +196,7 @@ tags:
         </div>
       </div>
 
-      <div className="min-w-0 space-y-6">
+      <div className="min-w-0 space-y-6 order-1 lg:order-1">
         <div className="space-y-4">
         <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
           Repository details
