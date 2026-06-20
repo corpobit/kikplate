@@ -161,6 +161,7 @@ func NewDatabase(env Env, logger Logger) Database {
 		&model.Account{},
 		&model.Organization{},
 		&model.EmailVerification{},
+		&model.PasswordReset{},
 		&model.Plate{},
 		&model.PlateTag{},
 		&model.PlateMember{},

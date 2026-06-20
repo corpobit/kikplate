@@ -108,6 +108,14 @@ type EmailVerificationRepository interface {
 	DeleteExpired(ctx context.Context) error
 }
 
+type PasswordResetRepository interface {
+	Create(ctx context.Context, pr *model.PasswordReset) error
+	GetByToken(ctx context.Context, token string) (*model.PasswordReset, error)
+	CountByUserSince(ctx context.Context, userID uuid.UUID, since time.Time) (int64, error)
+	MarkUsed(ctx context.Context, id uuid.UUID) error
+	DeleteExpired(ctx context.Context) error
+}
+
 type PlateRepository interface {
 	Create(ctx context.Context, plate *model.Plate) error
 	GetByID(ctx context.Context, id uuid.UUID) (*model.Plate, error)

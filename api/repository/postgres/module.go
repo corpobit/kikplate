@@ -6,6 +6,7 @@ var Module = fx.Options(
 	fx.Provide(NewUserRepository),
 	fx.Provide(NewAccountRepository),
 	fx.Provide(NewEmailVerificationRepository),
+	fx.Provide(NewPasswordResetRepository),
 	fx.Provide(NewPlateRepository),
 	fx.Provide(NewPlateTagRepository),
 	fx.Provide(NewPlateMemberRepository),
