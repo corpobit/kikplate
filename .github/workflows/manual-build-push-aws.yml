@@ -97,7 +97,12 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Login to Amazon ECR
-        uses: aws-actions/amazon-ecname: Manual Build + Push to AWS ECR
+        uses: aws-actions/amazon-ecr-login@v2
+        id: login-ecr
+
+      - name: Build and push API image to ECR
+        if: inputs.build_api
+        uses: docname: Manual Build + Push to AWS ECR
 
 on:
   workflow_dispatch:
