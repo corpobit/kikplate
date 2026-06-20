@@ -206,7 +206,7 @@ func resolvePlate(cmd *cobra.Command, slug string) (*LocalPlate, error) {
 
 	s, err := NewSession(cmd)
 	if err != nil {
-		return nil, fmt.Errorf("plate %q not found locally and config not available: %w\nRun 'kikplate config init' first", slug, err)
+		return nil, fmt.Errorf("plate %q not found locally and config not available: %w\nRun 'kik config init' first", slug, err)
 	}
 
 	plate, err := s.FetchPlateBySlug(slug)

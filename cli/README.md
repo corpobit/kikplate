@@ -5,14 +5,14 @@ A small standalone Go CLI built with Cobra.
 The command name is:
 
 ```bash
-kikplate <command>
+kik <command>
 ```
 
 For example:
 
 ```bash
-kikplate hello
-kikplate help
+kik hello
+kik help
 ```
 
 ## Run
@@ -24,8 +24,8 @@ go run . --help
 ## Build
 
 ```bash
-go build -o kikplate .
-./kikplate --help
+go build -o kik .
+./kik --help
 ```
 
 ## Commands

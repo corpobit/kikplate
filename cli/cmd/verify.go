@@ -14,7 +14,7 @@ var verifyCmd = &cobra.Command{
 The plate must have been submitted first and the verification_token
 must be present in the repository's plate.yaml file.
 On success the plate becomes approved, public, and verified.`,
-	Example: `  kikplate verify myorg/my-template`,
+	Example: `  kik verify myorg/my-template`,
 	Args:    cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		s, err := NewAuthSession(cmd)
