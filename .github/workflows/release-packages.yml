@@ -31,14 +31,46 @@ jobs:
             exit 1
           fi
 
-      - name: Checkout published tag
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v5
         with:
-          ref: ${{ inputs.tag || github.event.release.tag_name || github.ref_name }}
           fetch-depth: 0
 
+      - name: Resolve release tag
+        id: resolve-tag
+        run: |
+          set -euo pipefail
+
+          raw_tag="${{ inputs.tag || github.event.release.tag_name || github.ref_name }}"
+          if [ -z "$raw_tag" ]; then
+            echo "Unable to determine release tag from workflow context." >&2
+            exit 1
+          fi
+
+          resolved_tag=""
+
+          if git rev-parse -q --verify "refs/tags/${raw_tag}" >/dev/null; then
+            resolved_tag="${raw_tag}"
+          elif [ "${raw_tag#v}" = "$raw_tag" ] && git rev-parse -q --verify "refs/tags/v${raw_tag}" >/dev/null; then
+            resolved_tag="v${raw_tag}"
+          elif [ "${raw_tag#v}" != "$raw_tag" ] && git rev-parse -q --verify "refs/tags/${raw_tag#v}" >/dev/null; then
+            resolved_tag="${raw_tag#v}"
+          else
+            echo "Tag '${raw_tag}' was not found. Tried '${raw_tag}', 'v${raw_tag}', and '${raw_tag#v}'." >&2
+            echo "Available tags (latest 20):" >&2
+            git tag --sort=-creatordate | head -n 20 >&2
+            exit 1
+          fi
+
+          echo "Resolved tag: ${resolved_tag}"
+          echo "resolved_tag=${resolved_tag}" >> "${GITHUB_OUTPUT}"
+
+      - name: Checkout resolved tag
+        run: |
+          git checkout --force "refs/tags/${{ steps.resolve-tag.outputs.resolved_tag }}"
+
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: cli/go.mod
           cache-dependency-path: cli/go.sum
