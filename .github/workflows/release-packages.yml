@@ -36,6 +36,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Snapshot latest GoReleaser config
+        run: |
+          cp cli/.goreleaser.yaml /tmp/cli.goreleaser.yaml
+
       - name: Resolve release tag
         id: resolve-tag
         run: |
@@ -80,14 +84,14 @@ jobs:
         with:
           distribution: goreleaser
           version: "~> v2"
-          args: check --config cli/.goreleaser.yaml
+          args: check --config /tmp/cli.goreleaser.yaml
 
       - name: Run GoReleaser post-release pipeline
         uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
           version: "~> v2"
-          args: release --config cli/.goreleaser.yaml
+          args: release --config /tmp/cli.goreleaser.yaml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
