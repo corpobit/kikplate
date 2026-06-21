@@ -71,6 +71,7 @@ type Env struct {
 	DBName            string `mapstructure:"DB_NAME"`
 	JWTSecret         string `mapstructure:"JWT_SECRET"`
 	AuthHeader        string `mapstructure:"AUTH_HEADER"`
+	GitHubToken       string
 	SyncInterval      string
 	SyncPollInterval  string
 	SyncBatchSize     int
@@ -175,6 +176,10 @@ func NewEnv() Env {
 		getConfigValue("server.frontend_url", "", ""),
 		os.Getenv("FRONTEND_URL"),
 		"http://localhost:3000",
+	)
+	env.GitHubToken = firstNonEmpty(
+		getConfigValue("github.token", "", ""),
+		os.Getenv("GITHUB_TOKEN"),
 	)
 	env.SyncInterval = firstNonEmpty(
 		getConfigValue("sync.interval", "", ""),

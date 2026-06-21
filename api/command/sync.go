@@ -150,7 +150,7 @@ func syncOnePlate(
 		return
 	}
 
-	manifest, _, err := fetchPlateManifestYAML(*plate.RepoURL, *plate.Branch)
+	manifest, _, err := fetchPlateManifestYAML(*plate.RepoURL, *plate.Branch, env.GitHubToken)
 	if err != nil {
 		failed := model.SyncStatusFailed
 		errText := err.Error()
@@ -337,8 +337,8 @@ func normalizedManifestTags(tags []string) []string {
 	return result
 }
 
-func fetchPlateManifestYAML(repoURL, branch string) (*syncPlateManifestYAML, []byte, error) {
-	manifest, raw, err := fetchManifestFileYAML(repoURL, branch, "plate.yaml")
+func fetchPlateManifestYAML(repoURL, branch string, githubToken string) (*syncPlateManifestYAML, []byte, error) {
+	manifest, raw, err := fetchManifestFileYAML(repoURL, branch, "plate.yaml", githubToken)
 	if err == nil && strings.TrimSpace(manifest.Owner) != "" {
 		return manifest, raw, nil
 	}
@@ -346,7 +346,7 @@ func fetchPlateManifestYAML(repoURL, branch string) (*syncPlateManifestYAML, []b
 		return nil, nil, err
 	}
 
-	legacyManifest, legacyRaw, legacyErr := fetchManifestFileYAML(repoURL, branch, "kikplate.yaml")
+	legacyManifest, legacyRaw, legacyErr := fetchManifestFileYAML(repoURL, branch, "kikplate.yaml", githubToken)
 	if legacyErr != nil {
 		if err == nil {
 			return nil, nil, ErrSyncMissingManifest
@@ -365,10 +365,17 @@ func fetchPlateManifestYAML(repoURL, branch string) (*syncPlateManifestYAML, []b
 
 var ErrSyncMissingManifest = errors.New("manifest not found")
 
-func fetchManifestFileYAML(repoURL, branch, filename string) (*syncPlateManifestYAML, []byte, error) {
+func fetchManifestFileYAML(repoURL, branch, filename string, githubToken string) (*syncPlateManifestYAML, []byte, error) {
 	apiURL := repoURLToContentsURL(repoURL, branch, filename)
 	client := &http.Client{Timeout: 15 * time.Second}
-	resp, err := client.Get(apiURL)
+	req, err := http.NewRequest("GET", apiURL, nil)
+	if err != nil {
+		return nil, nil, fmt.Errorf("fetch failed")
+	}
+	if githubToken != "" {
+		req.Header.Set("Authorization", "token "+githubToken)
+	}
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, nil, fmt.Errorf("fetch failed")
 	}

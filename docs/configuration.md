@@ -68,6 +68,43 @@ sync:
 
 These values are intentionally conservative. In a deployment with thousands of plates you may want to reduce `poll_interval` and increase `batch_size`.
 
+### github
+
+GitHub API configuration for syncing plate manifests from repositories.
+
+```yaml
+github:
+  token: ""  # Optional GitHub Personal Access Token
+```
+
+| Environment Variable | Config Key |
+|---------------------|-----------|
+| `GITHUB_TOKEN` | `github.token` |
+
+**What is this used for?**
+
+The sync worker fetches `plate.yaml` manifests from GitHub repositories to keep plate metadata up-to-date. Without a token, it uses unauthenticated requests which are limited to **60 requests per hour**. With a token, the limit increases to **5,000 requests per hour**.
+
+**What happens if I don't set a token?**
+
+- ✅ The system still works normally
+- ✅ Sync operations continue as usual
+- ⚠️ With many plates syncing, you may hit GitHub's 60 req/hour rate limit
+- ⚠️ Affected plates will fail to sync (status: `failed`) with HTTP 403 errors
+
+**How do I get a token?**
+
+1. Go to [https://github.com/settings/tokens](https://github.com/settings/tokens)
+2. Click "Generate new token" → "Generate new token (classic)"
+3. Give it a name like `kikplate-sync`
+4. Select only the `public_repo` scope (read-only access to public repositories)
+5. Click "Generate token" and copy the value
+6. Set `GITHUB_TOKEN` environment variable or add to `github.token` in config
+
+**Recommendation**
+
+For production deployments with more than a handful of plates, setting a GitHub token is **strongly recommended** to avoid rate limiting issues.
+
 ### sso
 
 OAuth provider configuration. You can configure any combination of GitHub, Google, and GitLab.

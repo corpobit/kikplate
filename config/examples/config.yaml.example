@@ -26,6 +26,13 @@ sync:
   # Number of items handled in each sync batch.
   batch_size: 25
 
+# GitHub API access token for syncing plate manifests from private/public repositories.
+# Optional but recommended: increases API rate limit from 60 to 5,000 requests/hour.
+# Create a personal access token at https://github.com/settings/tokens with public_repo scope.
+# Environment variable: GITHUB_TOKEN
+github:
+  token: ""
+
 # Local email/password authentication settings.
 auth:
   email_verification:
