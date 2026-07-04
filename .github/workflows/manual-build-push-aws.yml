@@ -6,7 +6,7 @@ on:
       ref:
         description: Git ref to build from
         required: true
-        default: main
+        default: cloud
         type: string
       build_api:
         description: Build and push API Docker image
