@@ -1,7 +1,6 @@
 import { HeroSearch } from "@/src/presentation/components/common/HeroSearch"
 import { FeaturedPlates } from "@/src/presentation/components/plates/FeaturedPlates"
 import { CategoriesGrid } from "@/src/presentation/components/common/CategoriesGrid"
-import { StatsBanner } from "@/src/presentation/components/common/StatsBanner"
 import type { AppConfig, PlateCategory } from "@/src/domain/entities/Config"
 import { getServerApiBaseUrl } from "@/src/lib/api"
 
@@ -23,7 +22,6 @@ export default async function HomePage() {
       <HeroSearch />
       <FeaturedPlates />
       <CategoriesGrid categories={plateCategories} />
-      <StatsBanner />
     </div>
   )
 }

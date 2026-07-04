@@ -101,9 +101,9 @@ var myOrgsCmd = &cobra.Command{
 			return nil
 		}
 
-		t := NewTable("ID", "NAME", "DESCRIPTION")
+		t := NewTable("ID", "NAME", "VISIBILITY", "DESCRIPTION")
 		for _, o := range orgs {
-			t.Row(o.ID, o.Name, truncate(o.Description, 50))
+			t.Row(o.ID, o.Name, o.Visibility, truncate(o.Description, 50))
 		}
 		t.Print()
 		return nil

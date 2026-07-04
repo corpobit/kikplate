@@ -52,6 +52,10 @@ type Customization struct {
 	PreparedQueries []string          `mapstructure:"prepared_queries" json:"prepared_queries"`
 }
 
+type FeatureFlags struct {
+	PrivateOrganizationsEnabled bool
+}
+
 type BadgeConfig struct {
 	Slug        string `mapstructure:"slug"`
 	Name        string `mapstructure:"name"`
@@ -80,6 +84,7 @@ type Env struct {
 	EmailVerification EmailVerificationConfig
 	SMTP              SMTPConfig
 	Customization     Customization
+	Features          FeatureFlags
 	Badges            []BadgeConfig
 	PlateCategories   []PlateCategoryConfig
 }
@@ -242,6 +247,12 @@ func NewEnv() Env {
 		"smtp.use_starttls",
 		"SMTP_USE_STARTTLS",
 		true,
+	)
+
+	env.Features.PrivateOrganizationsEnabled = getConfigBool(
+		"private_org.enabled",
+		"PRIVATE_ORG_ENABLED",
+		false,
 	)
 
 	batchSizeRaw := firstNonEmpty(

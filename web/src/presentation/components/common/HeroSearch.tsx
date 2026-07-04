@@ -3,9 +3,8 @@
 import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Search, GitBranch, Loader2, Github, Linkedin, ChevronDown, HelpCircle } from "lucide-react"
-import { usePlates, useStats } from "@/src/presentation/hooks/usePlates"
+import { usePlates } from "@/src/presentation/hooks/usePlates"
 import { useConfig } from "@/src/presentation/hooks/useConfig"
-import { formatCount } from "@/src/presentation/utils/plateUtils"
 import Link from "next/link"
 
 const SAMPLE_QUERIES = [
@@ -27,7 +26,6 @@ export function HeroSearch() {
   const [showHints, setShowHints] = useState(false)
 
   const { data, isLoading } = usePlates({ search: query, limit: 6 })
-  const { data: stats } = useStats()
   const { data: appConfig } = useConfig()
 
   const results = data?.data ?? []
@@ -239,25 +237,6 @@ export function HeroSearch() {
               {q}
             </button>
           ))}
-        </div>
-
-        <div className="flex items-center gap-6 mt-4">
-          <div className="flex items-center gap-8 border border-border bg-card/50 px-8 py-4">
-            <div className="text-center">
-              <p className="text-2xl font-bold tabular-nums text-foreground">{stats ? formatCount(stats.total_plates) : "—"}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">plates</p>
-            </div>
-            <div className="h-8 w-px bg-border" />
-            <div className="text-center">
-              <p className="text-2xl font-bold tabular-nums text-foreground">{stats ? formatCount(stats.total_contributors) : "—"}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">contributors</p>
-            </div>
-            <div className="h-8 w-px bg-border" />
-            <div className="text-center">
-              <p className="text-2xl font-bold tabular-nums text-foreground">{stats ? formatCount(stats.total_categories) : "—"}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">categories</p>
-            </div>
-          </div>
         </div>
 
         <div className="flex items-center gap-4 mt-2">

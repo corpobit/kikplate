@@ -42,7 +42,11 @@ func (s *plateService) SubmitRepository(ctx context.Context, accountID uuid.UUID
 		if orgErr != nil || org == nil {
 			return nil, ErrInvalidInput
 		}
-		if org.OwnerID != accountID {
+		canManageOrg, err := s.canManageOrganization(ctx, org.ID, accountID)
+		if err != nil {
+			return nil, err
+		}
+		if !canManageOrg {
 			return nil, ErrForbidden
 		}
 		ownerName = org.Name

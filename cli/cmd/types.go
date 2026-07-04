@@ -47,6 +47,7 @@ type OrgItem struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	Visibility  string `json:"visibility"`
 }
 
 type SubmittedPlate struct {
