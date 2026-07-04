@@ -60,13 +60,36 @@ func (s *plateService) GetBySlug(ctx context.Context, slug string, requesterID u
 		return nil, ErrNotFound
 	}
 
-	if plate.Visibility == model.PlateVisibilityPrivate {
-		member, err := s.members.GetByPlateAndAccount(ctx, plate.ID, requesterID)
+	if s.env.Features.PrivateOrganizationsEnabled && plate.OrganizationID != nil && plate.Organization != nil && plate.Organization.Visibility == model.OrganizationVisibilityPrivate {
+		if requesterID == uuid.Nil {
+			return nil, ErrNotFound
+		}
+		hasOrgAccess, err := s.hasOrganizationAccess(ctx, *plate.OrganizationID, requesterID)
 		if err != nil {
 			return nil, err
 		}
-		if member == nil {
+		if !hasOrgAccess {
 			return nil, ErrNotFound
+		}
+	}
+
+	if plate.Visibility == model.PlateVisibilityPrivate {
+		if plate.OrganizationID != nil && requesterID != uuid.Nil {
+			hasOrgAccess, err := s.hasOrganizationAccess(ctx, *plate.OrganizationID, requesterID)
+			if err != nil {
+				return nil, err
+			}
+			if !hasOrgAccess {
+				return nil, ErrNotFound
+			}
+		} else {
+			member, err := s.members.GetByPlateAndAccount(ctx, plate.ID, requesterID)
+			if err != nil {
+				return nil, err
+			}
+			if member == nil {
+				return nil, ErrNotFound
+			}
 		}
 	}
 
@@ -82,25 +105,51 @@ func (s *plateService) GetBySlug(ctx context.Context, slug string, requesterID u
 
 func (s *plateService) List(ctx context.Context, filter repository.PlateFilter, requesterID uuid.UUID) ([]*model.Plate, int, error) {
 	filter.Categories = lib.NormalizePlateCategoryFilter(s.env, filter.Categories)
+	if filter.OrganizationID != nil && requesterID != uuid.Nil {
+		hasOrgAccess, err := s.hasOrganizationAccess(ctx, *filter.OrganizationID, requesterID)
+		if err == nil && hasOrgAccess {
+			filter.AccessibleOrganizationIDs = []uuid.UUID{*filter.OrganizationID}
+		}
+	}
 	plates, total, err := s.plates.List(ctx, filter)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	if filter.OwnerID == nil {
-		// Repository List already restricts to public plates when OwnerID is nil.
-		return plates, total, nil
-	}
-
 	var visible []*model.Plate
 	for _, plate := range plates {
+		if s.env.Features.PrivateOrganizationsEnabled && plate.OrganizationID != nil && plate.Organization != nil && plate.Organization.Visibility == model.OrganizationVisibilityPrivate {
+			if requesterID == uuid.Nil {
+				continue
+			}
+			hasOrgAccess, err := s.hasOrganizationAccess(ctx, *plate.OrganizationID, requesterID)
+			if err != nil || !hasOrgAccess {
+				continue
+			}
+			visible = append(visible, plate)
+			continue
+		}
+
+		if filter.OwnerID == nil {
+			if plate.Visibility == model.PlateVisibilityPublic {
+				visible = append(visible, plate)
+			}
+			continue
+		}
+
 		if plate.Visibility == model.PlateVisibilityPublic {
 			visible = append(visible, plate)
 			continue
 		}
 
-		if plate.OwnerID == requesterID {
-			visible = append(visible, plate)
+		if plate.OrganizationID != nil {
+			hasOrgAccess, err := s.hasOrganizationAccess(ctx, *plate.OrganizationID, requesterID)
+			if err != nil {
+				continue
+			}
+			if hasOrgAccess {
+				visible = append(visible, plate)
+			}
 			continue
 		}
 
@@ -108,7 +157,7 @@ func (s *plateService) List(ctx context.Context, filter repository.PlateFilter, 
 		if err != nil {
 			continue
 		}
-		if member != nil {
+		if plate.OwnerID == requesterID || member != nil {
 			visible = append(visible, plate)
 		}
 	}
@@ -218,9 +267,34 @@ func (s *plateService) ListBookmarked(ctx context.Context, accountID uuid.UUID, 
 		if err != nil {
 			continue
 		}
-		if plate != nil {
-			plates = append(plates, plate)
+		if plate == nil {
+			continue
 		}
+
+		if s.env.Features.PrivateOrganizationsEnabled && plate.OrganizationID != nil && plate.Organization != nil && plate.Organization.Visibility == model.OrganizationVisibilityPrivate {
+			hasOrgAccess, err := s.hasOrganizationAccess(ctx, *plate.OrganizationID, accountID)
+			if err != nil || !hasOrgAccess {
+				continue
+			}
+			plates = append(plates, plate)
+			continue
+		}
+
+		if plate.Visibility == model.PlateVisibilityPrivate {
+			if plate.OrganizationID != nil {
+				hasOrgAccess, err := s.hasOrganizationAccess(ctx, *plate.OrganizationID, accountID)
+				if err != nil || !hasOrgAccess {
+					continue
+				}
+			} else if plate.OwnerID != accountID {
+				pm, err := s.members.GetByPlateAndAccount(ctx, plate.ID, accountID)
+				if err != nil || pm == nil {
+					continue
+				}
+			}
+		}
+
+		plates = append(plates, plate)
 	}
 
 	if limit > 0 && len(plates) > limit {

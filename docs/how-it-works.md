@@ -106,9 +106,15 @@ Or using the CLI:
 kik verify myorg/my-template
 ```
 
-Kikplate re-fetches `plate.yaml` and checks that the token in the file matches the one stored in the database. If they match, the plate transitions to `status=approved`, `visibility=public`, `is_verified=true`.
+Kikplate re-fetches `plate.yaml` and checks that the token in the file matches the one stored in the database. If they match, the plate transitions to `status=approved` and `is_verified=true`.
 
-The plate is now publicly discoverable and searchable.
+Visibility after approval depends on ownership and configuration:
+
+- Personal plates become `visibility=public`.
+- Plates under private organizations stay `visibility=private` when `private_org.enabled=true`.
+- Plates under organizations are treated as public when the private-org feature is disabled.
+
+Public plates are discoverable and searchable for everyone. Private-organization plates are visible only to organization members.
 
 ### Step 3: Ongoing Synchronization
 
@@ -127,11 +133,15 @@ For each due plate, the sync worker:
 ```mermaid
 stateDiagram-v2
     [*] --> PendingPrivate : Submit repository
-    PendingPrivate --> ApprovedPublic : Verification token matches
+  PendingPrivate --> ApprovedPublic : Verification token matches (public owner)
+  PendingPrivate --> ApprovedPrivateOrg : Verification token matches (private org)
     PendingPrivate --> PendingPrivate : Retry verification
     ApprovedPublic --> UnverifiedPrivate : Sync detects token missing or changed
+  ApprovedPrivateOrg --> UnverifiedPrivate : Sync detects token missing or changed
     UnverifiedPrivate --> ApprovedPublic : Owner verifies again
+  UnverifiedPrivate --> ApprovedPrivateOrg : Owner verifies again (private org)
     ApprovedPublic --> Archived : Owner deletes plate
+  ApprovedPrivateOrg --> Archived : Owner deletes plate
 ```
 
 ## Discovery and Search

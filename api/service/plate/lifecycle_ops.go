@@ -23,6 +23,17 @@ func (s *plateService) Update(ctx context.Context, plateID uuid.UUID, accountID 
 		return nil, err
 	}
 
+	privateOrgPlate := false
+	if plate.OrganizationID != nil && s.orgs != nil {
+		org, orgErr := s.orgs.GetByID(ctx, *plate.OrganizationID)
+		if orgErr != nil {
+			return nil, orgErr
+		}
+		if s.env.Features.PrivateOrganizationsEnabled && org != nil && org.Visibility == model.OrganizationVisibilityPrivate {
+			privateOrgPlate = true
+		}
+	}
+
 	if input.Name != nil {
 		plate.Name = *input.Name
 	}
@@ -34,6 +45,9 @@ func (s *plateService) Update(ctx context.Context, plateID uuid.UUID, accountID 
 	}
 	if input.Visibility != nil {
 		plate.Visibility = *input.Visibility
+	}
+	if privateOrgPlate {
+		plate.Visibility = model.PlateVisibilityPrivate
 	}
 
 	if err := s.plates.Update(ctx, plate); err != nil {
@@ -53,6 +67,7 @@ func (s *plateService) MoveToOrganization(ctx context.Context, plateID uuid.UUID
 		return nil, err
 	}
 
+	moveToPrivateOrg := false
 	if organizationID != nil {
 		if s.orgs == nil {
 			return nil, ErrInvalidInput
@@ -62,16 +77,28 @@ func (s *plateService) MoveToOrganization(ctx context.Context, plateID uuid.UUID
 		if err != nil || org == nil {
 			return nil, ErrInvalidInput
 		}
-		if org.OwnerID != accountID {
+		canManageOrg, err := s.canManageOrganization(ctx, org.ID, accountID)
+		if err != nil {
+			return nil, err
+		}
+		if !canManageOrg {
 			return nil, ErrForbidden
+		}
+		if s.env.Features.PrivateOrganizationsEnabled && org.Visibility == model.OrganizationVisibilityPrivate {
+			moveToPrivateOrg = true
 		}
 	}
 
 	if s.db != nil {
+		updates := map[string]any{"organization_id": organizationID}
+		if moveToPrivateOrg {
+			updates["visibility"] = model.PlateVisibilityPrivate
+		}
+
 		if err := s.db.WithContext(ctx).
 			Model(&model.Plate{}).
 			Where("id = ?", plateID).
-			Update("organization_id", organizationID).Error; err != nil {
+			Updates(updates).Error; err != nil {
 			return nil, err
 		}
 
@@ -83,6 +110,9 @@ func (s *plateService) MoveToOrganization(ctx context.Context, plateID uuid.UUID
 	}
 
 	plate.OrganizationID = organizationID
+	if moveToPrivateOrg {
+		plate.Visibility = model.PlateVisibilityPrivate
+	}
 	if err := s.plates.Update(ctx, plate); err != nil {
 		return nil, err
 	}

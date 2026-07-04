@@ -75,6 +75,11 @@ sso:
         - email
         - profile
 
+# Private organizations feature.
+private_org:
+  # Enables private organizations and private-org-specific access behavior.
+  enabled: false
+
 # Frontend-only branding and hero configuration exposed through GET /config.
 customization:
   # Logo URL used in the navbar.

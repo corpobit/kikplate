@@ -55,4 +55,24 @@ func (l *Listener) Register(emitter *events.EventEmitter) {
 		p := payload.(events.PlateSyncIssuePayload)
 		l.emailService.SendPlateSyncIssue(p.Email, p.PlateName, p.Issue)
 	})
+
+	emitter.On(events.OrganizationInvitationSent, func(payload any) {
+		p := payload.(events.OrganizationInvitationSentPayload)
+		l.emailService.SendOrganizationInvitationSent(p.Email, p.OrganizationName, p.InvitedBy, p.Role)
+	})
+
+	emitter.On(events.OrganizationInvitationAccepted, func(payload any) {
+		p := payload.(events.OrganizationInvitationAcceptedPayload)
+		l.emailService.SendOrganizationInvitationAccepted(p.Email, p.OrganizationName, p.MemberName, p.Role)
+	})
+
+	emitter.On(events.OrganizationMemberRemoved, func(payload any) {
+		p := payload.(events.OrganizationMemberRemovedPayload)
+		l.emailService.SendOrganizationMemberRemoved(p.Email, p.OrganizationName, p.MemberName, p.RemovedBy)
+	})
+
+	emitter.On(events.OrganizationMemberLeft, func(payload any) {
+		p := payload.(events.OrganizationMemberLeftPayload)
+		l.emailService.SendOrganizationMemberLeft(p.Email, p.OrganizationName, p.MemberName)
+	})
 }

@@ -164,6 +164,8 @@ kik my bookmarks
 kik my orgs
 ```
 
+Shows your organizations with ID, name, visibility (`public` or `private`), and description.
+
 ### View Sync Status
 
 ```

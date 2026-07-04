@@ -69,9 +69,20 @@ func (s *plateService) VerifyRepository(ctx context.Context, plateID uuid.UUID, 
 	syncIntervalDuration := parseSyncDuration(s.env.SyncInterval)
 	syncInterval := syncIntervalDuration.String()
 	nextSync := now.Add(syncIntervalDuration)
+	visibility := model.PlateVisibilityPublic
+
+	if plate.OrganizationID != nil && s.orgs != nil {
+		org, orgErr := s.orgs.GetByID(ctx, *plate.OrganizationID)
+		if orgErr != nil {
+			return nil, orgErr
+		}
+		if s.env.Features.PrivateOrganizationsEnabled && org != nil && org.Visibility == model.OrganizationVisibilityPrivate {
+			visibility = model.PlateVisibilityPrivate
+		}
+	}
 
 	plate.Status = model.PlateStatusApproved
-	plate.Visibility = model.PlateVisibilityPublic
+	plate.Visibility = visibility
 	plate.IsVerified = true
 	plate.VerifiedAt = &now
 	plate.PublishedAt = &now

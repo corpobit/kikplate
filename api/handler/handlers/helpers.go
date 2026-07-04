@@ -84,6 +84,24 @@ func respondServiceError(w http.ResponseWriter, err error) {
 		respondError(w, http.StatusNotFound, err.Error())
 	case errors.Is(err, organizationservice.ErrNameRequired):
 		respondError(w, http.StatusBadRequest, err.Error())
+	case errors.Is(err, organizationservice.ErrInvalidVisibility):
+		respondError(w, http.StatusBadRequest, err.Error())
+	case errors.Is(err, organizationservice.ErrNotMember):
+		respondError(w, http.StatusForbidden, err.Error())
+	case errors.Is(err, organizationservice.ErrOwnerCannotLeave):
+		respondError(w, http.StatusForbidden, err.Error())
+	case errors.Is(err, organizationservice.ErrOwnerCannotBeRemoved):
+		respondError(w, http.StatusForbidden, err.Error())
+	case errors.Is(err, organizationservice.ErrInviteEmailInvalid):
+		respondError(w, http.StatusBadRequest, err.Error())
+	case errors.Is(err, organizationservice.ErrInviteNotFound):
+		respondError(w, http.StatusNotFound, err.Error())
+	case errors.Is(err, organizationservice.ErrInviteExpired):
+		respondError(w, http.StatusGone, err.Error())
+	case errors.Is(err, organizationservice.ErrInviteForbidden):
+		respondError(w, http.StatusForbidden, err.Error())
+	case errors.Is(err, organizationservice.ErrInvalidInputRole):
+		respondError(w, http.StatusBadRequest, err.Error())
 	default:
 		respondError(w, http.StatusInternalServerError, "internal server error")
 	}

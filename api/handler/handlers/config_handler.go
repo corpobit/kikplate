@@ -18,12 +18,17 @@ func NewConfigHandler(env lib.Env) ConfigHandler {
 type appConfigResponse struct {
 	lib.Customization
 	PlateCategories []lib.PlateCategoryConfig `json:"plate_categories"`
+	Features        struct {
+		PrivateOrganizationsEnabled bool `json:"private_organizations_enabled"`
+	} `json:"features"`
 }
 
 func (h ConfigHandler) GetConfig(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(appConfigResponse{
+	response := appConfigResponse{
 		Customization:   h.env.Customization,
 		PlateCategories: lib.EffectivePlateCategories(h.env),
-	})
+	}
+	response.Features.PrivateOrganizationsEnabled = h.env.Features.PrivateOrganizationsEnabled
+	json.NewEncoder(w).Encode(response)
 }

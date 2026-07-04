@@ -9,15 +9,16 @@ import (
 )
 
 type PlateFilter struct {
-	Types          []model.PlateType
-	Categories     []string
-	Tags           []string
-	Badges         []string
-	OwnerID        *uuid.UUID
-	OrganizationID *uuid.UUID
-	Search         string
-	Page           int
-	Limit          int
+	Types                     []model.PlateType
+	Categories                []string
+	Tags                      []string
+	Badges                    []string
+	OwnerID                   *uuid.UUID
+	OrganizationID            *uuid.UUID
+	AccessibleOrganizationIDs []uuid.UUID
+	Search                    string
+	Page                      int
+	Limit                     int
 }
 
 type PlateSyncState struct {
@@ -176,11 +177,31 @@ type OrganizationRepository interface {
 	Create(ctx context.Context, org *model.Organization) error
 	GetByID(ctx context.Context, id uuid.UUID) (*model.Organization, error)
 	GetByName(ctx context.Context, name string) (*model.Organization, error)
+	ListByAccount(ctx context.Context, accountID uuid.UUID) ([]*model.Organization, error)
 	ListByOwner(ctx context.Context, ownerID uuid.UUID) ([]*model.Organization, error)
 	ListPublic(ctx context.Context, limit, offset int) ([]*model.Organization, int, error)
 	Update(ctx context.Context, org *model.Organization) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	CountPlates(ctx context.Context, orgID uuid.UUID) (int, error)
+}
+
+type OrganizationMemberRepository interface {
+	Create(ctx context.Context, member *model.OrganizationMember) error
+	GetByOrganizationAndAccount(ctx context.Context, organizationID, accountID uuid.UUID) (*model.OrganizationMember, error)
+	ListByOrganization(ctx context.Context, organizationID uuid.UUID) ([]*model.OrganizationMember, error)
+	ListByAccount(ctx context.Context, accountID uuid.UUID) ([]*model.OrganizationMember, error)
+	Update(ctx context.Context, member *model.OrganizationMember) error
+	Delete(ctx context.Context, organizationID, accountID uuid.UUID) error
+}
+
+type OrganizationInvitationRepository interface {
+	Create(ctx context.Context, invitation *model.OrganizationInvitation) error
+	GetByID(ctx context.Context, id uuid.UUID) (*model.OrganizationInvitation, error)
+	ListByEmail(ctx context.Context, email string) ([]*model.OrganizationInvitation, error)
+	ListByOrganization(ctx context.Context, organizationID uuid.UUID) ([]*model.OrganizationInvitation, error)
+	Update(ctx context.Context, invitation *model.OrganizationInvitation) error
+	DeleteByID(ctx context.Context, id uuid.UUID) error
+	DeleteExpiredPending(ctx context.Context) error
 }
 
 type GenerationRepository interface {

@@ -14,5 +14,7 @@ var Module = fx.Options(
 	fx.Provide(NewPlateBadgeRepository),
 	fx.Provide(NewBadgeRepository),
 	fx.Provide(NewOrganizationRepository),
+	fx.Provide(NewOrganizationMemberRepository),
+	fx.Provide(NewOrganizationInvitationRepository),
 	fx.Provide(NewGenerationRepository),
 )

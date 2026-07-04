@@ -59,14 +59,16 @@ func (h UserHandler) GetByUsername(w http.ResponseWriter, r *http.Request) {
 		AvatarURL   *string `json:"avatar_url,omitempty"`
 	}
 	type orgInfo struct {
-		ID          string      `json:"id"`
-		Name        string      `json:"name"`
-		Description string      `json:"description"`
-		LogoURL     *string     `json:"logo_url,omitempty"`
-		OwnerID     string      `json:"owner_id"`
-		Owner       *ownerInfo  `json:"owner,omitempty"`
-		CreatedAt   interface{} `json:"created_at"`
-		UpdatedAt   interface{} `json:"updated_at"`
+		ID             string      `json:"id"`
+		Name           string      `json:"name"`
+		Visibility     string      `json:"visibility"`
+		Description    string      `json:"description"`
+		LogoURL        *string     `json:"logo_url,omitempty"`
+		OwnerID        string      `json:"owner_id"`
+		MembershipRole *string     `json:"membership_role,omitempty"`
+		Owner          *ownerInfo  `json:"owner,omitempty"`
+		CreatedAt      interface{} `json:"created_at"`
+		UpdatedAt      interface{} `json:"updated_at"`
 	}
 
 	enrichedOrgs := make([]orgInfo, 0, len(orgs))
@@ -74,11 +76,19 @@ func (h UserHandler) GetByUsername(w http.ResponseWriter, r *http.Request) {
 		o := orgInfo{
 			ID:          org.ID.String(),
 			Name:        org.Name,
+			Visibility:  org.Visibility,
 			Description: org.Description,
 			LogoURL:     org.LogoURL,
 			OwnerID:     org.OwnerID.String(),
-			CreatedAt:   org.CreatedAt,
-			UpdatedAt:   org.UpdatedAt,
+			MembershipRole: func() *string {
+				if org.OwnerID == account.ID {
+					v := "owner"
+					return &v
+				}
+				return nil
+			}(),
+			CreatedAt: org.CreatedAt,
+			UpdatedAt: org.UpdatedAt,
 		}
 		if org.Owner != nil {
 			oi := &ownerInfo{
