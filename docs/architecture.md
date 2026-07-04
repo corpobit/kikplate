@@ -151,11 +151,15 @@ A plate is the core entity in Kikplate. Every plate is backed by a public GitHub
 ```mermaid
 stateDiagram-v2
     [*] --> PendingPrivate : POST /plates/repository
-    PendingPrivate --> ApprovedPublic : POST /plates/{id}/verify  (token matches)
+	PendingPrivate --> ApprovedPublic : POST /plates/{id}/verify (token matches, public owner)
+	PendingPrivate --> ApprovedPrivateOrg : POST /plates/{id}/verify (token matches, private org)
     PendingPrivate --> PendingPrivate : verify retry
     ApprovedPublic --> UnverifiedPrivate : sync detects token mismatch
+	ApprovedPrivateOrg --> UnverifiedPrivate : sync detects token mismatch
     UnverifiedPrivate --> ApprovedPublic : POST /plates/{id}/verify
+	UnverifiedPrivate --> ApprovedPrivateOrg : POST /plates/{id}/verify (private org)
     ApprovedPublic --> Archived : DELETE /plates/{id}
+	ApprovedPrivateOrg --> Archived : DELETE /plates/{id}
 ```
 
 Submission flow:
@@ -164,7 +168,11 @@ Submission flow:
 2. The service fetches `plate.yaml` from the repository and validates the declared owner.
 3. A plate record is created with `status=pending`, `visibility=private`, and a generated `verification_token`.
 4. The user adds that token to `plate.yaml` in their repository and calls `POST /plates/{id}/verify`.
-5. On success the plate becomes `status=approved`, `visibility=public`, `is_verified=true`.
+5. On success the plate becomes `status=approved`, `is_verified=true`.
+6. Visibility result is context-aware:
+	- Personal ownership: `visibility=public`.
+	- Private organization ownership with `private_org.enabled=true`: `visibility=private`.
+	- If `private_org.enabled=false`, organization plates are treated as public visibility.
 
 ## Synchronizer
 
@@ -333,16 +341,21 @@ Kickplate is repository-first. Plate type is currently only `repository`.
 - Organization submission: `plate.yaml.owner` must match org name.
 4. Plate is created as pending + private with generated `verification_token`.
 5. User adds that token to `plate.yaml` and calls `POST /plates/{id}/verify`.
-6. On success: plate becomes approved, public, verified, and sync schedule is initialized.
+6. On success: plate becomes approved and verified, then visibility is resolved by owner context and `private_org.enabled`.
+7. For private organizations (when enabled), plates remain private and are visible only to organization members.
 
 ```mermaid
 stateDiagram-v2
 	[*] --> PendingPrivate: submit repository
-	PendingPrivate --> ApprovedPublic: verify token matches
+	PendingPrivate --> ApprovedPublic: verify token matches (public owner)
+	PendingPrivate --> ApprovedPrivateOrg: verify token matches (private org)
 	PendingPrivate --> PendingPrivate: retry verify
 	ApprovedPublic --> UnverifiedPrivate: sync token missing/mismatch
+	ApprovedPrivateOrg --> UnverifiedPrivate: sync token missing/mismatch
 	UnverifiedPrivate --> ApprovedPublic: verify again
+	UnverifiedPrivate --> ApprovedPrivateOrg: verify again (private org)
 	ApprovedPublic --> Archived: DELETE /plates/{id}
+	ApprovedPrivateOrg --> Archived: DELETE /plates/{id}
 ```
 
 ## Synchronizer

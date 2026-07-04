@@ -129,6 +129,7 @@ Notes:
 
 - Legacy file-plate fields (`content`, `filename`) were removed.
 - Sync worker can force unverified plates back to private visibility.
+- When `private_org.enabled=true`, plates owned by private organizations remain private after verification and are gated by organization membership.
 
 ```mermaid
 flowchart LR

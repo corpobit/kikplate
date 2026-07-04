@@ -74,7 +74,11 @@ func (r *plateRepository) List(ctx context.Context, filter repository.PlateFilte
 		q = q.Where("organization_id = ?", *filter.OrganizationID)
 	}
 	if filter.OwnerID == nil {
-		q = q.Where("visibility = ?", model.PlateVisibilityPublic)
+		if len(filter.AccessibleOrganizationIDs) > 0 {
+			q = q.Where("visibility = ? OR organization_id IN ?", model.PlateVisibilityPublic, filter.AccessibleOrganizationIDs)
+		} else {
+			q = q.Where("visibility = ?", model.PlateVisibilityPublic)
+		}
 	}
 	if filter.Search != "" {
 		q = q.Where(
@@ -248,9 +252,6 @@ func (r *plateRepository) GetTopRated(ctx context.Context, limit int) ([]reposit
 	return rows, err
 }
 
-
-
-
 func sqlExplorerCategoriesQuery() string {
 	const groupedCategoryCountsForPublicPlates = `SELECT category, COUNT(*)::bigint AS count
 	FROM plate
@@ -319,7 +320,6 @@ func sqlQueryFilterAggregate() string {
 	tags := sqlExplorerTagsQuery()
 	badges := sqlExplorerBadgesQuery()
 
-	
 	return strings.Join([]string{
 		"SELECT " + categories,
 		tags,

@@ -7,12 +7,14 @@ import (
 )
 
 type Organization struct {
-	ID          uuid.UUID `gorm:"primaryKey" json:"id"`
-	Name        string    `gorm:"uniqueIndex" json:"name"`
-	Description string    `json:"description"`
-	LogoURL     *string   `gorm:"size:2048" json:"logo_url,omitempty"`
-	OwnerID     uuid.UUID `gorm:"index" json:"owner_id"`
-	Owner       *Account  `json:"owner,omitempty"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID             uuid.UUID `gorm:"primaryKey" json:"id"`
+	Name           string    `gorm:"uniqueIndex" json:"name"`
+	Visibility     string    `gorm:"type:varchar(20);default:public;index" json:"visibility"`
+	Description    string    `json:"description"`
+	LogoURL        *string   `gorm:"size:2048" json:"logo_url,omitempty"`
+	OwnerID        uuid.UUID `gorm:"index" json:"owner_id"`
+	MembershipRole *string   `gorm:"->;column:membership_role;-:migration" json:"membership_role,omitempty"`
+	Owner          *Account  `json:"owner,omitempty"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
 }

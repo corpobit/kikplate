@@ -160,6 +160,8 @@ func NewDatabase(env Env, logger Logger) Database {
 		&model.User{},
 		&model.Account{},
 		&model.Organization{},
+		&model.OrganizationMember{},
+		&model.OrganizationInvitation{},
 		&model.EmailVerification{},
 		&model.PasswordReset{},
 		&model.Plate{},
@@ -221,6 +223,19 @@ func NewDatabase(env Env, logger Logger) Database {
     ON plate (status, visibility, bookmark_count DESC)
 `).Error; err != nil {
 		logger.Warnf("idx_plate_status_visibility_usecount: %v", err)
+	}
+	if err := db.Exec(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_org_member_org_account
+    ON organization_member (organization_id, account_id)
+`).Error; err != nil {
+		logger.Warnf("idx_org_member_org_account: %v", err)
+	}
+	if err := db.Exec(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_org_invite_org_email_pending
+    ON organization_invitation (organization_id, lower(email))
+    WHERE status = 'pending'
+`).Error; err != nil {
+		logger.Warnf("idx_org_invite_org_email_pending: %v", err)
 	}
 	if err := db.Exec(`
     CREATE INDEX IF NOT EXISTS idx_plate_tag_tag

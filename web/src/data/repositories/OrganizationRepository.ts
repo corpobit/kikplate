@@ -4,6 +4,8 @@ import type {
   Organization,
   CreateOrganizationInput,
   UpdateOrganizationInput,
+  OrganizationInvitation,
+  OrganizationMember,
 } from "@/src/domain/entities/Organization"
 
 class OrganizationRepository implements IOrganizationRepository {
@@ -21,6 +23,42 @@ class OrganizationRepository implements IOrganizationRepository {
 
   remove(id: string): Promise<void> {
     return http.delete(`/organizations/${id}`)
+  }
+
+  leave(id: string): Promise<{ message: string }> {
+    return http.post(`/organizations/${id}/leave`, {})
+  }
+
+  inviteMember(organizationId: string, input: { email: string; role: "admin" | "member" }): Promise<OrganizationInvitation> {
+    return http.post(`/organizations/${organizationId}/invitations`, input)
+  }
+
+  listMembers(organizationId: string): Promise<OrganizationMember[]> {
+    return http.get(`/organizations/${organizationId}/members`)
+  }
+
+  listInvitations(organizationId: string): Promise<OrganizationInvitation[]> {
+    return http.get(`/organizations/${organizationId}/invitations`)
+  }
+
+  removeMember(organizationId: string, accountId: string): Promise<{ message: string }> {
+    return http.delete(`/organizations/${organizationId}/members/${accountId}`)
+  }
+
+  revokeInvitation(organizationId: string, invitationId: string): Promise<{ message: string }> {
+    return http.delete(`/organizations/${organizationId}/invitations/${invitationId}`)
+  }
+
+  listMyInvitations(): Promise<OrganizationInvitation[]> {
+    return http.get("/organizations/invitations/me")
+  }
+
+  acceptInvitation(invitationId: string): Promise<{ message: string }> {
+    return http.post(`/organizations/invitations/${invitationId}/accept`, {})
+  }
+
+  declineInvitation(invitationId: string): Promise<{ message: string }> {
+    return http.post(`/organizations/invitations/${invitationId}/decline`, {})
   }
 }
 

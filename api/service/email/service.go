@@ -92,6 +92,37 @@ func (s *Service) SendPlateSyncIssue(to, plateName, issue string) error {
 	})))
 }
 
+func (s *Service) SendOrganizationInvitationSent(to, organizationName, invitedBy, role string) error {
+	return s.send(to, "You were invited to an organization", renderTemplate("organization_invitation_sent.html", s.templateData(map[string]any{
+		"OrganizationName": organizationName,
+		"InvitedBy":        invitedBy,
+		"Role":             role,
+	})))
+}
+
+func (s *Service) SendOrganizationInvitationAccepted(to, organizationName, memberName, role string) error {
+	return s.send(to, "Invitation accepted", renderTemplate("organization_invitation_accepted_owner.html", s.templateData(map[string]any{
+		"OrganizationName": organizationName,
+		"MemberName":       memberName,
+		"Role":             role,
+	})))
+}
+
+func (s *Service) SendOrganizationMemberRemoved(to, organizationName, memberName, removedBy string) error {
+	return s.send(to, "Member removed from organization", renderTemplate("organization_member_removed_owner.html", s.templateData(map[string]any{
+		"OrganizationName": organizationName,
+		"MemberName":       memberName,
+		"RemovedBy":        removedBy,
+	})))
+}
+
+func (s *Service) SendOrganizationMemberLeft(to, organizationName, memberName string) error {
+	return s.send(to, "Member left organization", renderTemplate("organization_member_left_owner.html", s.templateData(map[string]any{
+		"OrganizationName": organizationName,
+		"MemberName":       memberName,
+	})))
+}
+
 func (s *Service) templateData(extra map[string]any) map[string]any {
 	data := map[string]any{
 		"LogoURL": s.logoURL,

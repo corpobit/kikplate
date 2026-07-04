@@ -25,6 +25,7 @@ type plateService struct {
 	env          lib.Env
 	plates       repository.PlateRepository
 	orgs         repository.OrganizationRepository
+	orgMembers   repository.OrganizationMemberRepository
 	tags         repository.PlateTagRepository
 	members      repository.PlateMemberRepository
 	badges       repository.PlateBadgeRepository
@@ -41,6 +42,7 @@ func NewPlateService(
 	env lib.Env,
 	plates repository.PlateRepository,
 	orgs repository.OrganizationRepository,
+	orgMembers repository.OrganizationMemberRepository,
 	tags repository.PlateTagRepository,
 	members repository.PlateMemberRepository,
 	badges repository.PlateBadgeRepository,
@@ -56,6 +58,7 @@ func NewPlateService(
 		env:          env,
 		plates:       plates,
 		orgs:         orgs,
+		orgMembers:   orgMembers,
 		tags:         tags,
 		members:      members,
 		badges:       badges,
@@ -71,6 +74,7 @@ func NewPlateService(
 func NewPlateServiceForTest(
 	plates repository.PlateRepository,
 	orgs repository.OrganizationRepository,
+	orgMembers repository.OrganizationMemberRepository,
 	tags repository.PlateTagRepository,
 	members repository.PlateMemberRepository,
 	badges repository.PlateBadgeRepository,
@@ -85,6 +89,7 @@ func NewPlateServiceForTest(
 		env:          lib.Env{},
 		plates:       plates,
 		orgs:         orgs,
+		orgMembers:   orgMembers,
 		tags:         tags,
 		members:      members,
 		badges:       badges,

@@ -46,11 +46,23 @@ func (r *organizationRepository) ListByOwner(ctx context.Context, ownerID uuid.U
 	return orgs, err
 }
 
+func (r *organizationRepository) ListByAccount(ctx context.Context, accountID uuid.UUID) ([]*model.Organization, error) {
+	var orgs []*model.Organization
+	err := r.db.WithContext(ctx).
+		Select("organizations.*, CASE WHEN organizations.owner_id = ? THEN 'owner' ELSE om.role END AS membership_role", accountID).
+		Preload("Owner").
+		Joins("LEFT JOIN organization_member om ON om.organization_id = organizations.id AND om.account_id = ? AND om.status = ?", accountID, model.OrganizationMemberStatusAccepted).
+		Where("organizations.owner_id = ? OR om.account_id = ?", accountID, accountID).
+		Order("organizations.created_at DESC").
+		Find(&orgs).Error
+	return orgs, err
+}
+
 func (r *organizationRepository) ListPublic(ctx context.Context, limit, offset int) ([]*model.Organization, int, error) {
 	var orgs []*model.Organization
 	var total int64
 
-	q := r.db.WithContext(ctx).Preload("Owner")
+	q := r.db.WithContext(ctx).Preload("Owner").Where("visibility = ?", model.OrganizationVisibilityPublic)
 	q.Model(&model.Organization{}).Count(&total)
 
 	err := q.Limit(limit).Offset(offset).Order("created_at DESC").Find(&orgs).Error

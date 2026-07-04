@@ -163,6 +163,22 @@ auth:
 | `AUTH_EMAIL_VERIFICATION_TOKEN_TTL` | `auth.email_verification.token_ttl` |
 | `AUTH_EMAIL_VERIFICATION_VERIFY_URL_BASE` | `auth.email_verification.verify_url_base` |
 
+### private_org
+
+Feature toggle for private organization behavior.
+
+```yaml
+private_org:
+  enabled: false
+```
+
+- `enabled=false`: organization visibility behaves as public-only and private-org restrictions are disabled.
+- `enabled=true`: private organizations are enabled and organization membership restrictions are enforced for private-org plates.
+
+| Environment Variable | Config Key |
+|---------------------|-----------|
+| `PRIVATE_ORG_ENABLED` | `private_org.enabled` |
+
 ### smtp
 
 SMTP sender configuration used when `auth.email_verification.enabled=true`.

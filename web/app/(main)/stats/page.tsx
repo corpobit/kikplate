@@ -7,7 +7,6 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts"
 import { BarChart3, ShieldCheck } from "lucide-react"
-import { useStats } from "@/src/presentation/hooks/usePlates"
 import { useBadges } from "@/src/presentation/hooks/useBadges"
 import { buildPlateHref, formatCount } from "@/src/presentation/utils/plateUtils"
 
@@ -92,25 +91,7 @@ function Panel({ title, subtitle, children }: { title: string; subtitle: string;
 
 /* ─── KPI row ─── */
 function KpiPanel() {
-  const { data: stats, isLoading } = useStats()
-  const kpis = [
-    { label: "Templates", value: stats?.total_plates ?? 0 },
-    { label: "Contributors", value: stats?.total_contributors ?? 0 },
-    { label: "Categories", value: stats?.total_categories ?? 0 },
-    { label: "Bookmarks", value: stats?.total_bookmarks ?? 0 },
-  ]
-  return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-      {kpis.map((k) => (
-        <div key={k.label} className="border border-border bg-card p-4 sm:p-5">
-          <p className="text-xs uppercase tracking-widest text-muted-foreground">{k.label}</p>
-          <p className="mt-2 text-3xl font-black tabular-nums text-foreground">
-            {isLoading ? <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" /> : formatCount(k.value)}
-          </p>
-        </div>
-      ))}
-    </div>
-  )
+  return null
 }
 
 /* ─── Monthly growth line chart ─── */
@@ -354,16 +335,7 @@ export default function StatsPage() {
           </p>
         </div>
 
-        <div className="mt-6">
-          <KpiPanel />
-        </div>
-
         <div className="mt-8 grid grid-cols-1 gap-4 xl:grid-cols-2">
-          <GrowthPanel />
-          <CumulativePanel />
-        </div>
-
-        <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-2">
           <CategoryPanel />
           <BadgeTierPanel />
         </div>
