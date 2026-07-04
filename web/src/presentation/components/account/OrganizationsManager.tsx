@@ -45,6 +45,7 @@ function OrganizationMembersModal({
   }
 
   async function onInvite() {
+    if (!org) return
     const email = inviteEmail.trim()
     if (!email) return
     await inviteMember.mutateAsync({ organizationId: org.id, input: { email, role: inviteRole } })
