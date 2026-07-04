@@ -210,3 +210,14 @@ type GenerationRepository interface {
 	UpdateStatus(ctx context.Context, id uuid.UUID, status model.GenerationStatus, errMsg *string) error
 	ListByAccount(ctx context.Context, accountID uuid.UUID, limit, offset int) ([]*model.Generation, int, error)
 }
+
+type BillingSubscriptionRepository interface {
+	GetByAccountID(ctx context.Context, accountID uuid.UUID) (*model.BillingSubscription, error)
+	GetByStripeCustomerID(ctx context.Context, customerID string) (*model.BillingSubscription, error)
+	UpsertByAccountID(ctx context.Context, sub *model.BillingSubscription) error
+}
+
+type BillingWebhookEventRepository interface {
+	GetByEventID(ctx context.Context, eventID string) (*model.BillingWebhookEvent, error)
+	Create(ctx context.Context, event *model.BillingWebhookEvent) error
+}

@@ -10,6 +10,7 @@ require (
 	github.com/kickplate/plategenerator v0.0.0
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0
+	github.com/stripe/stripe-go/v82 v82.5.1
 	go.uber.org/fx v1.24.0
 	go.uber.org/zap v1.26.0
 	golang.org/x/crypto v0.31.0

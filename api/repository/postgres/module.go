@@ -17,4 +17,6 @@ var Module = fx.Options(
 	fx.Provide(NewOrganizationMemberRepository),
 	fx.Provide(NewOrganizationInvitationRepository),
 	fx.Provide(NewGenerationRepository),
+	fx.Provide(NewBillingSubscriptionRepository),
+	fx.Provide(NewBillingWebhookEventRepository),
 )

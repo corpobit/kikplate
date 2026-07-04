@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/kickplate/api/events"
 	auth "github.com/kickplate/api/service/auth"
+	"github.com/kickplate/api/service/billing"
 	"github.com/kickplate/api/service/email"
 	"github.com/kickplate/api/service/generator"
 	"github.com/kickplate/api/service/organization"
@@ -18,6 +19,7 @@ var Module = fx.Options(
 		l.Register(e)
 	}),
 	fx.Provide(auth.NewAuthService),
+	fx.Provide(billing.NewBillingService),
 	fx.Provide(plate.NewPlateService),
 	fx.Provide(organization.NewOrganizationService),
 	fx.Provide(generator.NewGeneratorService),

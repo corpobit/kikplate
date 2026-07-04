@@ -20,6 +20,7 @@ type appConfigResponse struct {
 	PlateCategories []lib.PlateCategoryConfig `json:"plate_categories"`
 	Features        struct {
 		PrivateOrganizationsEnabled bool `json:"private_organizations_enabled"`
+		BillingEnabled              bool `json:"billing_enabled"`
 	} `json:"features"`
 }
 
@@ -30,5 +31,6 @@ func (h ConfigHandler) GetConfig(w http.ResponseWriter, r *http.Request) {
 		PlateCategories: lib.EffectivePlateCategories(h.env),
 	}
 	response.Features.PrivateOrganizationsEnabled = h.env.Features.PrivateOrganizationsEnabled
+	response.Features.BillingEnabled = h.env.Stripe.SecretKey != "" && h.env.Stripe.PremiumPriceID != ""
 	json.NewEncoder(w).Encode(response)
 }

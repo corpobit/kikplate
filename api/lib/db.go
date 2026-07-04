@@ -159,6 +159,8 @@ func NewDatabase(env Env, logger Logger) Database {
 	if err := db.AutoMigrate(
 		&model.User{},
 		&model.Account{},
+		&model.BillingSubscription{},
+		&model.BillingWebhookEvent{},
 		&model.Organization{},
 		&model.OrganizationMember{},
 		&model.OrganizationInvitation{},

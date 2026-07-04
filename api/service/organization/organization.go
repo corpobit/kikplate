@@ -12,22 +12,24 @@ import (
 	"github.com/kickplate/api/lib"
 	"github.com/kickplate/api/model"
 	"github.com/kickplate/api/repository"
+	"github.com/kickplate/api/service/billing"
 )
 
 var (
-	ErrNameTaken            = errors.New("organization name already taken")
-	ErrNotOwner             = errors.New("only organization owner can perform this action")
-	ErrNotMember            = errors.New("you are not a member of this organization")
-	ErrOwnerCannotLeave     = errors.New("organization owner cannot leave their own organization")
-	ErrOwnerCannotBeRemoved = errors.New("organization owner cannot be removed")
-	ErrHasPlates            = errors.New("cannot delete organization that contains plates")
-	ErrNotFound             = errors.New("organization not found")
-	ErrNameRequired         = errors.New("organization name is required")
-	ErrInvalidVisibility    = errors.New("invalid organization visibility")
-	ErrInviteEmailInvalid   = errors.New("invite email is required")
-	ErrInviteNotFound       = errors.New("invitation not found")
-	ErrInviteExpired        = errors.New("invitation has expired")
-	ErrInviteForbidden      = errors.New("invitation does not belong to this account")
+	ErrNameTaken                 = errors.New("organization name already taken")
+	ErrNotOwner                  = errors.New("only organization owner can perform this action")
+	ErrNotMember                 = errors.New("you are not a member of this organization")
+	ErrOwnerCannotLeave          = errors.New("organization owner cannot leave their own organization")
+	ErrOwnerCannotBeRemoved      = errors.New("organization owner cannot be removed")
+	ErrHasPlates                 = errors.New("cannot delete organization that contains plates")
+	ErrNotFound                  = errors.New("organization not found")
+	ErrNameRequired              = errors.New("organization name is required")
+	ErrInvalidVisibility         = errors.New("invalid organization visibility")
+	ErrInviteEmailInvalid        = errors.New("invite email is required")
+	ErrInviteNotFound            = errors.New("invitation not found")
+	ErrInviteExpired             = errors.New("invitation has expired")
+	ErrInviteForbidden           = errors.New("invitation does not belong to this account")
+	ErrPrivateOrgRequiresPremium = errors.New("private organizations require premium subscription")
 )
 
 type OrganizationService interface {
@@ -77,6 +79,7 @@ type organizationService struct {
 	users       repository.UserRepository
 	emitter     *events.EventEmitter
 	env         lib.Env
+	billing     billing.BillingService
 }
 
 func NewOrganizationService(
@@ -87,6 +90,7 @@ func NewOrganizationService(
 	users repository.UserRepository,
 	emitter *events.EventEmitter,
 	env lib.Env,
+	billing billing.BillingService,
 ) OrganizationService {
 	return &organizationService{
 		orgRepo:     orgRepo,
@@ -96,6 +100,7 @@ func NewOrganizationService(
 		users:       users,
 		emitter:     emitter,
 		env:         env,
+		billing:     billing,
 	}
 }
 
@@ -113,6 +118,15 @@ func (s *organizationService) Create(ctx context.Context, input CreateOrganizati
 	visibility := s.normalizeVisibility(input.Visibility)
 	if visibility == "" {
 		return nil, ErrInvalidVisibility
+	}
+	if visibility == model.OrganizationVisibilityPrivate {
+		hasFeature, err := s.billing.HasFeature(ctx, ownerID, billing.FeaturePrivateOrg)
+		if err != nil {
+			return nil, err
+		}
+		if !hasFeature {
+			return nil, ErrPrivateOrgRequiresPremium
+		}
 	}
 
 	org := &model.Organization{
@@ -243,6 +257,15 @@ func (s *organizationService) Update(ctx context.Context, id uuid.UUID, input Up
 		visibility := s.normalizeVisibility(*input.Visibility)
 		if visibility == "" {
 			return nil, ErrInvalidVisibility
+		}
+		if visibility == model.OrganizationVisibilityPrivate {
+			hasFeature, featureErr := s.billing.HasFeature(ctx, requesterID, billing.FeaturePrivateOrg)
+			if featureErr != nil {
+				return nil, featureErr
+			}
+			if !hasFeature {
+				return nil, ErrPrivateOrgRequiresPremium
+			}
 		}
 		org.Visibility = visibility
 	}

@@ -14,6 +14,7 @@ var Module = fx.Options(
 	fx.Provide(NewConfigRoutes),
 	fx.Provide(NewUserRoutes),
 	fx.Provide(NewGeneratorRoutes),
+	fx.Provide(NewBillingRoutes),
 )
 
 type Route interface {
@@ -31,6 +32,7 @@ func NewRoutes(
 	config ConfigRoutes,
 	user UserRoutes,
 	gen GeneratorRoutes,
+	billing BillingRoutes,
 ) Routes {
 	return Routes{
 		helloRoutes,
@@ -41,6 +43,7 @@ func NewRoutes(
 		config,
 		user,
 		gen,
+		billing,
 	}
 }
 

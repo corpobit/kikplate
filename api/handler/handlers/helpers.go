@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/kickplate/api/service/auth"
+	"github.com/kickplate/api/service/billing"
 	organizationservice "github.com/kickplate/api/service/organization"
 	plateservice "github.com/kickplate/api/service/plate"
 )
@@ -102,6 +103,16 @@ func respondServiceError(w http.ResponseWriter, err error) {
 		respondError(w, http.StatusForbidden, err.Error())
 	case errors.Is(err, organizationservice.ErrInvalidInputRole):
 		respondError(w, http.StatusBadRequest, err.Error())
+	case errors.Is(err, organizationservice.ErrPrivateOrgRequiresPremium):
+		respondError(w, http.StatusPaymentRequired, err.Error())
+	case errors.Is(err, billing.ErrBillingNotConfigured):
+		respondError(w, http.StatusServiceUnavailable, err.Error())
+	case errors.Is(err, billing.ErrBillingUnauthorized):
+		respondError(w, http.StatusUnauthorized, err.Error())
+	case errors.Is(err, billing.ErrBillingInvalidConfig):
+		respondError(w, http.StatusUnprocessableEntity, err.Error())
+	case errors.Is(err, billing.ErrSubscriptionRequired):
+		respondError(w, http.StatusPaymentRequired, err.Error())
 	default:
 		respondError(w, http.StatusInternalServerError, "internal server error")
 	}

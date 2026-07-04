@@ -56,6 +56,16 @@ type FeatureFlags struct {
 	PrivateOrganizationsEnabled bool
 }
 
+type StripeConfig struct {
+	SecretKey          string
+	PublishableKey     string
+	WebhookSecret      string
+	PremiumPriceID     string
+	CheckoutSuccessURL string
+	CheckoutCancelURL  string
+	PortalReturnURL    string
+}
+
 type BadgeConfig struct {
 	Slug        string `mapstructure:"slug"`
 	Name        string `mapstructure:"name"`
@@ -85,6 +95,7 @@ type Env struct {
 	SMTP              SMTPConfig
 	Customization     Customization
 	Features          FeatureFlags
+	Stripe            StripeConfig
 	Badges            []BadgeConfig
 	PlateCategories   []PlateCategoryConfig
 }
@@ -253,6 +264,36 @@ func NewEnv() Env {
 		"private_org.enabled",
 		"PRIVATE_ORG_ENABLED",
 		false,
+	)
+
+	env.Stripe.SecretKey = firstNonEmpty(
+		getConfigValue("stripe.secret_key", "", ""),
+		os.Getenv("STRIPE_SECRET_KEY"),
+	)
+	env.Stripe.PublishableKey = firstNonEmpty(
+		getConfigValue("stripe.publishable_key", "", ""),
+		os.Getenv("NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY"),
+		os.Getenv("STRIPE_PUBLISHABLE_KEY"),
+	)
+	env.Stripe.WebhookSecret = firstNonEmpty(
+		getConfigValue("stripe.webhook_secret", "", ""),
+		os.Getenv("STRIPE_WEBHOOK_SECRET"),
+	)
+	env.Stripe.PremiumPriceID = firstNonEmpty(
+		getConfigValue("stripe.premium_price_id", "", ""),
+		os.Getenv("STRIPE_PREMIUM_PRICE_ID"),
+	)
+	env.Stripe.CheckoutSuccessURL = firstNonEmpty(
+		getConfigValue("stripe.checkout_success_url", "", ""),
+		os.Getenv("STRIPE_CHECKOUT_SUCCESS_URL"),
+	)
+	env.Stripe.CheckoutCancelURL = firstNonEmpty(
+		getConfigValue("stripe.checkout_cancel_url", "", ""),
+		os.Getenv("STRIPE_CHECKOUT_CANCEL_URL"),
+	)
+	env.Stripe.PortalReturnURL = firstNonEmpty(
+		getConfigValue("stripe.portal_return_url", "", ""),
+		os.Getenv("STRIPE_PORTAL_RETURN_URL"),
 	)
 
 	batchSizeRaw := firstNonEmpty(
