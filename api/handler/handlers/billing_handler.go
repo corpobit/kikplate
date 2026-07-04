@@ -61,6 +61,15 @@ func (h BillingHandler) Me(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, result)
 }
 
+func (h BillingHandler) Pricing(w http.ResponseWriter, r *http.Request) {
+	result, err := h.billing.GetPremiumPricing(r.Context())
+	if err != nil {
+		respondServiceError(w, err)
+		return
+	}
+	respondJSON(w, http.StatusOK, result)
+}
+
 func (h BillingHandler) StripeWebhook(w http.ResponseWriter, r *http.Request) {
 	payload, err := io.ReadAll(r.Body)
 	if err != nil {

@@ -5,12 +5,13 @@ import { useMemo } from "react"
 import { Loader2, Sparkles, ShieldCheck, Building2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useMe } from "@/src/presentation/hooks/useAuth"
-import { useAccountBilling, useCreateCheckoutSession, useCreatePortalSession } from "@/src/presentation/hooks/useBilling"
+import { useAccountBilling, useCreateCheckoutSession, useCreatePortalSession, usePremiumPricing } from "@/src/presentation/hooks/useBilling"
 
 export default function PricingPage() {
   const { data: me, isLoading: meLoading } = useMe()
   const isSignedIn = !!me
   const billing = useAccountBilling(isSignedIn)
+  const premiumPricing = usePremiumPricing()
   const checkout = useCreateCheckoutSession()
   const portal = useCreatePortalSession()
 
@@ -21,6 +22,22 @@ export default function PricingPage() {
 
   const checkoutError = checkout.error instanceof Error ? checkout.error.message : null
   const portalError = portal.error instanceof Error ? portal.error.message : null
+
+  const priceLabel = useMemo(() => {
+    if (!premiumPricing.data) return "Subscription"
+    const formatter = new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency: premiumPricing.data.currency || "USD",
+      maximumFractionDigits: 2,
+    })
+    const amount = (premiumPricing.data.amount ?? 0) / 100
+    const value = formatter.format(amount)
+    if (!premiumPricing.data.interval) return value
+    if ((premiumPricing.data.interval_count ?? 1) > 1) {
+      return `${value} / ${premiumPricing.data.interval_count} ${premiumPricing.data.interval}`
+    }
+    return `${value} / ${premiumPricing.data.interval}`
+  }, [premiumPricing.data])
 
   async function onCheckout() {
     const result = await checkout.mutateAsync()
@@ -69,7 +86,7 @@ export default function PricingPage() {
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-wider text-primary">Premium</p>
-                <h2 className="mt-1 font-heading text-2xl font-bold">Subscription</h2>
+                <h2 className="mt-1 font-heading text-2xl font-bold">{priceLabel}</h2>
                 <p className="text-sm text-muted-foreground">For private teams</p>
               </div>
               <Sparkles className="h-5 w-5 text-primary" />

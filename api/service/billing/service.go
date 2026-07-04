@@ -16,6 +16,7 @@ import (
 	billingportalsession "github.com/stripe/stripe-go/v82/billingportal/session"
 	checkoutsession "github.com/stripe/stripe-go/v82/checkout/session"
 	"github.com/stripe/stripe-go/v82/customer"
+	stripeprice "github.com/stripe/stripe-go/v82/price"
 	"github.com/stripe/stripe-go/v82/subscription"
 	"github.com/stripe/stripe-go/v82/webhook"
 )
@@ -45,6 +46,14 @@ type AccountBilling struct {
 	CurrentPeriodEnd     *time.Time `json:"current_period_end,omitempty"`
 }
 
+type PremiumPricing struct {
+	PriceID   string `json:"price_id"`
+	Currency  string `json:"currency"`
+	Amount    int64  `json:"amount"`
+	Interval  string `json:"interval"`
+	IntervalCount int64 `json:"interval_count"`
+}
+
 type BillingService interface {
 	IsConfigured() bool
 	CreateCheckoutSession(ctx context.Context, accountID uuid.UUID) (string, error)
@@ -52,6 +61,7 @@ type BillingService interface {
 	HandleWebhook(ctx context.Context, payload []byte, signature string) error
 	GetAccountBilling(ctx context.Context, accountID uuid.UUID) (*AccountBilling, error)
 	HasFeature(ctx context.Context, accountID uuid.UUID, feature string) (bool, error)
+	GetPremiumPricing(ctx context.Context) (*PremiumPricing, error)
 }
 
 type billingService struct {
@@ -372,6 +382,32 @@ func (s *billingService) HasFeature(ctx context.Context, accountID uuid.UUID, fe
 		return false, err
 	}
 	return contains(billing.Features, feature), nil
+}
+
+func (s *billingService) GetPremiumPricing(ctx context.Context) (*PremiumPricing, error) {
+	if strings.TrimSpace(s.env.Stripe.SecretKey) == "" || strings.TrimSpace(s.env.Stripe.PremiumPriceID) == "" {
+		return nil, ErrBillingNotConfigured
+	}
+	if !strings.HasPrefix(s.env.Stripe.PremiumPriceID, "price_") {
+		return nil, ErrBillingInvalidConfig
+	}
+	result, err := stripeprice.Get(s.env.Stripe.PremiumPriceID, nil)
+	if err != nil {
+		return nil, err
+	}
+	interval := ""
+	intervalCount := int64(0)
+	if result.Recurring != nil {
+		interval = string(result.Recurring.Interval)
+		intervalCount = result.Recurring.IntervalCount
+	}
+	return &PremiumPricing{
+		PriceID:   result.ID,
+		Currency:  strings.ToUpper(string(result.Currency)),
+		Amount:    result.UnitAmount,
+		Interval:  interval,
+		IntervalCount: intervalCount,
+	}, nil
 }
 
 func (s *billingService) ensureCustomer(ctx context.Context, accountID uuid.UUID) (string, string, error) {

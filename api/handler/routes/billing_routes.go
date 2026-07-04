@@ -18,6 +18,7 @@ func NewBillingRoutes(handler handlers.BillingHandler, rh lib.RequestHandler) Bi
 
 func (r BillingRoutes) Setup() {
 	r.rh.Mux.Route("/billing", func(m chi.Router) {
+		m.Get("/pricing", r.handler.Pricing)
 		m.Post("/stripe/webhook", r.handler.StripeWebhook)
 
 		m.Group(func(private chi.Router) {

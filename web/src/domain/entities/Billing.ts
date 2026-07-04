@@ -15,3 +15,11 @@ export interface CheckoutSessionResponse {
 export interface PortalSessionResponse {
   portal_url: string
 }
+
+export interface PremiumPricing {
+  price_id: string
+  currency: string
+  amount: number
+  interval: string
+  interval_count: number
+}

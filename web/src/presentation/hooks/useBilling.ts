@@ -3,6 +3,14 @@
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { billingRepository } from "@/src/data/repositories/BillingRepository"
 
+export function usePremiumPricing() {
+  return useQuery({
+    queryKey: ["billing", "pricing"],
+    queryFn: () => billingRepository.pricing(),
+    staleTime: 60_000,
+  })
+}
+
 export function useAccountBilling(enabled = true) {
   return useQuery({
     queryKey: ["billing", "me"],

@@ -1,7 +1,11 @@
 import { http } from "./httpClient"
-import type { AccountBilling, CheckoutSessionResponse, PortalSessionResponse } from "@/src/domain/entities/Billing"
+import type { AccountBilling, CheckoutSessionResponse, PortalSessionResponse, PremiumPricing } from "@/src/domain/entities/Billing"
 
 class BillingRepository {
+  pricing(): Promise<PremiumPricing> {
+    return http.get("/billing/pricing")
+  }
+
   me(): Promise<AccountBilling> {
     return http.get("/billing/me")
   }
