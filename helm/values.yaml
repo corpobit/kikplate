@@ -121,6 +121,9 @@ secrets:
     githubClientSecret: ""
     googleClientSecret: ""
     gitlabClientSecret: ""
+  stripe:
+    secretKey: ""
+    webhookSecret: ""
 
 # ---------------------------------------------------------------------------
 # PostgreSQL credentials
@@ -143,6 +146,13 @@ config:
     interval: 20m
     pollInterval: 5m
     batchSize: 25
+  privateOrg:
+    enabled: true
+  stripe:
+    premiumPriceId: ""
+    checkoutSuccessUrl: "https://kikplate.dev/billing/success"
+    checkoutCancelUrl: "https://kikplate.dev/pricing"
+    portalReturnUrl: "https://kikplate.dev/account"
   sso:
     providers:
       - name: github

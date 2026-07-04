@@ -80,6 +80,22 @@ private_org:
   # Enables private organizations and private-org-specific access behavior.
   enabled: false
 
+stripe:
+  # Stripe secret API key. Use test keys for development.
+  secret_key: ""
+  # Stripe publishable key used by frontend.
+  publishable_key: ""
+  # Stripe webhook signing secret for /billing/stripe/webhook endpoint.
+  webhook_secret: ""
+  # Stripe recurring price id for premium subscription.
+  premium_price_id: ""
+  # Redirect URL after successful checkout.
+  checkout_success_url: "http://localhost:3000/billing/success"
+  # Redirect URL when checkout is canceled.
+  checkout_cancel_url: "http://localhost:3000/pricing"
+  # Return URL for Stripe customer portal.
+  portal_return_url: "http://localhost:3000/account"
+
 # Frontend-only branding and hero configuration exposed through GET /config.
 customization:
   # Logo URL used in the navbar.

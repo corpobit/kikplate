@@ -102,6 +102,9 @@ export function Navbar() {
             <Link href="/docs" className="hover:text-white transition-colors">
               Docs
             </Link>
+            <Link href="/pricing" className="hover:text-white transition-colors">
+              Pricing
+            </Link>
             {me && (
               <Link href="/submit" className="hover:text-white transition-colors">
                 Submit

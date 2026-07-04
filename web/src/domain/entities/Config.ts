@@ -7,6 +7,7 @@ export interface PlateCategory {
 
 export interface Features {
   private_organizations_enabled: boolean
+  billing_enabled?: boolean
 }
 
 export interface AppConfig {

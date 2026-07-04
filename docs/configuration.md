@@ -179,6 +179,32 @@ private_org:
 |---------------------|-----------|
 | `PRIVATE_ORG_ENABLED` | `private_org.enabled` |
 
+### stripe
+
+Stripe billing configuration for premium subscription checkout, portal, and webhook processing.
+
+```yaml
+stripe:
+  secret_key: sk_test_xxx
+  publishable_key: pk_test_xxx
+  webhook_secret: whsec_xxx
+  premium_price_id: price_xxx
+  checkout_success_url: https://kikplate.dev/billing/success
+  checkout_cancel_url: https://kikplate.dev/pricing
+  portal_return_url: https://kikplate.dev/account
+```
+
+| Environment Variable | Config Key |
+|---------------------|-----------|
+| `STRIPE_SECRET_KEY` | `stripe.secret_key` |
+| `STRIPE_PUBLISHABLE_KEY` | `stripe.publishable_key` |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | `stripe.publishable_key` |
+| `STRIPE_WEBHOOK_SECRET` | `stripe.webhook_secret` |
+| `STRIPE_PREMIUM_PRICE_ID` | `stripe.premium_price_id` |
+| `STRIPE_CHECKOUT_SUCCESS_URL` | `stripe.checkout_success_url` |
+| `STRIPE_CHECKOUT_CANCEL_URL` | `stripe.checkout_cancel_url` |
+| `STRIPE_PORTAL_RETURN_URL` | `stripe.portal_return_url` |
+
 ### smtp
 
 SMTP sender configuration used when `auth.email_verification.enabled=true`.

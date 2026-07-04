@@ -35,6 +35,15 @@ data:
             {{- end }}
         {{- end }}
 
+    private_org:
+      enabled: {{ .Values.config.privateOrg.enabled }}
+
+    stripe:
+      premium_price_id: {{ .Values.config.stripe.premiumPriceId | quote }}
+      checkout_success_url: {{ .Values.config.stripe.checkoutSuccessUrl | quote }}
+      checkout_cancel_url: {{ .Values.config.stripe.checkoutCancelUrl | quote }}
+      portal_return_url: {{ .Values.config.stripe.portalReturnUrl | quote }}
+
     customization:
       logo: {{ .Values.config.customization.logo }}
       banner_title: {{ .Values.config.customization.bannerTitle }}
