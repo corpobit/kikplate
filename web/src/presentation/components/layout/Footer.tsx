@@ -131,20 +131,6 @@ export function Footer() {
           <p className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} KikPlate. Open source and free forever.
           </p>
-          <div className="flex items-center gap-4">
-            {[
-              { label: "Privacy", href: "#" },
-              { label: "Terms", href: "#" },
-            ].map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
         </div>
       </div>
     </footer>
