@@ -61,6 +61,10 @@ func NewAuthService(
 }
 
 func (s *authService) Register(ctx context.Context, input RegisterInput) error {
+	if !input.TermsAccepted {
+		return ErrTermsAcceptanceRequired
+	}
+
 	existing, err := s.userRepo.GetByEmail(ctx, input.Email)
 	if err != nil {
 		return err

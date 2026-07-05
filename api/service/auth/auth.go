@@ -39,9 +39,10 @@ type MeResult struct {
 }
 
 type RegisterInput struct {
-	Username string
-	Email    string
-	Password string
+	Username      string `json:"username"`
+	Email         string `json:"email"`
+	Password      string `json:"password"`
+	TermsAccepted bool   `json:"terms_accepted"`
 }
 
 type LoginInput struct {

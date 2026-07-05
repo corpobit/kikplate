@@ -21,6 +21,7 @@ export function RegisterForm() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
+  const [termsAccepted, setTermsAccepted] = useState(false)
 
   const passwordsMatch = password === confirmPassword
 
@@ -44,8 +45,18 @@ export function RegisterForm() {
       return
     }
 
+    if (!termsAccepted) {
+      toast.error("You must accept the Terms of Use and Privacy Policy")
+      return
+    }
+
     try {
-      const result = await register.mutateAsync({ username: normalizedUsername, email: normalizedEmail, password })
+      const result = await register.mutateAsync({
+        username: normalizedUsername,
+        email: normalizedEmail,
+        password,
+        terms_accepted: termsAccepted,
+      })
       toast.success(result.message)
       router.push("/login")
     } catch (err: unknown) {
@@ -110,7 +121,19 @@ export function RegisterForm() {
         )}
       </div>
 
-      <Button type="submit" className="w-full" disabled={register.isPending || !passwordsMatch}>
+      <label className="flex items-start gap-2 text-xs text-muted-foreground">
+        <input
+          type="checkbox"
+          className="mt-0.5 h-4 w-4"
+          checked={termsAccepted}
+          onChange={(e) => setTermsAccepted(e.target.checked)}
+        />
+        <span>
+          I have read and agree to the <Link href="/terms" className="underline">Terms of Use</Link> and <Link href="/privacy" className="underline">Privacy Policy</Link>.
+        </span>
+      </label>
+
+      <Button type="submit" className="w-full" disabled={register.isPending || !passwordsMatch || !termsAccepted}>
         {register.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         Create account
       </Button>

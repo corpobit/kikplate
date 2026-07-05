@@ -31,6 +31,8 @@ func respondServiceError(w http.ResponseWriter, err error) {
 		respondError(w, http.StatusUnprocessableEntity, err.Error())
 	case errors.Is(err, auth.ErrWeakPassword):
 		respondError(w, http.StatusUnprocessableEntity, err.Error())
+	case errors.Is(err, auth.ErrTermsAcceptanceRequired):
+		respondError(w, http.StatusBadRequest, err.Error())
 	case errors.Is(err, auth.ErrInvalidPassword):
 		respondError(w, http.StatusUnauthorized, err.Error())
 	case errors.Is(err, auth.ErrAccountInactive):

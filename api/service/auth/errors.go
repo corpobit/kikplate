@@ -16,4 +16,5 @@ var (
 	ErrOAuthFailed             = errors.New("oauth authentication failed")
 	ErrInvalidUsername         = errors.New("username cannot be empty")
 	ErrWeakPassword            = errors.New("password must be at least 8 characters")
+	ErrTermsAcceptanceRequired = errors.New("you must accept terms of use and privacy policy")
 )

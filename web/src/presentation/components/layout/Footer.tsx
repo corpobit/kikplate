@@ -134,8 +134,8 @@ export function Footer() {
           </p>
           <div className="flex items-center gap-4">
             {[
-              { label: "Privacy", href: "#" },
-              { label: "Terms", href: "#" },
+              { label: "Privacy", href: "/privacy" },
+              { label: "Terms", href: "/terms" },
             ].map((link) => (
               <Link
                 key={link.label}
