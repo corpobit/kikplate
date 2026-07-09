@@ -8,6 +8,8 @@ import { LoadingSpinner } from "@/src/presentation/components/common/LoadingSpin
 import { PendingVerification } from "@/src/presentation/components/plates/PendingVerification"
 import { PlateGetBadgeModal } from "@/src/presentation/components/account/PlateGetBadgeModal"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Dialog,
   DialogContent,
@@ -23,6 +25,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import type { Plate } from "@/src/domain/entities/Plate"
 import {
   Building2,
@@ -78,7 +87,7 @@ export function OwnedPlates({ accountId }: { accountId: string }) {
   const onConfirmMoveOrganization = async () => {
     if (!confirmingMove) return
 
-    const organizationId = confirmingMove.targetOrgId !== "" ? confirmingMove.targetOrgId : undefined
+    const organizationId = confirmingMove.targetOrgId !== "personal" ? confirmingMove.targetOrgId : undefined
 
     try {
       setMoveError(null)
@@ -86,7 +95,7 @@ export function OwnedPlates({ accountId }: { accountId: string }) {
       const updated = await movePlateOrganization.mutateAsync({ id: confirmingMove.plateId, organizationId })
       setSelectedOrgByPlate((prev) => ({
         ...prev,
-        [confirmingMove.plateId]: updated.organization_id ?? "",
+        [confirmingMove.plateId]: updated.organization_id ?? "personal",
       }))
       setConfirmingMove(null)
       setMoveConfirmNameInput("")
@@ -190,24 +199,31 @@ export function OwnedPlates({ accountId }: { accountId: string }) {
                     {plate.name}
                   </span>
                   <div className="flex shrink-0 flex-wrap items-center justify-end gap-1">
-                    <span className={`inline-flex items-center border px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ${visibilityBadgeClass(plate.visibility)}`}>
+                    <span className={`inline-flex items-center border rounded-full px-2 py-1 text-[10px] font-medium uppercase tracking-wide ${visibilityBadgeClass(plate.visibility)}`}>
                       {plate.visibility}
                     </span>
                     {plate.sync_status === "failed" && (
-                      <span className="inline-flex items-center border border-red-500/40 bg-red-500/10 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-red-700 dark:text-red-300">
+                      <span className="inline-flex items-center border border-red-500/40 bg-red-500/10 rounded-full px-2 py-1 text-[10px] font-medium uppercase tracking-wide text-red-700 dark:text-red-300">
                         Sync Failed
                       </span>
                     )}
                     {!plate.is_verified && (
-                      <span className="inline-flex items-center border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-amber-700 dark:text-amber-300">
+                      <span className="inline-flex items-center border border-amber-500/40 bg-amber-500/10 rounded-full px-2 py-1 text-[10px] font-medium uppercase tracking-wide text-amber-700 dark:text-amber-300">
                         Unverified
                       </span>
                     )}
                     <div className="pointer-events-auto">
                     <DropdownMenu>
-                      <DropdownMenuTrigger className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-none border border-transparent text-muted-foreground outline-none transition-colors hover:border-border hover:bg-muted hover:text-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50">
-                        <MoreVertical className="h-4 w-4" />
-                        <span className="sr-only">Plate actions</span>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-xs"
+                          className="h-7 w-7 text-muted-foreground hover:bg-muted hover:text-foreground"
+                        >
+                          <MoreVertical className="h-4 w-4" />
+                          <span className="sr-only">Plate actions</span>
+                        </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
@@ -302,28 +318,39 @@ export function OwnedPlates({ accountId }: { accountId: string }) {
       {moveError && <p className="text-xs text-destructive">{moveError}</p>}
 
       {confirmingMove && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-sm rounded-none border border-border bg-background p-5">
-            <div className="space-y-2">
-              <h3 className="font-heading text-base font-medium">Move plate</h3>
-              <p className="text-sm text-muted-foreground">
+        <Dialog
+          open={!!confirmingMove}
+          onOpenChange={(next) => {
+            if (!next) {
+              setConfirmingMove(null)
+              setMoveConfirmNameInput("")
+              setMoveError(null)
+            }
+          }}
+        >
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>Move plate</DialogTitle>
+              <DialogDescription>
                 This will move &quot;{confirmingMove.plateName}&quot; to {confirmingMove.targetOrgName}.
-              </p>
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-2">
               <p className="text-xs text-muted-foreground">
                 Type the full plate name to confirm: <span className="font-medium text-foreground">{confirmingMove.plateName}</span>
               </p>
-              <input
+              <Input
                 value={moveConfirmNameInput}
                 onChange={(e) => setMoveConfirmNameInput(e.target.value)}
                 placeholder="Enter full plate name"
-                className="h-9 w-full border border-input bg-transparent px-3 text-sm outline-none transition-colors focus:border-ring"
                 autoFocus
               />
             </div>
 
-            {moveError && <p className="mt-3 text-xs text-destructive">{moveError}</p>}
+            {moveError && <p className="text-xs text-destructive">{moveError}</p>}
 
-            <div className="mt-5 flex items-center justify-end gap-2">
+            <DialogFooter>
               <Button
                 variant="outline"
                 size="sm"
@@ -344,9 +371,9 @@ export function OwnedPlates({ accountId }: { accountId: string }) {
               >
                 {movePlateOrganization.isPending ? "Moving..." : "Yes, move"}
               </Button>
-            </div>
-          </div>
-        </div>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
 
       <Dialog open={Boolean(orgDialogPlate)} onOpenChange={(open) => { if (!open) setOrgDialogPlate(null) }}>
@@ -360,26 +387,29 @@ export function OwnedPlates({ accountId }: { accountId: string }) {
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-2 py-1">
-                <label htmlFor={`org-select-${orgDialogPlate.id}`} className="text-xs text-muted-foreground">
-                  Organization
-                </label>
-                <select
-                  id={`org-select-${orgDialogPlate.id}`}
-                  value={selectedOrgByPlate[orgDialogPlate.id] ?? (orgDialogPlate.organization_id ?? "")}
-                  onChange={(e) => {
-                    const value = e.target.value
-                    setSelectedOrgByPlate((prev) => ({ ...prev, [orgDialogPlate.id]: value }))
+                <Label htmlFor={`org-select-${orgDialogPlate.id}`}>Organization</Label>
+                <Select
+                  value={selectedOrgByPlate[orgDialogPlate.id] ?? (orgDialogPlate.organization_id ?? "personal")}
+                  onValueChange={(value) => {
+                    setSelectedOrgByPlate((prev) => ({
+                      ...prev,
+                      [orgDialogPlate.id]: value ?? "personal",
+                    }))
                   }}
-                  className="h-9 w-full border border-input bg-transparent px-2 text-sm outline-none transition-colors focus:border-ring"
                   disabled={orgsLoading || (movePlateOrganization.isPending && movingId === orgDialogPlate.id)}
                 >
-                  <option value="">Personal (no organization)</option>
-                  {organizations.map((org) => (
-                    <option key={org.id} value={org.id}>
-                      {org.name}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger id={`org-select-${orgDialogPlate.id}`} className="w-full">
+                    <SelectValue placeholder="Personal (no organization)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="personal">Personal (no organization)</SelectItem>
+                    {organizations.map((org) => (
+                      <SelectItem key={org.id} value={org.id}>
+                        {org.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <DialogFooter className="gap-2 sm:justify-end">
                 <Button type="button" variant="outline" size="sm" onClick={() => setOrgDialogPlate(null)}>
@@ -391,7 +421,7 @@ export function OwnedPlates({ accountId }: { accountId: string }) {
                   disabled={orgsLoading || (movePlateOrganization.isPending && movingId === orgDialogPlate.id)}
                   onClick={() => {
                     const p = orgDialogPlate
-                    const currentOrgId = p.organization_id ?? ""
+                    const currentOrgId = p.organization_id ?? "personal"
                     const selectedOrgId = selectedOrgByPlate[p.id] ?? currentOrgId
 
                     if (selectedOrgId === currentOrgId) {
@@ -399,7 +429,7 @@ export function OwnedPlates({ accountId }: { accountId: string }) {
                       return
                     }
 
-                    const targetOrgName = selectedOrgId === ""
+                    const targetOrgName = selectedOrgId === "personal"
                       ? "Personal (no organization)"
                       : (organizations.find((org) => org.id === selectedOrgId)?.name ?? "selected organization")
 
@@ -425,28 +455,39 @@ export function OwnedPlates({ accountId }: { accountId: string }) {
       <PlateGetBadgeModal plate={getBadgePlate} onClose={() => setGetBadgePlate(null)} />
 
       {confirmingPlate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-sm rounded-none border border-border bg-background p-5">
-            <div className="space-y-2">
-              <h3 className="font-heading text-base font-medium">Remove plate</h3>
-              <p className="text-sm text-muted-foreground">
+        <Dialog
+          open={!!confirmingPlate}
+          onOpenChange={(next) => {
+            if (!next) {
+              setConfirmingPlate(null)
+              setConfirmNameInput("")
+              setRemoveError(null)
+            }
+          }}
+        >
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>Remove plate</DialogTitle>
+              <DialogDescription>
                 This will permanently remove &quot;{confirmingPlate.name}&quot;. This action cannot be undone.
-              </p>
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-2">
               <p className="text-xs text-muted-foreground">
                 Type the full plate name to confirm: <span className="font-medium text-foreground">{confirmingPlate.name}</span>
               </p>
-              <input
+              <Input
                 value={confirmNameInput}
                 onChange={(e) => setConfirmNameInput(e.target.value)}
                 placeholder="Enter full plate name"
-                className="h-9 w-full border border-input bg-transparent px-3 text-sm outline-none transition-colors focus:border-ring"
                 autoFocus
               />
             </div>
 
-            {removeError && <p className="mt-3 text-xs text-destructive">{removeError}</p>}
+            {removeError && <p className="text-xs text-destructive">{removeError}</p>}
 
-            <div className="mt-5 flex items-center justify-end gap-2">
+            <DialogFooter>
               <Button
                 variant="outline"
                 size="sm"
@@ -467,9 +508,9 @@ export function OwnedPlates({ accountId }: { accountId: string }) {
               >
                 {removePlate.isPending ? "Removing..." : "Yes, remove"}
               </Button>
-            </div>
-          </div>
-        </div>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   )

@@ -20,43 +20,37 @@ export function Footer() {
   })).filter((l): l is { label: string; href: string } => Boolean(l.href))
 
   return (
-    <footer className="border-t border-border bg-background">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-12">
-          <div className="col-span-2 sm:col-span-1 space-y-3">
-            <p className="text-sm font-semibold text-foreground">
+    <footer className="border-t border-border bg-muted/20">
+      <div className="container mx-auto px-4 py-10">
+        <div className="grid gap-8 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+          <div className="space-y-3">
+            <p className="text-base font-semibold text-foreground">
               Kik<span className="font-bold">Plate</span>
             </p>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              The biggest library of production-ready project templates and boilerplates.
+            <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
+              Open source registry for reusable project templates, maintained by the community.
             </p>
             <Link
               href="https://www.apache.org/licenses/LICENSE-2.0"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground transition-colors"
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               Apache 2.0 License
             </Link>
           </div>
 
           <div className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-              Product
-            </p>
+            <p className="text-sm font-medium text-foreground">Product</p>
             <ul className="space-y-2">
               {[
                 { label: "Explore", href: "/explore" },
-                { label: "Pricing", href: "/pricing" },
                 { label: "Stats", href: "/stats" },
-                { label: "Submit a plate", href: "/submit" },
+                { label: "Submit", href: "/submit" },
                 { label: "Account", href: "/account" },
               ].map((link) => (
                 <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                  >
+                  <Link href={link.href} className="text-sm text-muted-foreground transition-colors hover:text-foreground">
                     {link.label}
                   </Link>
                 </li>
@@ -65,9 +59,7 @@ export function Footer() {
           </div>
 
           <div className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-              Community
-            </p>
+            <p className="text-sm font-medium text-foreground">Community</p>
             <ul className="space-y-2">
               {communityLinks.map((link) => (
                 <li key={link.label}>
@@ -75,7 +67,7 @@ export function Footer() {
                     href={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                   >
                     {link.label}
                   </Link>
@@ -85,23 +77,15 @@ export function Footer() {
           </div>
 
           <div className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-              Resources
-            </p>
+            <p className="text-sm font-medium text-foreground">Resources</p>
             <ul className="space-y-2">
               <li>
-                <Link
-                  href="/docs"
-                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                >
+                <Link href="/docs" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
                   Documentation
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/docs?doc=cli"
-                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                >
+                <Link href="/docs?doc=cli" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
                   CLI
                 </Link>
               </li>
@@ -110,7 +94,7 @@ export function Footer() {
                   href="https://github.com/kikplate/kikplate/releases"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                 >
                   Changelog
                 </Link>
@@ -120,7 +104,7 @@ export function Footer() {
                   href="https://github.com/kikplate/kikplate/blob/main/docs/contributing.md"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                 >
                   Contributing
                 </Link>
@@ -128,24 +112,10 @@ export function Footer() {
             </ul>
           </div>
         </div>
-        <div className="border-t border-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-muted-foreground">
+        <div className="mt-8 border-t border-border pt-6">
+          <p className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} KikPlate. Open source and free forever.
           </p>
-          <div className="flex items-center gap-4">
-            {[
-              { label: "Privacy", href: "/privacy" },
-              { label: "Terms", href: "/terms" },
-            ].map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
         </div>
       </div>
     </footer>

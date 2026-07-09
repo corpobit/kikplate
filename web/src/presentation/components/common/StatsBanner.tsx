@@ -22,7 +22,7 @@ interface StatCardProps {
 
 function StatCard({ icon, value, label }: StatCardProps) {
   return (
-    <div className="flex flex-col items-center gap-2 border border-border bg-card p-5 text-center">
+    <div className="flex flex-col items-center gap-2 border border-border bg-card rounded-lg p-5 text-center">
       <div className="text-muted-foreground">{icon}</div>
       <p className="text-3xl font-bold tabular-nums text-foreground">{value}</p>
       <p className="text-xs text-muted-foreground">{label}</p>
@@ -74,11 +74,11 @@ export function StatsBanner() {
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="border border-border bg-card p-4">
+              <div className="border border-border bg-card rounded-lg p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Open model</p>
                 <p className="mt-1.5 text-sm text-foreground">Anyone can contribute quality plates.</p>
               </div>
-              <div className="border border-border bg-card p-4">
+              <div className="border border-border bg-card rounded-lg p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Clear metadata</p>
                 <p className="mt-1.5 text-sm text-foreground">Owner, tags, category, and usage context.</p>
               </div>

@@ -13,7 +13,7 @@ export function PlateCard({ plate }: { plate: Plate }) {
   return (
     <Link
       href={`/plates/${plate.slug}`}
-      className="group flex flex-col gap-0 border border-border bg-card hover:border-foreground/20 hover:shadow-sm transition-all overflow-hidden"
+      className="group flex flex-col gap-0 overflow-hidden rounded-lg border border-border bg-card transition-all hover:border-primary/40"
     >
       <div className="flex items-start justify-between gap-2 px-4 pt-4 pb-3">
         <div className="flex items-center gap-2 min-w-0">
@@ -47,7 +47,7 @@ export function PlateCard({ plate }: { plate: Plate }) {
           {plate.tags.slice(0, 4).map((t) => (
             <span
               key={t.id}
-              className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] border border-border text-muted-foreground"
+              className="inline-flex items-center gap-1 px-2 py-1 text-[10px] border border-border rounded-full text-muted-foreground bg-muted/20"
             >
               <Tag className="h-2.5 w-2.5" />
               {t.tag}
@@ -67,7 +67,7 @@ export function PlateCard({ plate }: { plate: Plate }) {
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground capitalize">{plate.category}</span>
           {!plate.is_verified && plate.sync_status === "unverified" && (
-            <span className="inline-flex items-center gap-1 border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-300">
+            <span className="inline-flex items-center gap-1 border border-amber-500/40 bg-amber-500/10 rounded-full px-2 py-1 text-[10px] font-medium text-amber-700 dark:text-amber-300\">
               Unverified
             </span>
           )}

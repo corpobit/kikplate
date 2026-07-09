@@ -63,147 +63,117 @@ export function Navbar() {
 
   if (!mounted) {
     return (
-      <nav className="dark sticky top-0 z-50 bg-background">
-        <div className="container mx-auto flex h-14 items-center justify-between px-4">
-          <div className="h-7 w-32 rounded-sm bg-mutedanimate-pulse" />
-          <div className="h-8 w-8 rounded-sm bg-mutedanimate-pulse" />
+      <nav className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+        <div className="container mx-auto flex h-16 items-center justify-between px-4">
+          <div className="h-6 w-32 animate-pulse rounded-md bg-muted" />
+          <div className="h-9 w-9 animate-pulse rounded-md bg-muted" />
         </div>
       </nav>
     )
   }
 
   return (
-    <nav className="dark sticky top-0 z-50 bg-background">
-      <div className="container mx-auto flex h-20 items-center px-4 gap-4">
-        <div className="flex items-center gap-2 cursor-pointer shrink-0" onClick={() => router.push("/")}>
+    <nav className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+      <div className="container mx-auto flex h-16 items-center gap-4 px-4">
+        <button
+          type="button"
+          className="flex shrink-0 items-center gap-3 text-left"
+          onClick={() => router.push("/")}
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={appConfig?.logo ?? "/kikplate-logo-on-dark.svg"}
             alt="logo"
-            width={40}
-            height={14}
+            width={36}
+            height={36}
+            className="rounded-md"
           />
-          <span className="text-xl tracking-tight text-white hidden sm:inline">
+          <span className="hidden text-lg font-semibold tracking-tight text-foreground sm:inline">
             Kik<span className="font-bold">Plate</span>
           </span>
-        </div>
+        </button>
 
-        {pathname !== "/" && !pathname?.startsWith("/explore") && (
-          <div className="hidden md:flex">
+        <div className="hidden items-center gap-5 text-sm text-muted-foreground md:flex">
+          <Link href="/explore" className="transition-colors hover:text-foreground">
+            Explore
+          </Link>
+          <Link href="/docs" className="transition-colors hover:text-foreground">
+            Docs
+          </Link>
+          <Link href="/stats" className="transition-colors hover:text-foreground" title="Stats">
+            Stats
+          </Link>
+          {me && (
+            <Link href="/submit" className="transition-colors hover:text-foreground">
+              Submit
+            </Link>
+          )}
+          {pathname !== "/" && !pathname?.startsWith("/explore") && (
             <NavbarSearch />
-          </div>
-        )}
-
-        <div className="flex items-center gap-4 shrink-0 ml-auto">
-          <div className="hidden sm:flex items-center gap-4 text-sm text-white/60">
-            <Link href="/explore" className="hover:text-white transition-colors">
-              Explore
-            </Link>
-            <Link href="/docs" className="hover:text-white transition-colors">
-              Docs
-            </Link>
-            <Link href="/pricing" className="hover:text-white transition-colors">
-              Pricing
-            </Link>
-            {me && (
-              <Link href="/submit" className="hover:text-white transition-colors">
-                Submit
-              </Link>
-            )}
-            <Link href="/stats" className="hover:text-white transition-colors" title="Stats">
-              stats
-            </Link>
-          </div>
-
-          <div className="hidden sm:block h-4 w-px bg-white/10" />
-
-          {me ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger className="outline-none focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 ring-offset-background">
-                <Avatar key={me.account_id} className="h-8 w-8 cursor-pointer rounded-sm">
-                  {me.avatar_url && <AvatarImage src={me.avatar_url} alt={me.username ?? me.display_name ?? "avatar"} />}
-                  <AvatarFallback className="text-xs bg-white/20 text-white rounded-sm font-semibold">
-                    {initials}
-                  </AvatarFallback>
-                </Avatar>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-52 rounded-sm">
-                <div className="px-2 py-2 border-b border-border">
-                  <p className="text-sm font-semibold">{me.username ?? me.display_name ?? "User"}</p>
-                  <p className="text-xs text-muted-foreground truncate mt-0.5">{me.email ?? me.provider}</p>
-                </div>
-                <div className="py-1">
-                  <DropdownMenuItem
-                    className="cursor-pointer rounded-none gap-2 text-sm"
-                    onClick={() => router.push("/account")}
-                  >
-                    <User className="h-4 w-4" />
-                    Account
-                  </DropdownMenuItem>
-                </div>
-                <div className="border-t border-border py-1">
-                  <DropdownMenuItem
-                    onClick={toggleTheme}
-                    className="cursor-pointer rounded-none gap-2 text-sm"
-                  >
-                    {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                    {theme === "dark" ? "Light mode" : "Dark mode"}
-                  </DropdownMenuItem>
-                </div>
-                <div className="border-t border-border py-1">
-                  <DropdownMenuItem
-                    onClick={() => setLogoutDialogOpen(true)}
-                    className="cursor-pointer rounded-none gap-2 text-sm text-destructive focus:text-destructive"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Sign out
-                  </DropdownMenuItem>
-                </div>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <DropdownMenu>
-              <DropdownMenuTrigger className="outline-none focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 ring-offset-[#1a1f2e]">
-                <Avatar key="nav-signed-out" className="h-8 w-8 cursor-pointer rounded-sm">
-                  <AvatarFallback className="text-xs bg-muted text-white/60 rounded-sm">
-                    ?
-                  </AvatarFallback>
-                </Avatar>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-52 rounded-sm">
-                <div className="px-2 py-2 border-b border-border">
-                  <p className="text-sm text-muted-foreground">Not signed in</p>
-                </div>
-                <div className="py-1">
-                  <DropdownMenuItem
-                    className="cursor-pointer rounded-none gap-2 text-sm"
-                    onClick={() => router.push("/login")}
-                  >
-                    <User className="h-4 w-4" />
-                    Sign in
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="cursor-pointer rounded-none gap-2 text-sm"
-                    onClick={() => router.push("/register")}
-                  >
-                    <UserPlus className="h-4 w-4" />
-                    Sign up
-                  </DropdownMenuItem>
-                </div>
-                <div className="border-t border-border py-1">
-                  <DropdownMenuItem
-                    onClick={toggleTheme}
-                    className="cursor-pointer rounded-none gap-2 text-sm"
-                  >
-                    {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                    {theme === "dark" ? "Light mode" : "Dark mode"}
-                  </DropdownMenuItem>
-                </div>
-              </DropdownMenuContent>
-            </DropdownMenu>
           )}
         </div>
 
+        <div className="ml-auto flex shrink-0 items-center gap-2">
+          <Button variant="ghost" size="icon-sm" onClick={toggleTheme} aria-label="Toggle theme">
+            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </Button>
+
+          {me ? (
+            <>
+              <Avatar key={me.account_id} className="h-8 w-8 rounded-md border border-border">
+                {me.avatar_url && <AvatarImage src={me.avatar_url} alt={me.username ?? me.display_name ?? "avatar"} />}
+                <AvatarFallback className="rounded-md bg-muted text-xs font-semibold text-foreground">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <Button variant="ghost" size="sm" onClick={() => router.push("/account")} className="gap-1.5">
+                <User className="h-3.5 w-3.5" />
+                Account
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setLogoutDialogOpen(true)} className="gap-1.5 text-destructive hover:text-destructive">
+                <LogOut className="h-3.5 w-3.5" />
+                Sign out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" className="hidden sm:inline-flex" onClick={() => router.push("/login")}>
+                Sign in
+              </Button>
+              <Button size="sm" className="hidden sm:inline-flex" onClick={() => router.push("/register")}>
+                Sign up
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-md sm:hidden"
+                    aria-label="Open account menu"
+                  >
+                    <Avatar key="nav-signed-out" className="h-9 w-9 rounded-md border border-border">
+                      <AvatarFallback className="rounded-md bg-muted text-xs text-foreground">
+                        ?
+                      </AvatarFallback>
+                    </Avatar>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-52">
+                  <div className="border-b border-border px-3 py-3">
+                    <p className="text-sm text-muted-foreground">Not signed in</p>
+                  </div>
+                  <DropdownMenuItem className="cursor-pointer gap-2 text-sm" onClick={() => router.push("/login")}>
+                    <User className="h-4 w-4" />
+                    Sign in
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer gap-2 text-sm" onClick={() => router.push("/register")}>
+                    <UserPlus className="h-4 w-4" />
+                    Sign up
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          )}
+        </div>
       </div>
 
       <Dialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
