@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useMemo } from "react"
-import { Loader2, Sparkles, ShieldCheck, Building2 } from "lucide-react"
+import { Loader2, Sparkles, ShieldCheck, Building2, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useMe } from "@/src/presentation/hooks/useAuth"
 import { useAccountBilling, useCreateCheckoutSession, useCreatePortalSession, usePremiumPricing } from "@/src/presentation/hooks/useBilling"
@@ -50,31 +50,43 @@ export default function PricingPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-10 sm:py-12">
-      <div className="mx-auto max-w-5xl">
-        <section className="border border-border bg-card p-6 sm:p-8">
-          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Pricing</p>
-          <h1 className="mt-2 font-heading text-3xl font-bold tracking-tight sm:text-4xl">Simple plans for teams building with templates</h1>
-          <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
-            Free gives you full public collaboration. Premium unlocks private organizations so your internal templates stay private.
-          </p>
-        </section>
+    <div className="container mx-auto px-4 py-8 sm:py-10">
+      <div className="mx-auto max-w-6xl">
+        <header>
+          <div className="relative overflow-hidden rounded-xl border border-border bg-card/80 px-5 py-6 sm:px-7 sm:py-8">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,hsl(var(--muted))_0%,transparent_55%)]" />
+            <div className="relative">
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Pricing</p>
+              <h1 className="mt-2 font-heading text-3xl font-bold tracking-tight sm:text-4xl">Plans for public and private teams</h1>
+              <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-muted-foreground sm:text-base">
+                Start free for open collaboration. Upgrade to premium when your organization needs private templates and centralized billing.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <span className="rounded-md border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground">Stripe checkout</span>
+                <span className="rounded-md border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground">Instant access</span>
+                <span className="rounded-md border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground">Cancel anytime</span>
+              </div>
+            </div>
+          </div>
+        </header>
 
         <section className="mt-6 grid gap-4 lg:grid-cols-2">
-          <article className="border border-border bg-card p-6">
+          <article className="rounded-xl border border-border bg-card p-6 shadow-sm">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Free</p>
                 <h2 className="mt-1 font-heading text-2xl font-bold">$0</h2>
-                <p className="text-sm text-muted-foreground">For public usage</p>
+                <p className="text-sm text-muted-foreground">For public projects</p>
               </div>
               <ShieldCheck className="h-5 w-5 text-muted-foreground" />
             </div>
-            <ul className="mt-5 space-y-2 text-sm text-foreground">
-              <li>Public organizations</li>
-              <li>Public plate management</li>
-              <li>Community collaboration</li>
+
+            <ul className="mt-5 space-y-2.5 text-sm text-foreground">
+              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-muted-foreground" />Public organizations</li>
+              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-muted-foreground" />Public plate management</li>
+              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-muted-foreground" />Community collaboration</li>
             </ul>
+
             <div className="mt-6">
               <Button variant="outline" className="w-full" disabled>
                 Current baseline
@@ -82,7 +94,7 @@ export default function PricingPage() {
             </div>
           </article>
 
-          <article className="border border-primary/30 bg-card p-6">
+          <article className="rounded-xl border border-primary/35 bg-card p-6 shadow-sm">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-wider text-primary">Premium</p>
@@ -91,15 +103,16 @@ export default function PricingPage() {
               </div>
               <Sparkles className="h-5 w-5 text-primary" />
             </div>
-            <ul className="mt-5 space-y-2 text-sm text-foreground">
+
+            <ul className="mt-5 space-y-2.5 text-sm text-foreground">
               <li className="flex items-center gap-2"><Building2 className="h-4 w-4 text-primary" />Private organizations</li>
-              <li>Same public features included</li>
-              <li>Manage billing in Stripe portal</li>
+              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" />All free plan features included</li>
+              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" />Manage billing in Stripe portal</li>
             </ul>
 
             <div className="mt-6 space-y-2">
               {!isSignedIn && !meLoading && (
-                <Link href="/login" className="inline-flex w-full items-center justify-center bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
+                <Link href="/login" className="inline-flex w-full items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
                   Sign in to subscribe
                 </Link>
               )}
@@ -125,13 +138,24 @@ export default function PricingPage() {
         </section>
 
         {isSignedIn && billing.data && (
-          <section className="mt-6 border border-border bg-card p-5">
+          <section className="mt-6 rounded-xl border border-border bg-card p-5 sm:p-6">
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Your billing status</p>
-            <p className="mt-2 text-sm text-foreground">Plan: {billing.data.plan_code}</p>
-            <p className="text-sm text-foreground">Status: {billing.data.status}</p>
-            {billing.data.current_period_end && (
-              <p className="text-sm text-foreground">Current period ends: {new Date(billing.data.current_period_end).toLocaleDateString()}</p>
-            )}
+            <div className="mt-3 grid gap-3 sm:grid-cols-3">
+              <div className="rounded-lg border border-border bg-background px-4 py-3">
+                <p className="text-xs text-muted-foreground">Plan</p>
+                <p className="mt-1 text-sm font-medium text-foreground">{billing.data.plan_code}</p>
+              </div>
+              <div className="rounded-lg border border-border bg-background px-4 py-3">
+                <p className="text-xs text-muted-foreground">Status</p>
+                <p className="mt-1 text-sm font-medium text-foreground">{billing.data.status}</p>
+              </div>
+              <div className="rounded-lg border border-border bg-background px-4 py-3">
+                <p className="text-xs text-muted-foreground">Current period end</p>
+                <p className="mt-1 text-sm font-medium text-foreground">
+                  {billing.data.current_period_end ? new Date(billing.data.current_period_end).toLocaleDateString() : "-"}
+                </p>
+              </div>
+            </div>
           </section>
         )}
       </div>

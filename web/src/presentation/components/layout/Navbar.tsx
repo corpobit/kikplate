@@ -97,6 +97,9 @@ export function Navbar() {
           <Link href="/explore" className="transition-colors hover:text-foreground">
             Explore
           </Link>
+          <Link href="/pricing" className="transition-colors hover:text-foreground">
+            Pricing
+          </Link>
           <Link href="/docs" className="transition-colors hover:text-foreground">
             Docs
           </Link>
