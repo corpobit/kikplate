@@ -3,12 +3,21 @@
 import { Suspense, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
+import { LogOut } from "lucide-react"
 import { useMe, useLogout } from "@/src/presentation/hooks/useAuth"
 import { usePlates } from "@/src/presentation/hooks/usePlates"
 import { useMounted } from "@/src/presentation/hooks/useMounted"
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { LoadingSpinner } from "@/src/presentation/components/common/LoadingSpinner"
-import { AccountHeader } from "@/src/presentation/components/account/AccountHeader"
-import { AccountStats } from "@/src/presentation/components/account/AccountStats"
 import { AccountTabs, type AccountTab } from "@/src/presentation/components/account/AccountTabs"
 import { ProfileDetails } from "@/src/presentation/components/account/ProfileDetails"
 import { OwnedPlates } from "@/src/presentation/components/account/OwnedPlates"
@@ -21,6 +30,7 @@ function AccountContent() {
   const logout = useLogout()
   const router = useRouter()
   const searchParams = useSearchParams()
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false)
 
   const resolveTab = (value: string | null): AccountTab => {
     if (value === "plates" || value === "bookmarked" || value === "organizations" || value === "profile") {
@@ -40,6 +50,7 @@ function AccountContent() {
   }, 0) ?? 0
 
   function handleLogout() {
+    setLogoutDialogOpen(false)
     logout()
     router.push("/")
     router.refresh()
@@ -77,6 +88,9 @@ function AccountContent() {
     )
   }
 
+  const displayName = me.username ?? me.display_name ?? "User"
+  const initials = displayName.slice(0, 2).toUpperCase()
+
   const stats = [
     { label: "Plates", value: ownedData?.total ?? "—" },
     { label: "Stars",  value: totalStars > 0 ? totalStars.toFixed(1) : "—" },
@@ -86,16 +100,90 @@ function AccountContent() {
     <div className="min-h-screen bg-background">
       <div className="border-b border-border bg-muted/10">
         <div className="container mx-auto px-4 py-8 space-y-6">
-          <AccountHeader me={me} onLogout={handleLogout} />
-          <AccountStats stats={stats} />
-        </div>
-      </div>
+          {/* Account Header */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+            <div className="flex min-w-0 items-center gap-4 sm:gap-5">
+              <div className="relative flex h-16 w-16 shrink-0 items-center justify-center border border-border bg-card rounded-lg text-xl font-bold text-foreground overflow-hidden">
+                {me.avatar_url ? (
+                  <Image
+                    src={me.avatar_url}
+                    alt={displayName}
+                    width={64}
+                    height={64}
+                    unoptimized
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  initials
+                )}
+              </div>
+              <div className="min-w-0">
+                <h1 className="truncate text-2xl font-bold text-foreground">{displayName}</h1>
+                <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                  {me.email && <span>{me.email}</span>}
+                  {me.email && <span>·</span>}
+                  <span className="capitalize">{me.provider}</span>
+                  {me.role && (
+                    <>
+                      <span>·</span>
+                      <span className="capitalize">{me.role}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setLogoutDialogOpen(true)}
+              className="gap-1.5"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+              Sign out
+            </Button>
+          </div>
 
-      <div className="sticky top-[80px] z-10 border-b border-border bg-background">
-        <div className="container mx-auto px-4">
+          {/* Account Stats */}
+          <div className="grid w-full grid-cols-2 border border-border bg-card rounded-lg sm:flex sm:w-fit">
+            {stats.map((s, i) => (
+              <div
+                key={s.label}
+                className={`flex flex-col items-center gap-0.5 px-6 py-3 ${
+                  i < stats.length - 1 ? "border-r border-border" : ""
+                }`}
+              >
+                <span className="text-xl font-bold tabular-nums text-foreground">
+                  {s.value}
+                </span>
+                <span className="text-xs text-muted-foreground">{s.label}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Tabs inside header */}
           <AccountTabs active={tab} onChange={handleTabChange} />
         </div>
       </div>
+
+      {/* Logout Dialog */}
+      <Dialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Sign out?</DialogTitle>
+            <DialogDescription>
+              You will be signed out of your account on this device.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setLogoutDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleLogout}>
+              Sign out
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <div className="container mx-auto px-4 py-10">
         {tab === "profile" && <ProfileDetails me={me} />}

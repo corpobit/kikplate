@@ -13,7 +13,7 @@ function FeaturedPlateCard({ plate, index }: { plate: Plate; index: number }) {
   return (
     <Link
       href={`/plates/${plate.slug}`}
-      className="group relative flex h-full flex-col gap-3 border border-border bg-card p-5 transition-all hover:border-foreground/20 hover:bg-muted/20 hover:-translate-y-0.5"
+      className="group relative flex h-full flex-col gap-3 border border-border bg-card rounded-lg p-5 transition-all hover:border-foreground/20 hover:bg-muted/20 hover:-translate-y-0.5"
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2 text-muted-foreground">
@@ -76,17 +76,17 @@ export function FeaturedPlates() {
           </div>
           <Link
             href="/explore"
-            className="group inline-flex items-center gap-1.5 border border-border px-4 py-2 text-sm text-foreground transition-colors hover:bg-muted"
+            className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-1.5")}
           >
             Explore all
-            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+            <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
 
         {isLoading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="h-44 animate-pulse border border-border bg-muted/20" />
+              <div key={i} className="h-44 animate-pulse rounded-lg border border-border bg-muted/20" />
             ))}
           </div>
         ) : (
@@ -98,7 +98,7 @@ export function FeaturedPlates() {
         )}
 
         <div className="mt-8 grid grid-cols-1 gap-3 lg:grid-cols-2">
-          <div className="border border-border bg-card p-6">
+          <div className="rounded-xl border border-border bg-card p-6">
             <div className="mb-4 flex items-center gap-2 text-muted-foreground">
               <Sparkles className="h-4 w-4" />
               <p className="text-xs font-semibold uppercase tracking-widest">Contribute</p>
@@ -123,7 +123,7 @@ export function FeaturedPlates() {
             </div>
           </div>
 
-          <div className="border border-border bg-card p-6">
+          <div className="rounded-xl border border-border bg-card p-6">
             <div className="mb-4 flex items-center gap-2 text-muted-foreground">
               <Terminal className="h-4 w-4" />
               <p className="text-xs font-semibold uppercase tracking-widest">Quick start</p>
@@ -132,7 +132,7 @@ export function FeaturedPlates() {
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               Use the kik CLI to search plates, inspect schema, and generate ready-to-use project output.
             </p>
-            <div className="mt-5 border border-border bg-background p-4 font-mono text-sm text-muted-foreground">
+            <div className="mt-5 rounded-lg border border-border bg-background p-4 font-mono text-sm text-muted-foreground">
               <p><span className="text-foreground/50">$</span> kik search --name golang</p>
               <p className="mt-1"><span className="text-foreground/50">$</span> kik describe go-clean-arch</p>
               <p className="mt-1"><span className="text-foreground/50">$</span> kik generate go-clean-arch -f values.yaml</p>
@@ -142,7 +142,7 @@ export function FeaturedPlates() {
                 href="/docs?doc=cli"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 border border-border px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
               >
                 Install CLI
                 <ArrowRight className="h-3.5 w-3.5" />

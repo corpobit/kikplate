@@ -2,8 +2,16 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Copy, Check, X, Terminal } from "lucide-react"
+import { Copy, Check, Terminal } from "lucide-react"
 import { toast } from "sonner"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
 
 interface Props {
   open: boolean
@@ -29,51 +37,38 @@ function CopyField({ label, icon, value }: { label: string; icon: React.ReactNod
         {icon}
         <span>{label}</span>
       </div>
-      <div className="flex items-center gap-0 border border-border">
-              <code className="flex-1 break-all bg-muted/20 px-3 py-2.5 text-xs font-mono text-foreground">
+      <div className="flex items-center gap-0 border border-border rounded-lg overflow-hidden">
+        <code className="flex-1 break-all bg-muted/20 px-3 py-2.5 text-xs font-mono text-foreground">
           {value}
         </code>
-        <button
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={handleCopy}
-          className="border-l border-border px-3 py-2.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          className="rounded-r-lg border-l border-border"
         >
           {copied
             ? <Check className="h-3.5 w-3.5 text-green-500" />
             : <Copy className="h-3.5 w-3.5" />
           }
-        </button>
+        </Button>
       </div>
     </div>
   )
 }
 
 export function UseModal({ open, onClose, slug, generateCommand }: Props) {
-
-  if (!open) return null
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
-        className="absolute inset-0 bg-black/50"
-        onClick={onClose}
-      />
-
-      <div className="relative w-full max-w-2xl border border-border bg-background shadow-none">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-          <h2 className="text-sm font-semibold">Use this plate</h2>
-          <button
-            onClick={onClose}
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-
-        <div className="px-5 py-5 space-y-5">
-          <p className="text-xs text-muted-foreground">
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Use this plate</DialogTitle>
+          <DialogDescription>
             Choose how you want to use this template:
-          </p>
+          </DialogDescription>
+        </DialogHeader>
 
+        <div className="space-y-5">
           <CopyField
             label="Scaffold with kik CLI"
             icon={<Terminal className="h-3.5 w-3.5" />}
@@ -101,7 +96,7 @@ export function UseModal({ open, onClose, slug, generateCommand }: Props) {
             </p>
           </div>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }

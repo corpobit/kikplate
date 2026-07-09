@@ -1,6 +1,7 @@
 "use client"
 
 import { GitBranch, Heart, User, Building2 } from "lucide-react"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export type AccountTab = "profile" | "plates" | "bookmarked" | "organizations"
 
@@ -18,21 +19,15 @@ const TABS: { id: AccountTab; label: string; icon: React.ReactNode }[] = [
 
 export function AccountTabs({ active, onChange }: Props) {
   return (
-    <div className="grid grid-cols-2 gap-x-3 gap-y-1 py-2 sm:flex sm:gap-0 sm:py-0">
-      {TABS.map((t) => (
-        <button
-          key={t.id}
-          onClick={() => onChange(t.id)}
-          className={`flex items-center justify-center gap-1.5 border-b-2 px-3 py-3 text-sm font-medium transition-colors sm:justify-start sm:px-4 ${
-            active === t.id
-              ? "border-foreground text-foreground"
-              : "border-transparent text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          {t.icon}
-          {t.label}
-        </button>
-      ))}
-    </div>
+    <Tabs value={active} onValueChange={onChange}>
+      <TabsList className="grid w-full grid-cols-2 sm:flex sm:w-auto">
+        {TABS.map((t) => (
+          <TabsTrigger key={t.id} value={t.id} className="gap-1.5 px-3">
+            {t.icon}
+            <span className="hidden sm:inline">{t.label}</span>
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
   )
 }

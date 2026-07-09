@@ -2,11 +2,23 @@
 
 import { Fragment, useState, useEffect, useMemo } from "react"
 import type { ComponentPropsWithoutRef } from "react"
-import { ChevronDown, ChevronRight, File, Folder, Loader2 } from "lucide-react"
+import { ChevronDown, ChevronRight, File, Folder, Loader2, Search } from "lucide-react"
 import type { RepoTreeEntry } from "@/src/data/repositories/githubClient"
 import { resolveRepoMarkdownHref } from "@/src/presentation/utils/readmeLinks"
 import { AuthService } from "@/src/domain/services/AuthService"
 import { toast } from "sonner"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface Props {
   readme: string | null
@@ -375,12 +387,17 @@ export function PlateContentTabs({
   const githubRepo = repoUrl?.trim() ? repoUrl : undefined
   const sourceFileInRepo = active === "license" ? "LICENSE" : "README.md"
 
+  const [schemaSearch, setSchemaSearch] = useState("")
+  const filteredSchemaFields = schemaFields.filter((f) =>
+    f.key.toLowerCase().includes(schemaSearch.toLowerCase())
+  )
+
   const markdownComponents = useMemo(
     () => ({
       pre: ({ children, ...props }: ComponentPropsWithoutRef<"pre">) => (
         <pre
           {...props}
-          className="my-4 overflow-x-auto border !border-border !bg-muted dark:!bg-card !p-6 text-xs leading-relaxed !text-foreground"
+          className="my-4 overflow-x-auto border border-border bg-muted dark:bg-card rounded-lg p-6 text-xs leading-relaxed text-foreground"
         >
           {children}
         </pre>
@@ -390,7 +407,7 @@ export function PlateContentTabs({
           return (
             <code
               {...props}
-              className="rounded-none border border-border bg-muted/80 px-2 py-1 font-mono text-xs text-foreground dark:bg-card"
+              className="rounded-md border border-border bg-muted/80 px-2 py-1 font-mono text-xs text-foreground dark:bg-card"
             >
               {children}
             </code>
@@ -424,6 +441,7 @@ export function PlateContentTabs({
         const resolved = srcStr
           ? resolveRepoMarkdownHref(srcStr, githubRepo, branchResolved, sourceFileInRepo)
           : srcStr
+        // eslint-disable-next-line @next/next/no-img-element
         return <img {...props} src={resolved} alt={alt ?? ""} />
       },
     }),
@@ -435,58 +453,63 @@ export function PlateContentTabs({
       <div>
         {active === "schema" ? (
           hasGenerate ? (
-            <div className="space-y-5 border border-border bg-card p-6">
+            <div className="space-y-5">
               {schemaFields.length > 0 ? (
                 <div>
-                  <p className="mb-2 text-sm font-semibold text-foreground">Schema fields</p>
-                  <div className="overflow-auto border border-border bg-background">
-                    <table className="w-full min-w-[640px] text-xs">
-                      <thead className="bg-card text-muted-foreground">
-                        <tr>
-                          <th className="px-3 py-2 text-left font-medium">Field</th>
-                          <th className="px-3 py-2 text-left font-medium">Type</th>
-                          <th className="px-3 py-2 text-left font-medium">Required</th>
-                          <th className="px-3 py-2 text-left font-medium">Default</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {schemaFields.map((field, index) => {
-                          const isEven = index % 2 === 0
-                          const tone = isEven ? "bg-background" : "bg-muted/60 dark:bg-card"
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <p className="text-sm font-semibold text-foreground">Schema fields</p>
+                    <div className="flex items-center gap-2 rounded-md border border-border px-3 transition-colors focus-within:border-ring">
+                      <Search className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                      <Input
+                        className="h-8 w-40 border-0 bg-transparent px-0 text-xs ring-0 focus-visible:ring-0"
+                        placeholder="Filter fields…"
+                        value={schemaSearch}
+                        onChange={(e) => setSchemaSearch(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Field</TableHead>
+                          <TableHead>Type</TableHead>
+                          <TableHead>Required</TableHead>
+                          <TableHead>Default</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredSchemaFields.map((field) => {
                           const hasValues = Boolean(field.values && field.values.length > 0)
 
                           return (
                             <Fragment key={field.key}>
-                              <tr key={`${field.key}-main`} className={`border-t border-border/70 ${tone}`}>
-                                <td className="px-3 pb-0.5 pt-2 align-top">
-                                  <div className="font-mono text-[13px] text-foreground">{field.key}</div>
-                                </td>
-                                <td className="px-3 pb-0.5 pt-2 align-top text-foreground">{field.type}</td>
-                                <td className="px-3 pb-0.5 pt-2 align-top text-foreground">{field.required ? "yes" : "no"}</td>
-                                <td className="px-3 pb-0.5 pt-2 align-top text-muted-foreground">{field.defaultValue || "-"}</td>
-                              </tr>
+                              <TableRow>
+                                <TableCell className="font-mono text-xs">{field.key}</TableCell>
+                                <TableCell className="text-xs">{field.type}</TableCell>
+                                <TableCell className="text-xs">{field.required ? "yes" : "no"}</TableCell>
+                                <TableCell className="text-xs text-muted-foreground">{field.defaultValue || "-"}</TableCell>
+                              </TableRow>
                               {hasValues ? (
-                                <tr key={`${field.key}-meta`} className={tone}>
-                                  <td colSpan={4} className="px-3 pb-2 pt-0.5 text-muted-foreground">
+                                <TableRow key={`${field.key}-meta`}>
+                                  <TableCell colSpan={4} className="pt-0">
                                     <div className="flex flex-wrap gap-2">
                                       {field.values!.map((value) => (
                                         <span
                                           key={`${field.key}-${value}`}
-                                          className="border border-border/70 bg-background px-1.5 py-0.5 font-mono text-[10px] text-foreground"
+                                          className="rounded border border-border bg-muted/50 px-1.5 py-0.5 font-mono text-[10px] text-foreground"
                                         >
                                           {value}
                                         </span>
                                       ))}
                                     </div>
-                                  </td>
-                                </tr>
+                                  </TableCell>
+                                </TableRow>
                               ) : null}
                             </Fragment>
                           )
                         })}
-                      </tbody>
-                    </table>
-                  </div>
+                      </TableBody>
+                    </Table>
                 </div>
               ) : null}
 
@@ -495,7 +518,7 @@ export function PlateContentTabs({
                   <p className="mb-2 text-sm font-semibold text-foreground">Modules</p>
                   <div className="flex flex-wrap gap-2">
                     {modules.map((mod) => (
-                      <span key={mod.name} className="border border-border bg-background px-2 py-1 text-xs text-foreground">
+                      <span key={mod.name} className="rounded-md border border-border bg-muted/30 px-2.5 py-1 text-xs text-foreground">
                         <span className="font-mono">{mod.name}</span>
                         <span className="ml-1 text-muted-foreground">default {mod.enabled ? "on" : "off"}</span>
                       </span>
@@ -504,7 +527,7 @@ export function PlateContentTabs({
                 </div>
               ) : null}
 
-              <div className="space-y-3 border border-border bg-background p-3">
+              <div className="space-y-3 rounded-xl border border-border bg-card p-4">
                 <p className="text-sm font-semibold text-foreground">Build and download project</p>
                 <div className="grid gap-2 sm:grid-cols-2">
                   {schemaFields.map((field) => {
@@ -512,37 +535,55 @@ export function PlateContentTabs({
                     const hasEnum = Array.isArray(field.values) && field.values.length > 0
 
                     return (
-                      <label key={`input-${field.key}`} className="grid gap-1">
-                        <span className="text-[11px] text-muted-foreground">
+                      <div key={`input-${field.key}`} className="grid gap-1">
+                        <Label className="text-[11px] font-normal text-muted-foreground">
                           {field.key}
                           {field.required ? " *" : ""}
-                        </span>
+                        </Label>
                         {hasEnum ? (
-                          <select
-                            className="h-8 border border-border bg-background px-2 text-xs"
-                            value={downloadValues[field.key] ?? ""}
-                            onChange={(e) => setDownloadValues((prev) => ({ ...prev, [field.key]: e.target.value }))}
+                          <Select
+                            value={downloadValues[field.key] ?? "__empty__"}
+                            onValueChange={(value) =>
+                              setDownloadValues((prev) => ({
+                                ...prev,
+                                [field.key]: (value ?? "__empty__") === "__empty__" ? "" : (value ?? ""),
+                              }))
+                            }
                           >
-                            <option value="">Select value</option>
-                            {field.values!.map((value) => (
-                              <option key={`${field.key}-${value}`} value={value}>
-                                {value}
-                              </option>
-                            ))}
-                          </select>
+                            <SelectTrigger className="h-8 w-full text-xs">
+                              <SelectValue placeholder="Select value" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="__empty__">Select value</SelectItem>
+                              {field.values!.map((value) => (
+                                <SelectItem key={`${field.key}-${value}`} value={value}>
+                                  {value}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         ) : normalized === "bool" || normalized === "boolean" ? (
-                          <select
-                            className="h-8 border border-border bg-background px-2 text-xs"
-                            value={downloadValues[field.key] ?? ""}
-                            onChange={(e) => setDownloadValues((prev) => ({ ...prev, [field.key]: e.target.value }))}
+                          <Select
+                            value={downloadValues[field.key] ?? "__empty__"}
+                            onValueChange={(value) =>
+                              setDownloadValues((prev) => ({
+                                ...prev,
+                                [field.key]: (value ?? "__empty__") === "__empty__" ? "" : (value ?? ""),
+                              }))
+                            }
                           >
-                            <option value="">Select value</option>
-                            <option value="true">true</option>
-                            <option value="false">false</option>
-                          </select>
+                            <SelectTrigger className="h-8 w-full text-xs">
+                              <SelectValue placeholder="Select value" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="__empty__">Select value</SelectItem>
+                              <SelectItem value="true">true</SelectItem>
+                              <SelectItem value="false">false</SelectItem>
+                            </SelectContent>
+                          </Select>
                         ) : (
-                          <input
-                            className="h-8 border border-border bg-background px-2 text-xs"
+                          <Input
+                            className="h-8 text-xs"
                             type={(normalized === "int" || normalized === "integer" || normalized === "number" || normalized === "float" || normalized === "double") ? "number" : "text"}
                             step={normalized === "int" || normalized === "integer" ? "1" : "any"}
                             value={downloadValues[field.key] ?? ""}
@@ -550,7 +591,7 @@ export function PlateContentTabs({
                             onChange={(e) => setDownloadValues((prev) => ({ ...prev, [field.key]: e.target.value }))}
                           />
                         )}
-                      </label>
+                      </div>
                     )
                   })}
                 </div>
@@ -559,35 +600,36 @@ export function PlateContentTabs({
                     <p className="text-xs font-semibold text-foreground">Modules</p>
                     <div className="grid gap-2 sm:grid-cols-2">
                       {modules.map((mod) => (
-                        <label
+                        <div
                           key={`toggle-${mod.name}`}
-                          className="flex h-8 items-center justify-between border border-border bg-background px-2 text-xs"
+                          className="flex h-8 items-center justify-between rounded-md border border-border bg-background px-2 text-xs"
                         >
                           <span className="font-mono text-foreground">{mod.name}</span>
-                          <input
-                            type="checkbox"
+                          <Checkbox
                             checked={Boolean(moduleValues[mod.name])}
-                            onChange={(e) =>
+                            onCheckedChange={(checked) =>
                               setModuleValues((prev) => ({
                                 ...prev,
-                                [mod.name]: e.target.checked,
+                                [mod.name]: Boolean(checked),
                               }))
                             }
                           />
-                        </label>
+                        </div>
                       ))}
                     </div>
                   </div>
                 ) : null}
-                <button
+                <Button
                   type="button"
                   onClick={handleGenerateDownload}
                   disabled={isGenerating}
-                  className="inline-flex h-8 items-center gap-2 border border-border bg-background px-3 text-xs font-semibold text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
+                  variant="outline"
+                  size="sm"
+                  className="h-8 gap-2 text-xs"
                 >
                   {isGenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                   {isGenerating ? "Generating..." : "Generate and download ZIP"}
-                </button>
+                </Button>
               </div>
             </div>
           ) : (
@@ -597,22 +639,26 @@ export function PlateContentTabs({
           )
         ) : active === "files" ? (
           treeNodes.length > 0 ? (
-            <div className="border border-border bg-card p-6">
+            <div className="border border-border bg-card rounded-lg p-6">
               <div className="mb-4 flex items-center justify-end gap-2 border-b border-border pb-3">
-                <button
+                <Button
                   type="button"
                   onClick={expandAll}
-                  className="h-8 border border-border px-3 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+                  variant="outline"
+                  size="sm"
+                  className="h-8 text-xs"
                 >
                   Expand all
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
                   onClick={collapseAll}
-                  className="h-8 border border-border px-3 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+                  variant="outline"
+                  size="sm"
+                  className="h-8 text-xs"
                 >
                   Collapse all
-                </button>
+                </Button>
               </div>
               <TreeView
                 nodes={treeNodes}
@@ -634,7 +680,7 @@ export function PlateContentTabs({
               prose-p:text-sm prose-p:leading-relaxed prose-p:text-foreground
               prose-a:text-blue-500 prose-a:no-underline hover:prose-a:underline
               prose-code:before:content-none prose-code:after:content-none
-              prose-pre:bg-transparent prose-pre:border-0 prose-pre:p-0 prose-pre:shadow-none
+              prose-pre:bg-transparent prose-pre:border-0 prose-pre:p-0
               prose-blockquote:border-l-4 prose-blockquote:border-border prose-blockquote:text-muted-foreground prose-blockquote:not-italic
               prose-table:text-sm prose-th:text-left prose-th:font-semibold prose-th:border prose-th:border-border prose-th:px-3 prose-th:py-2 prose-th:bg-muted
               prose-td:border prose-td:border-border prose-td:px-3 prose-td:py-2
