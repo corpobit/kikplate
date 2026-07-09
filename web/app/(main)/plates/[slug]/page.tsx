@@ -196,9 +196,9 @@ export default async function PlateDetailPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-background">
-        <div className="container mx-auto px-4 pt-6">
-          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+      <header className="border-b border-border bg-muted/10">
+        <div className="container mx-auto px-4 py-8 space-y-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <Link
               href="/explore"
               className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -222,48 +222,44 @@ export default async function PlateDetailPage({ params }: Props) {
             </div>
           </div>
 
-          <h1 className="max-w-4xl text-3xl font-black leading-tight tracking-tight text-foreground sm:text-4xl">
-            {plate.name}
-          </h1>
-
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            {plate.is_verified && (
-              <span className="inline-flex items-center gap-1.5 border border-emerald-400/50 bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-400">
-                <CheckCircle2 className="h-3.5 w-3.5" />
-                Verified
-              </span>
-            )}
-            <span
-              className={`inline-flex items-center gap-1.5 border px-2.5 py-1 text-xs font-medium uppercase tracking-wide ${
-                plate.visibility === "private"
-                  ? "border-amber-400/50 bg-amber-500/10 text-amber-700 dark:text-amber-300"
-                  : plate.visibility === "unlisted"
-                    ? "border-blue-400/50 bg-blue-500/10 text-blue-700 dark:text-blue-300"
-                    : "border-emerald-400/50 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
-              }`}
-            >
-              {plate.visibility}
-            </span>
-            <HeaderBadges badges={plate.badges ?? []} />
-          </div>
-
-          {plate.description && (
-            <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-              {plate.description}
-            </p>
-          )}
-
-          <div className="pb-4" />
-
           <div>
-            <PlateHeaderTabs
-              isRepository={plate.type === "repository"}
-              hasReadme={Boolean(readme)}
-              hasLicense={Boolean(license)}
-              hasTree={Boolean(tree?.length)}
-              hasGenerate={hasSchemaTab}
-            />
+            <h1 className="max-w-4xl text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-3xl">
+              {plate.name}
+            </h1>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              {plate.is_verified && (
+                <span className="inline-flex items-center gap-1.5 border border-emerald-400/50 bg-emerald-500/10 rounded-full px-3 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  Verified
+                </span>
+              )}
+              <span
+                className={`inline-flex items-center gap-1.5 border rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wide ${
+                  plate.visibility === "private"
+                    ? "border-amber-400/50 bg-amber-500/10 text-amber-700 dark:text-amber-300"
+                    : plate.visibility === "unlisted"
+                      ? "border-blue-400/50 bg-blue-500/10 text-blue-700 dark:text-blue-300"
+                      : "border-emerald-400/50 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+                }`}
+              >
+                {plate.visibility}
+              </span>
+              <HeaderBadges badges={plate.badges ?? []} />
+            </div>
+            {plate.description && (
+              <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+                {plate.description}
+              </p>
+            )}
           </div>
+
+          <PlateHeaderTabs
+            isRepository={plate.type === "repository"}
+            hasReadme={Boolean(readme)}
+            hasLicense={Boolean(license)}
+            hasTree={Boolean(tree?.length)}
+            hasGenerate={hasSchemaTab}
+          />
         </div>
       </header>
 
@@ -294,12 +290,12 @@ export default async function PlateDetailPage({ params }: Props) {
               userRating={plate.user_rating}
             />
 
-            <div className="border border-border bg-card p-5">
+            <div className="rounded-lg border border-border bg-card p-5">
               <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Overview</p>
 
               {plate.organization ? (
                 <div className="mb-4 flex items-center gap-2.5 border-b border-border pb-4">
-                  <Link href={`/orgs/${encodeURIComponent(plate.organization.name)}`} className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden border border-border bg-muted hover:border-foreground/30 transition-colors">
+                  <Link href={`/orgs/${encodeURIComponent(plate.organization.name)}`} className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-muted hover:border-foreground/30 transition-colors">
                     {plate.organization.logo_url ? (
                       <Image
                         src={plate.organization.logo_url}
@@ -332,7 +328,7 @@ export default async function PlateDetailPage({ params }: Props) {
                 </div>
               ) : plate.owner ? (
                 <div className="mb-4 flex items-center gap-2.5 border-b border-border pb-4">
-                  <Link href={`/users/${encodeURIComponent(plate.owner.username ?? "")}`} className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden border border-border bg-muted hover:border-foreground/30 transition-colors">
+                  <Link href={`/users/${encodeURIComponent(plate.owner.username ?? "")}`} className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-muted hover:border-foreground/30 transition-colors">
                     {plate.owner.avatar_url ? (
                       <Image
                         src={plate.owner.avatar_url}
@@ -397,7 +393,7 @@ export default async function PlateDetailPage({ params }: Props) {
                       <Link
                         key={t.id}
                         href={`/explore?tag=${t.tag}`}
-                        className="inline-flex items-center gap-1 border border-border bg-background px-2 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+                        className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-2 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
                       >
                         <Tag className="h-2.5 w-2.5" />
                         {t.tag}
@@ -417,7 +413,7 @@ export default async function PlateDetailPage({ params }: Props) {
             />
 
             {plate.type === "repository" && plate.repo_url && (
-              <div className="border border-border bg-card p-5">
+              <div className="rounded-lg border border-border bg-card p-5">
                 <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Repository</p>
                 <div className="flex items-center justify-between gap-2">
                   <span className="truncate font-mono text-xs text-foreground">{plate.repo_url.replace("https://github.com/", "")}</span>

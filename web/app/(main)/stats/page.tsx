@@ -79,7 +79,7 @@ function PanelLoader() {
 /* ─── panel wrapper ─── */
 function Panel({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
   return (
-    <section className="border border-border bg-card p-5 sm:p-6">
+    <section className="rounded-xl border border-border bg-card/90 p-5 sm:p-6">
       <div className="mb-5">
         <h2 className="text-xl font-bold text-foreground">{title}</h2>
         <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
@@ -87,11 +87,6 @@ function Panel({ title, subtitle, children }: { title: string; subtitle: string;
       {children}
     </section>
   )
-}
-
-/* ─── KPI row ─── */
-function KpiPanel() {
-  return null
 }
 
 /* ─── Monthly growth line chart ─── */
@@ -113,10 +108,10 @@ function GrowthPanel() {
             <XAxis dataKey="label" tick={{ fontSize: 11, fill: c.fg, fillOpacity: 0.6 }} stroke={c.fg} strokeOpacity={0.1} />
             <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: c.fg, fillOpacity: 0.6 }} stroke={c.fg} strokeOpacity={0.1} />
             <Tooltip
-              contentStyle={{ backgroundColor: c.card, border: `1px solid ${c.border}`, borderRadius: 0, fontSize: 12, color: c.fg }}
+              contentStyle={{ backgroundColor: c.card, border: `1px solid ${c.border}`, borderRadius: 8, fontSize: 12, color: c.fg }}
               labelStyle={{ fontWeight: 700 }}
             />
-            <Bar dataKey="count" name="Plates" fill={c.chart5} radius={[2, 2, 0, 0]} />
+            <Bar dataKey="count" name="Plates" fill={c.chart5} radius={[6, 6, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       )}
@@ -144,7 +139,7 @@ function CumulativePanel() {
             <XAxis dataKey="label" tick={{ fontSize: 11, fill: c.fg, fillOpacity: 0.6 }} stroke={c.fg} strokeOpacity={0.1} />
             <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: c.fg, fillOpacity: 0.6 }} stroke={c.fg} strokeOpacity={0.1} />
             <Tooltip
-              contentStyle={{ backgroundColor: c.card, border: `1px solid ${c.border}`, borderRadius: 0, fontSize: 12, color: c.fg }}
+              contentStyle={{ backgroundColor: c.card, border: `1px solid ${c.border}`, borderRadius: 8, fontSize: 12, color: c.fg }}
               labelStyle={{ fontWeight: 700 }}
             />
             <Line type="monotone" dataKey="total" name="Total" stroke={c.chart5} strokeWidth={2.5} dot={{ r: 3 }} />
@@ -171,9 +166,9 @@ function CategoryPanel() {
             <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11, fill: c.fg, fillOpacity: 0.6 }} stroke={c.fg} strokeOpacity={0.1} />
             <YAxis dataKey="category" type="category" width={100} tick={{ fontSize: 11, fill: c.fg, fillOpacity: 0.6 }} stroke={c.fg} strokeOpacity={0.1} />
             <Tooltip
-              contentStyle={{ backgroundColor: c.card, border: `1px solid ${c.border}`, borderRadius: 0, fontSize: 12, color: c.fg }}
+              contentStyle={{ backgroundColor: c.card, border: `1px solid ${c.border}`, borderRadius: 8, fontSize: 12, color: c.fg }}
             />
-            <Bar dataKey="count" name="Plates" fill={c.chart5} radius={[0, 2, 2, 0]} />
+            <Bar dataKey="count" name="Plates" fill={c.chart5} radius={[0, 6, 6, 0]} />
           </BarChart>
         </ResponsiveContainer>
       )}
@@ -220,7 +215,7 @@ function BadgeTierPanel() {
                 ))}
               </Pie>
               <Tooltip
-                contentStyle={{ backgroundColor: c.card, border: `1px solid ${c.border}`, borderRadius: 0, fontSize: 12, color: c.fg }}
+                contentStyle={{ backgroundColor: c.card, border: `1px solid ${c.border}`, borderRadius: 8, fontSize: 12, color: c.fg }}
               />
             </PieChart>
           </ResponsiveContainer>
@@ -322,7 +317,9 @@ export default function StatsPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-10 sm:py-12">
-        <div className="border border-border bg-muted/20 p-5 sm:p-7">
+        <div className="relative overflow-hidden rounded-xl border border-border bg-card/90 p-5 sm:p-7">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,hsl(var(--muted))_0%,transparent_58%)]" />
+          <div className="relative">
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
             Public Dashboard
           </p>
@@ -333,9 +330,15 @@ export default function StatsPage() {
             Live platform metrics and distribution charts from public registry data.
             Each panel loads independently and updates automatically.
           </p>
+          </div>
         </div>
 
         <div className="mt-8 grid grid-cols-1 gap-4 xl:grid-cols-2">
+          <GrowthPanel />
+          <CumulativePanel />
+        </div>
+
+        <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-2">
           <CategoryPanel />
           <BadgeTierPanel />
         </div>
@@ -345,7 +348,7 @@ export default function StatsPage() {
           <TopRatedPanel />
         </div>
 
-        <div className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">
+        <div className="mt-6 inline-flex items-center gap-2 rounded-md border border-border bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
           <BarChart3 className="h-3.5 w-3.5" />
           <ShieldCheck className="h-3.5 w-3.5" />
           <span>Data source: public API endpoints</span>

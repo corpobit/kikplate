@@ -9,6 +9,9 @@ import { AlertCircle, Loader2 } from "lucide-react"
 import { http } from "@/src/data/repositories/httpClient"
 import { useQueryClient } from "@tanstack/react-query"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export default function SetUsernamePage() {
   const router = useRouter()
@@ -70,15 +73,12 @@ export default function SetUsernamePage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-foreground">
-              Username
-            </label>
-            <input
+            <Label>Username</Label>
+            <Input
               type="text"
               placeholder="e.g. moeidheidari"
               value={username}
               onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ""))}
-              className="w-full border border-input bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 transition-colors"
               maxLength={32}
               autoFocus
             />
@@ -88,10 +88,12 @@ export default function SetUsernamePage() {
           </div>
 
           {error && (
-            <div className="flex items-start gap-2 border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
-              <span>{error}</span>
-            </div>
+            <Alert variant="destructive">
+              <AlertDescription className="inline-flex items-start gap-2 text-sm">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                <span>{error}</span>
+              </AlertDescription>
+            </Alert>
           )}
 
           <Button

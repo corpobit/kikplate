@@ -9,12 +9,20 @@ export default async function ExplorePage({ searchParams }: Props) {
 
   return (
     <div className="container mx-auto px-4 py-8 sm:py-10">
-      <header className="mb-8">
-        <div className="w-full border border-border bg-card px-5 py-5 sm:px-6 sm:py-6">
-          <h1 className="font-heading text-3xl font-bold tracking-tight sm:text-4xl">Explore</h1>
-          <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
-            Search templates and refine by category, tags, or badges—filters apply instantly.
-          </p>
+      <header className="mb-7 sm:mb-8">
+        <div className="relative overflow-hidden rounded-xl border border-border bg-card/80 px-5 py-6 sm:px-7 sm:py-8">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,hsl(var(--muted))_0%,transparent_55%)]" />
+          <div className="relative">
+            <h1 className="font-heading text-3xl font-bold tracking-tight sm:text-4xl">Explore plates</h1>
+            <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-muted-foreground sm:text-base">
+              Discover production-ready starters and boilerplates. Filter by category, tags, and badges to quickly find the right starting point.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <span className="rounded-md border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground">Instant filters</span>
+              <span className="rounded-md border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground">Badge-aware search</span>
+              <span className="rounded-md border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground">Fast pagination</span>
+            </div>
+          </div>
         </div>
       </header>
       <PlateGridClient

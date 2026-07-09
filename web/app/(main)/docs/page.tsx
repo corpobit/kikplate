@@ -4,6 +4,8 @@ import { Suspense, useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { MarkdownRenderer } from '@/src/presentation/components/markdown/MarkdownRenderer'
 import { BookOpen, Menu, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Sheet, SheetContent } from '@/components/ui/sheet'
 
 interface DocItem {
   slug: string
@@ -68,36 +70,36 @@ function DocsPageContent() {
             <div className="flex-1">
               <h1 className="text-lg font-semibold text-foreground truncate">{currentDocName || 'docs'}</h1>
             </div>
-            <button
+            <Button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="ml-4 p-2 hover:bg-muted rounded transition-colors"
+              variant="ghost"
+              size="icon-sm"
+              className="ml-4"
               aria-label="Toggle menu"
             >
               {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
+            </Button>
           </div>
+        </div>
 
-          {/* Mobile sidebar */}
-          {mobileOpen && (
-            <nav className="border-t border-border bg-background/50">
+        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+          <SheetContent side="left" className="w-[280px] p-0">
+            <nav className="h-full overflow-y-auto border-r border-border bg-background">
               <div className="px-4 py-3 space-y-1">
                 {docs.map((doc) => (
-                  <button
+                  <Button
                     key={doc.slug}
+                    variant={currentDoc === doc.slug ? 'default' : 'ghost'}
+                    className="w-full justify-start"
                     onClick={() => setCurrentDoc(doc.slug)}
-                    className={`w-full text-left px-3 py-2 rounded text-sm transition-colors ${
-                      currentDoc === doc.slug
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                    }`}
                   >
                     {doc.name}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </nav>
-          )}
-        </div>
+          </SheetContent>
+        </Sheet>
 
         {/* Main layout */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 px-4 py-12 lg:py-16">
@@ -105,17 +107,14 @@ function DocsPageContent() {
           <aside className="hidden lg:block">
             <nav className="sticky top-24 space-y-1 pr-4">
               {docs.map((doc) => (
-                <button
+                <Button
                   key={doc.slug}
                   onClick={() => setCurrentDoc(doc.slug)}
-                  className={`w-full text-left px-4 py-2.5 rounded text-sm font-medium transition-all ${
-                    currentDoc === doc.slug
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                  }`}
+                  variant={currentDoc === doc.slug ? 'default' : 'ghost'}
+                  className="w-full justify-start"
                 >
                   {doc.name}
-                </button>
+                </Button>
               ))}
             </nav>
           </aside>
@@ -145,31 +144,33 @@ function DocsPageContent() {
             {docs.length > 0 && !loading && (
               <div className="mt-16 pt-8 border-t border-border flex items-center justify-between gap-4">
                 {prevDoc ? (
-                  <button
+                  <Button
                     onClick={() => setCurrentDoc(prevDoc.slug)}
-                    className="flex items-center gap-3 px-4 py-2 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors group"
+                    variant="ghost"
+                    className="group h-auto items-center gap-3 px-4 py-2 text-muted-foreground hover:text-foreground"
                   >
                     <ChevronLeft size={18} className="group-hover:-translate-x-0.5 transition-transform" />
                     <div className="text-left">
                       <div className="text-xs text-muted-foreground">Previous</div>
                       <div className="text-sm font-medium">{prevDoc.name}</div>
                     </div>
-                  </button>
+                  </Button>
                 ) : (
                   <div />
                 )}
 
                 {nextDoc ? (
-                  <button
+                  <Button
                     onClick={() => setCurrentDoc(nextDoc.slug)}
-                    className="flex items-center gap-3 px-4 py-2 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors group ml-auto"
+                    variant="ghost"
+                    className="group ml-auto h-auto items-center gap-3 px-4 py-2 text-muted-foreground hover:text-foreground"
                   >
                     <div className="text-right">
                       <div className="text-xs text-muted-foreground">Next</div>
                       <div className="text-sm font-medium">{nextDoc.name}</div>
                     </div>
                     <ChevronRight size={18} className="group-hover:translate-x-0.5 transition-transform" />
-                  </button>
+                  </Button>
                 ) : (
                   <div />
                 )}

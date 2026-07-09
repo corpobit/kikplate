@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 type HeaderTab = "readme" | "license" | "files" | "schema" | "content"
 
@@ -54,63 +55,28 @@ export function PlateHeaderTabs({ isRepository, hasReadme = false, hasLicense = 
   }
 
   return (
-    <nav className="flex h-12 items-end gap-1 overflow-x-auto text-sm">
-      {isRepository ? (
-        <>
-          <button
-            type="button"
-            onClick={() => setHashWithoutScroll("readme")}
-            disabled={!hasReadme}
-            className={`inline-flex h-10 items-center border-b-2 px-3 font-semibold transition-colors ${
-              active === "readme"
-                ? "border-foreground text-foreground"
-                : "border-transparent text-muted-foreground hover:border-foreground/30 hover:text-foreground"
-            } disabled:cursor-not-allowed disabled:opacity-40`}
-          >
-            README
-          </button>
-          <button
-            type="button"
-            onClick={() => setHashWithoutScroll("license")}
-            disabled={!hasLicense}
-            className={`inline-flex h-10 items-center border-b-2 px-3 font-semibold transition-colors ${
-              active === "license"
-                ? "border-foreground text-foreground"
-                : "border-transparent text-muted-foreground hover:border-foreground/30 hover:text-foreground"
-            } disabled:cursor-not-allowed disabled:opacity-40`}
-          >
-            License
-          </button>
-          <button
-            type="button"
-            onClick={() => setHashWithoutScroll("schema")}
-            disabled={!hasGenerate}
-            className={`inline-flex h-10 items-center border-b-2 px-3 font-semibold transition-colors ${
-              active === "schema"
-                ? "border-foreground text-foreground"
-                : "border-transparent text-muted-foreground hover:border-foreground/30 hover:text-foreground"
-            } disabled:cursor-not-allowed disabled:opacity-40`}
-          >
-            Schema
-          </button>
-          <button
-            type="button"
-            onClick={() => setHashWithoutScroll("files")}
-            disabled={!hasTree}
-            className={`inline-flex h-10 items-center border-b-2 px-3 font-semibold transition-colors ${
-              active === "files"
-                ? "border-foreground text-foreground"
-                : "border-transparent text-muted-foreground hover:border-foreground/30 hover:text-foreground"
-            } disabled:cursor-not-allowed disabled:opacity-40`}
-          >
-            Files
-          </button>
-        </>
-      ) : (
-        <span className="inline-flex h-10 items-center border-b-2 border-foreground px-3 font-semibold text-foreground">
-          Content
-        </span>
-      )}
-    </nav>
+    <Tabs
+      value={active}
+      onValueChange={(value) => {
+        if (value === "readme" || value === "license" || value === "files" || value === "schema") {
+          setHashWithoutScroll(value)
+        }
+      }}
+    >
+      <TabsList className="h-auto w-full justify-start overflow-x-auto">
+        {isRepository ? (
+          <>
+            <TabsTrigger value="readme" disabled={!hasReadme} className="px-3">README</TabsTrigger>
+            <TabsTrigger value="license" disabled={!hasLicense} className="px-3">License</TabsTrigger>
+            <TabsTrigger value="schema" disabled={!hasGenerate} className="px-3">Schema</TabsTrigger>
+            <TabsTrigger value="files" disabled={!hasTree} className="px-3">Files</TabsTrigger>
+          </>
+        ) : (
+          <TabsTrigger value="content" disabled className="px-3">
+            Content
+          </TabsTrigger>
+        )}
+      </TabsList>
+    </Tabs>
   )
 }

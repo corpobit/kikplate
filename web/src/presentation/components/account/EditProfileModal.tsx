@@ -2,9 +2,17 @@
 
 import Image from "next/image"
 import { useState } from "react"
-import { X, Loader2 } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import type { MeResult } from "@/src/domain/entities/User"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { useSetUsername, useUpdateProfile } from "@/src/presentation/hooks/useAuth"
 
 interface Props {
@@ -45,62 +53,65 @@ export function EditProfileModal({ me, onClose, onSaved }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={onClose}>
-      <div className="relative w-full max-w-md border border-border bg-background shadow-none" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-          <h2 className="text-sm font-semibold">Edit profile</h2>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
+    <Dialog open={true} onOpenChange={onClose}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit profile</DialogTitle>
+        </DialogHeader>
 
-        <div className="px-5 py-5 space-y-4">
+        <div className="space-y-4">
           <div className="space-y-1.5">
-            <label className="text-xs text-muted-foreground">Username</label>
-            <input
-              className="h-9 w-full border border-input bg-transparent px-3 text-sm outline-none focus:border-ring transition-colors"
+            <label htmlFor="username" className="text-xs font-medium text-muted-foreground">
+              Username
+            </label>
+            <Input
+              id="username"
               value={username}
-              onChange={e => setUsername(e.target.value)}
+              onChange={(e) => setUsername(e.target.value)}
               placeholder="your_username"
               disabled={me.provider !== "local"}
             />
             {me.provider !== "local" && (
-              <p className="text-xs text-muted-foreground/60">
+              <p className="text-xs text-muted-foreground">
                 Username is managed by your {me.provider} account.
               </p>
             )}
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs text-muted-foreground">Display name</label>
-            <input
-              className="h-9 w-full border border-input bg-transparent px-3 text-sm outline-none focus:border-ring transition-colors"
+            <label htmlFor="displayName" className="text-xs font-medium text-muted-foreground">
+              Display name
+            </label>
+            <Input
+              id="displayName"
               value={displayName}
-              onChange={e => setDisplayName(e.target.value)}
+              onChange={(e) => setDisplayName(e.target.value)}
               placeholder="Your Name"
             />
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs text-muted-foreground">Avatar URL</label>
-            <input
-              className="h-9 w-full border border-input bg-transparent px-3 text-sm outline-none focus:border-ring transition-colors"
+            <label htmlFor="avatarUrl" className="text-xs font-medium text-muted-foreground">
+              Avatar URL
+            </label>
+            <Input
+              id="avatarUrl"
               value={avatarUrl}
-              onChange={e => setAvatarUrl(e.target.value)}
+              onChange={(e) => setAvatarUrl(e.target.value)}
               placeholder="https://..."
             />
           </div>
 
           {avatarUrl && (
             <div className="flex items-center gap-3">
-                <Image
+              <Image
                 src={avatarUrl}
                 alt="Preview"
-                  width={40}
-                  height={40}
-                  unoptimized
-                className="h-10 w-10 object-cover border border-border"
-                onError={e => (e.currentTarget.style.display = "none")}
+                width={40}
+                height={40}
+                unoptimized
+                className="h-10 w-10 object-cover border border-border rounded-lg"
+                onError={(e) => (e.currentTarget.style.display = "none")}
               />
               <span className="text-xs text-muted-foreground">Avatar preview</span>
             </div>
@@ -109,24 +120,16 @@ export function EditProfileModal({ me, onClose, onSaved }: Props) {
           {error && <p className="text-xs text-destructive">{error}</p>}
         </div>
 
-        <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-border">
-          <button
-            onClick={onClose}
-            className="h-9 border border-border px-4 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={saving}>
             Cancel
-          </button>
-          <Button
-            onClick={handleSave}
-            disabled={saving}
-            size="sm"
-            className="gap-2"
-          >
-            {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+          </Button>
+          <Button onClick={handleSave} disabled={saving}>
+            {saving && <Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" />}
             Save changes
           </Button>
-        </div>
-      </div>
-    </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }

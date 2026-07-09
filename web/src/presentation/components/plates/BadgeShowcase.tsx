@@ -29,7 +29,7 @@ export function BadgeShowcase({ allBadges, plateBadges, plateOwnerId, plateSlug,
   if (allBadges.length === 0) return null
 
   return (
-    <div className="border border-border bg-card p-5">
+    <div className="border border-border bg-card rounded-lg p-5">
       <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
         Badges
       </p>
@@ -41,7 +41,7 @@ export function BadgeShowcase({ allBadges, plateBadges, plateOwnerId, plateSlug,
             <span
               key={badge.id}
               title={badge.description || badge.name}
-              className={`inline-flex items-center gap-1 border px-2 py-0.5 text-xs font-semibold ${
+              className={`inline-flex items-center gap-1 border rounded-full px-2.5 py-1 text-xs font-semibold ${
                 active
                   ? "border-foreground/20 bg-foreground/5 text-foreground"
                   : "border-border bg-muted/30 text-muted-foreground/30"

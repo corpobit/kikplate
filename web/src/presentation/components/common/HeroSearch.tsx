@@ -6,6 +6,8 @@ import { Search, GitBranch, Loader2, Github, Linkedin, ChevronDown, HelpCircle }
 import { usePlates } from "@/src/presentation/hooks/usePlates"
 import { useConfig } from "@/src/presentation/hooks/useConfig"
 import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 
 const SAMPLE_QUERIES = [
   "Golang starter",
@@ -80,7 +82,7 @@ export function HeroSearch() {
   }, [])
 
   return (
-    <div className="relative min-h-[calc(100vh-12rem)] bg-background flex flex-col items-center justify-center px-4 text-center">
+    <div className="relative min-h-screen bg-background flex flex-col items-center justify-center px-4 text-center">
 
       <div className="flex flex-col items-center gap-6 w-full max-w-6xl">
 
@@ -99,10 +101,10 @@ export function HeroSearch() {
 
         <div className="w-full max-w-4xl mt-2" ref={containerRef}>
           <div className="relative">
-            <div className="flex items-center border border-border bg-card px-4 gap-3 focus-within:border-foreground/30 focus-within:ring-1 focus-within:ring-foreground/10 transition-all">
+            <div className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 transition-all hover:border-border/80 focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/30">
               <Search className="h-5 w-5 text-muted-foreground shrink-0" />
-              <input
-                className="h-14 w-full bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
+              <Input
+                className="h-14 w-full border-0 bg-transparent px-0 text-base ring-0 focus-visible:ring-0"
                 placeholder="Search plates... e.g. golang clean architecture"
                 value={query}
                 onChange={(e) => {
@@ -116,21 +118,23 @@ export function HeroSearch() {
               {isLoading && query.trim().length > 1 && (
                 <Loader2 className="h-4 w-4 text-muted-foreground animate-spin shrink-0" />
               )}
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon-xs"
                 onClick={() => setShowHints(!showHints)}
-                className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+                className="shrink-0 text-muted-foreground hover:text-foreground"
                 aria-label="Search tips"
               >
                 <HelpCircle className="h-4 w-4" />
-              </button>
+              </Button>
             </div>
 
             {showHints && (
-              <div className="absolute top-full left-0 right-0 z-50 border border-border border-t-0 bg-card shadow-lg shadow-black/10 p-4">
+              <div className="absolute top-full left-0 right-0 z-50 mt-2 rounded-md border bg-popover p-4 text-popover-foreground">
                 <div className="flex items-center justify-between mb-3">
                   <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Search tips</p>
-                  <button onClick={() => setShowHints(false)} className="text-xs text-muted-foreground hover:text-foreground transition-colors">Close</button>
+                  <Button variant="ghost" size="xs" onClick={() => setShowHints(false)}>Close</Button>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
                   <div className="space-y-2">
@@ -166,7 +170,7 @@ export function HeroSearch() {
             )}
 
             {showDropdown && (
-              <div className="absolute top-full left-0 right-0 z-50 border border-border border-t-0 bg-card shadow-lg shadow-black/20">
+              <div className="absolute top-full left-0 right-0 z-50 mt-2 overflow-hidden rounded-md border bg-popover text-popover-foreground">
                 {isLoading ? (
                   <div className="flex items-center justify-center py-6">
                     <Loader2 className="h-4 w-4 text-muted-foreground animate-spin" />
@@ -174,12 +178,14 @@ export function HeroSearch() {
                 ) : results.length === 0 ? (
                   <div className="px-4 py-6 text-center">
                     <p className="text-sm text-muted-foreground">No plates found for &quot;{query}&quot;</p>
-                    <button
+                    <Button
                       onClick={() => handleSearch(query)}
-                      className="mt-2 text-xs text-foreground underline underline-offset-4"
+                      variant="link"
+                      size="xs"
+                      className="mt-2"
                     >
                       Search all plates →
-                    </button>
+                    </Button>
                   </div>
                 ) : (
                   <>
@@ -189,7 +195,7 @@ export function HeroSearch() {
                           key={plate.id}
                           href={`/plates/${plate.slug}`}
                           onClick={() => setOpen(false)}
-                          className="flex items-start gap-3 px-4 py-3 hover:bg-muted transition-colors"
+                          className="flex items-start gap-3 px-4 py-3 transition-colors hover:bg-accent hover:text-accent-foreground"
                         >
                           <div className="mt-0.5 text-muted-foreground shrink-0">
                             <GitBranch className="h-4 w-4" />
@@ -205,12 +211,14 @@ export function HeroSearch() {
                       ))}
                     </div>
                     <div className="border-t border-border px-4 py-2.5">
-                      <button
+                      <Button
                         onClick={() => handleSearch(query)}
-                        className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                        variant="ghost"
+                        size="xs"
+                        className="text-muted-foreground hover:text-foreground"
                       >
                         See all results for &quot;{query}&quot; →
-                      </button>
+                      </Button>
                     </div>
                   </>
                 )}
@@ -229,13 +237,15 @@ export function HeroSearch() {
 
         <div className="flex flex-wrap justify-center gap-2 max-w-2xl">
           {sampleQueries.map((q) => (
-            <button
+            <Button
               key={q}
               onClick={() => handleSearch(q)}
-              className="px-3 py-1.5 text-xs border border-border text-muted-foreground hover:text-foreground hover:border-foreground/30 hover:bg-card transition-all"
+              variant="outline"
+              size="xs"
+              className="text-muted-foreground hover:text-foreground"
             >
               {q}
-            </button>
+            </Button>
           ))}
         </div>
 
@@ -244,16 +254,18 @@ export function HeroSearch() {
           <span className="text-muted-foreground/30">|</span>
           <div className="flex items-center gap-2">
             {socialItems.map((item, idx) => (
-              <Link
+              <Button
                 key={`footer-${item.type}-${idx}`}
-                href={item.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center h-8 w-8 border border-border text-muted-foreground transition-colors hover:text-foreground hover:bg-card"
+                asChild
+                variant="outline"
+                size="icon-xs"
+                className="h-8 w-8 rounded-md text-muted-foreground hover:text-foreground"
                 title={socialLabel(item.type)}
               >
-                {socialIcon(item.type)}
-              </Link>
+                <Link href={item.link} target="_blank" rel="noopener noreferrer">
+                  {socialIcon(item.type)}
+                </Link>
+              </Button>
             ))}
           </div>
         </div>
