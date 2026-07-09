@@ -2,6 +2,9 @@
 
 import { useState } from "react"
 import { Search, X } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import type {
   PlateBadgeFilterOption,
   PlateCategoryFilterOption,
@@ -24,7 +27,7 @@ interface Props {
   badges: PlateBadgeFilterOption[]
 }
 
-function Checkbox({
+function FilterCheckbox({
   checked,
   onChange,
   label,
@@ -37,45 +40,28 @@ function Checkbox({
   count?: number
   disabled?: boolean
 }) {
-  const muted = Boolean(disabled)
   return (
-    <button
-      type="button"
-      onClick={onChange}
-      disabled={disabled}
-      className={`group flex w-full items-center gap-2 px-1 py-1 text-sm text-left ${
-        muted ? "cursor-not-allowed opacity-50" : ""
-      }`}
-      aria-pressed={checked}
-    >
-      <span
-        className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center border transition-colors ${
-          checked ? "border-primary bg-primary" : "border-border bg-background group-hover:border-foreground/40"
-        } ${muted ? "border-border/60" : ""}`}
-      >
-        {checked && (
-          <svg viewBox="0 0 10 10" className="h-2.5 w-2.5 text-primary-foreground" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <polyline points="1.5,5 4,7.5 8.5,2.5" />
-          </svg>
-        )}
-      </span>
-      <span
-        className={`min-w-0 flex-1 truncate ${
-          checked ? "font-medium text-foreground" : muted ? "text-muted-foreground" : "text-muted-foreground group-hover:text-foreground"
-        }`}
+    <div className="flex items-center gap-2 px-1 py-1">
+      <Checkbox
+        checked={checked}
+        onCheckedChange={onChange}
+        disabled={disabled}
+        id={`filter-${label}`}
+      />
+      <label
+        htmlFor={`filter-${label}`}
+        className={`flex-1 text-sm cursor-pointer ${
+          disabled ? "opacity-50 cursor-not-allowed" : ""
+        } ${checked ? "font-medium" : "text-muted-foreground"}`}
       >
         {label}
-      </span>
+      </label>
       {count !== undefined && (
-        <span
-          className={`shrink-0 tabular-nums text-xs ${
-            muted ? "text-muted-foreground/70" : "text-muted-foreground"
-          }`}
-        >
+        <span className="text-xs text-muted-foreground tabular-nums">
           {count}
         </span>
       )}
-    </button>
+    </div>
   )
 }
 
@@ -99,14 +85,14 @@ function BadgesDropdown({
 
   return (
     <div className="space-y-1.5">
-      <div className="flex items-center border border-border px-2 gap-1.5 focus-within:border-ring transition-colors">
+      <div className="flex items-center gap-1.5">
         <Search className="h-3 w-3 text-muted-foreground shrink-0" />
-        <input
+        <Input
           type="text"
           placeholder="Search badges..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="h-7 w-full bg-transparent text-xs outline-none placeholder:text-muted-foreground"
+          className="h-7 text-xs"
         />
       </div>
       <div className="space-y-0">
@@ -117,7 +103,7 @@ function BadgesDropdown({
             const selected = activeBadges.includes(b.slug)
             const noPlates = b.count === 0
             return (
-              <Checkbox
+              <FilterCheckbox
                 key={b.slug}
                 checked={selected}
                 disabled={noPlates && !selected}
@@ -171,14 +157,14 @@ function CategoriesDropdown({
 
   return (
     <div className="space-y-1.5">
-      <div className="flex items-center border border-border px-2 gap-1.5 focus-within:border-ring transition-colors">
+      <div className="flex items-center gap-1.5">
         <Search className="h-3 w-3 text-muted-foreground shrink-0" />
-        <input
+        <Input
           type="text"
           placeholder="Search categories..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="h-7 w-full bg-transparent text-xs outline-none placeholder:text-muted-foreground"
+          className="h-7 text-xs"
         />
       </div>
       <div className="space-y-0">
@@ -191,7 +177,7 @@ function CategoriesDropdown({
             const selected = activeCategories.includes(row.slug)
             const noPlates = row.count === 0
             return (
-              <Checkbox
+              <FilterCheckbox
                 key={row.slug}
                 checked={selected}
                 disabled={noPlates && !selected}
@@ -224,14 +210,14 @@ function TagsDropdown({
 
   return (
     <div className="space-y-1.5">
-      <div className="flex items-center border border-border px-2 gap-1.5 focus-within:border-ring transition-colors">
+      <div className="flex items-center gap-1.5">
         <Search className="h-3 w-3 text-muted-foreground shrink-0" />
-        <input
+        <Input
           type="text"
           placeholder="Search tags..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="h-7 w-full bg-transparent text-xs outline-none placeholder:text-muted-foreground"
+          className="h-7 text-xs"
         />
       </div>
       <div className="space-y-0">
@@ -242,7 +228,7 @@ function TagsDropdown({
             const selected = activeTags.includes(row.tag)
             const noPlates = row.count === 0
             return (
-              <Checkbox
+              <FilterCheckbox
                 key={row.tag}
                 checked={selected}
                 disabled={noPlates && !selected}
@@ -289,34 +275,36 @@ export function PlateFilters({
     activeBadges.length > 0
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center border border-border px-3 gap-2 focus-within:border-ring transition-colors">
-        <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-        <input
-          className="h-9 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-          placeholder="Search plates..."
-          value={search}
-          onChange={(e) => onSearch(e.target.value)}
-        />
-        {search && (
-          <button onClick={() => onSearch("")} className="text-muted-foreground hover:text-foreground">
-            <X className="h-3.5 w-3.5" />
+    <div className="divide-y divide-border">
+      <div className="pb-4 space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Search</p>
+        <div className="flex items-center gap-2 rounded-md border border-border px-3 transition-colors hover:border-border/80 focus-within:border-ring">
+          <Search className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+          <Input
+            className="h-9 w-full border-0 bg-transparent px-0 ring-0 focus-visible:ring-0"
+            placeholder="Search plates..."
+            value={search}
+            onChange={(e) => onSearch(e.target.value)}
+          />
+          {search && (
+            <Button type="button" variant="ghost" size="icon-xs" onClick={() => onSearch("")} className="text-muted-foreground hover:text-foreground">
+              <X className="h-3.5 w-3.5" />
+            </Button>
+          )}
+        </div>
+        {hasActiveFilters && (
+          <button
+            type="button"
+            onClick={onClearAll}
+            className="flex w-full items-center gap-1 text-left text-xs text-muted-foreground hover:text-foreground"
+          >
+            <X className="h-3 w-3" /> Clear all filters
           </button>
         )}
       </div>
 
-      {hasActiveFilters && (
-        <button
-          type="button"
-          onClick={onClearAll}
-          className="w-full text-left text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
-        >
-          <X className="h-3 w-3" /> Clear all filters
-        </button>
-      )}
-
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">Badges</p>
+      <div className="py-4 space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Badges</p>
         {badges.length === 0 ? (
           <p className="text-xs text-muted-foreground px-1 py-1.5">No badges available.</p>
         ) : (
@@ -330,8 +318,8 @@ export function PlateFilters({
         )}
       </div>
 
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">Tags</p>
+      <div className="py-4 space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Tags</p>
         <TagsDropdown
           activeTags={activeTags}
           onTags={onTags}
@@ -341,8 +329,8 @@ export function PlateFilters({
         />
       </div>
 
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">Category</p>
+      <div className="pt-4 space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Category</p>
         <CategoriesDropdown
           activeCategories={activeCategories}
           onCategories={onCategories}

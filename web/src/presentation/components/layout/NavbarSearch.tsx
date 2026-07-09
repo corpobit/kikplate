@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 import { Search, GitBranch, Loader2, X } from "lucide-react"
 import { usePlates } from "@/src/presentation/hooks/usePlates"
 import Link from "next/link"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 
 export function NavbarSearch() {
   const router = useRouter()
@@ -43,8 +45,8 @@ export function NavbarSearch() {
       <div className="relative">
         <div className="flex items-center border border-border/50 bg-muted/30 px-3 gap-2 rounded-md focus-within:border-ring focus-within:ring-1 focus-within:ring-ring/30 transition-all h-9">
           <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-          <input
-            className="h-full w-full bg-transparent text-xs text-foreground outline-none placeholder:text-muted-foreground"
+          <Input
+            className="h-full w-full border-0 bg-transparent px-0 text-xs ring-0 focus-visible:ring-0"
             placeholder="Search plates..."
             value={query}
             onChange={(e) => {
@@ -55,15 +57,18 @@ export function NavbarSearch() {
             onFocus={() => setOpen(true)}
           />
           {query && (
-            <button
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xs"
               onClick={() => {
                 setQuery("")
                 setOpen(false)
               }}
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className="text-muted-foreground hover:text-foreground"
             >
               <X className="h-3 w-3" />
-            </button>
+            </Button>
           )}
           {isLoading && query.trim().length > 1 && (
             <Loader2 className="h-3 w-3 text-muted-foreground animate-spin shrink-0" />
@@ -71,7 +76,7 @@ export function NavbarSearch() {
         </div>
 
         {showDropdown && (
-          <div className="absolute top-full left-0 right-0 z-50 mt-1 border border-border bg-card rounded-md shadow-lg">
+          <div className="absolute top-full left-0 right-0 z-50 mt-1 rounded-md border border-border bg-card">
             {isLoading ? (
               <div className="flex items-center justify-center py-4">
                 <Loader2 className="h-3.5 w-3.5 text-muted-foreground animate-spin" />
@@ -79,12 +84,15 @@ export function NavbarSearch() {
             ) : results.length === 0 ? (
               <div className="px-3 py-3 text-center">
                 <p className="text-xs text-muted-foreground">No plates found for &quot;{query}&quot;</p>
-                <button
+                <Button
+                  type="button"
                   onClick={() => handleSearch(query)}
-                  className="mt-1.5 text-xs text-foreground underline underline-offset-2 hover:no-underline"
+                  variant="link"
+                  size="xs"
+                  className="mt-1.5"
                 >
                   Search all plates →
-                </button>
+                </Button>
               </div>
             ) : (
               <>
@@ -97,7 +105,7 @@ export function NavbarSearch() {
                         setOpen(false)
                         setQuery("")
                       }}
-                      className="flex items-start gap-2 px-3 py-2 hover:bg-muted transition-colors"
+                      className="flex items-start gap-2 px-3 py-2 transition-colors hover:bg-muted hover:border-l-2 hover:border-primary/40"
                     >
                       <div className="mt-0.5 text-muted-foreground shrink-0">
                         <GitBranch className="h-3 w-3" />
@@ -112,12 +120,15 @@ export function NavbarSearch() {
                   ))}
                 </div>
                 <div className="border-t border-border px-3 py-2">
-                  <button
+                  <Button
+                    type="button"
                     onClick={() => handleSearch(query)}
-                    className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    variant="ghost"
+                    size="xs"
+                    className="text-xs text-muted-foreground hover:text-foreground"
                   >
                     See all results →
-                  </button>
+                  </Button>
                 </div>
               </>
             )}

@@ -59,7 +59,7 @@ export function BookmarkButtonClient({ plateId, isBookmarked = false, prominent 
       variant={bookmarked ? "default" : "outline"}
       className={cn(
         prominent
-          ? "h-11 w-full gap-2 border-primary/90 bg-primary text-primary-foreground shadow-lg hover:bg-primary/90"
+          ? "h-11 w-full gap-2 border-primary/90 bg-primary text-primary-foreground hover:border-primary/70 hover:bg-primary/90"
           : "h-9 gap-2 border-border/80 bg-background px-3.5 text-foreground hover:border-primary/40 hover:bg-muted",
         className,
       )}

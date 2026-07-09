@@ -28,12 +28,12 @@ function Chip({
   preserveCase?: boolean
 }) {
   return (
-    <span className="inline-flex max-w-full items-center gap-1 border border-border bg-muted/50 pl-2.5 pr-1 py-1 text-xs text-foreground">
+    <span className="inline-flex max-w-full items-center gap-1 border border-border bg-muted/50 rounded-lg pl-2.5 pr-1 py-1 text-xs text-foreground">
       <span className={cn("truncate", !preserveCase && "capitalize")}>{label}</span>
       <button
         type="button"
         onClick={onRemove}
-        className="shrink-0 rounded-none p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+        className="shrink-0 rounded-md p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
         aria-label={`Remove ${label}`}
       >
         <X className="h-3 w-3" />

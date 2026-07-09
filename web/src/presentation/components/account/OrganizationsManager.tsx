@@ -19,6 +19,24 @@ import {
 } from "@/src/presentation/hooks/useOrganizations"
 import { useConfig } from "@/src/presentation/hooks/useConfig"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import Image from "next/image"
 import type { Organization } from "@/src/domain/entities/Organization"
 
@@ -57,31 +75,28 @@ function OrganizationMembersModal({
   const revokeError = revokeInvitation.error instanceof Error ? revokeInvitation.error.message : null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-2xl rounded-none border border-border bg-background p-5">
+    <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
+      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-4xl lg:max-w-5xl">
         <div className="flex items-center justify-between gap-3">
           <h3 className="font-heading text-base font-medium">Manage members: {org.name}</h3>
-          <Button variant="outline" size="sm" onClick={onClose}>
-            Close
-          </Button>
         </div>
 
         <div className="mt-4 grid gap-2 sm:grid-cols-[1fr_auto_auto]">
-          <input
+          <Input
             type="email"
             value={inviteEmail}
             onChange={(e) => setInviteEmail(e.target.value)}
             placeholder="Invite by email"
-            className="w-full border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 transition-colors"
           />
-          <select
-            value={inviteRole}
-            onChange={(e) => setInviteRole(e.target.value as "admin" | "member")}
-            className="border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 transition-colors"
-          >
-            <option value="member">Member</option>
-            <option value="admin">Admin</option>
-          </select>
+          <Select value={inviteRole} onValueChange={(value) => setInviteRole(value as "admin" | "member")}>
+            <SelectTrigger>
+              <SelectValue placeholder="Role" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="member">Member</SelectItem>
+              <SelectItem value="admin">Admin</SelectItem>
+            </SelectContent>
+          </Select>
           <Button type="button" onClick={onInvite} disabled={inviteMember.isPending || !inviteEmail.trim()}>
             {inviteMember.isPending ? "Inviting..." : "Invite"}
           </Button>
@@ -153,8 +168,9 @@ function OrganizationMembersModal({
           </div>
           {revokeError && <p className="mt-2 text-xs text-destructive">{revokeError}</p>}
         </div>
-      </div>
-    </div>
+
+      </DialogContent>
+    </Dialog>
   )
 }
 
@@ -281,50 +297,49 @@ export function OrganizationsManager() {
           Organizations
         </p>
 
-        <form onSubmit={handleCreate} className="space-y-3 border border-border bg-card p-4">
+        <form onSubmit={handleCreate} className="space-y-3 border border-border bg-card rounded-lg p-4">
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-foreground">Organization name</label>
-            <input
+            <Label>Organization name</Label>
+            <Input
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="acme-platform"
-              className="w-full border border-input bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 transition-colors"
             />
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-foreground">Description</label>
-            <textarea
+            <Label>Description</Label>
+            <Textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={2}
               placeholder="What this organization builds"
-              className="w-full border border-input bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 transition-colors resize-none"
+              className="resize-none"
             />
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-foreground">Logo URL</label>
-            <input
+            <Label>Logo URL</Label>
+            <Input
               type="url"
               value={logoUrl}
               onChange={(e) => setLogoUrl(e.target.value)}
               placeholder="https://example.com/logo.png"
-              className="w-full border border-input bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 transition-colors"
             />
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-foreground">Visibility</label>
-            <select
-              value={visibility}
-              onChange={(e) => setVisibility(e.target.value as "public" | "private")}
-              className="w-full border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 transition-colors"
-            >
-              <option value="public">Public</option>
-              {privateOrgEnabled && <option value="private">Private</option>}
-            </select>
+            <Label>Visibility</Label>
+            <Select value={visibility} onValueChange={(value) => setVisibility(value as "public" | "private")}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Visibility" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="public">Public</SelectItem>
+                {privateOrgEnabled && <SelectItem value="private">Private</SelectItem>}
+              </SelectContent>
+            </Select>
             {!privateOrgEnabled && <p className="text-xs text-muted-foreground mt-1">Private organizations are disabled</p>}
           </div>
 
@@ -355,50 +370,49 @@ export function OrganizationsManager() {
         )}
 
         {organizations?.map((org) => (
-          <div key={org.id} className="border border-border bg-card p-4">
+          <div key={org.id} className="border border-border bg-card rounded-lg p-4">
             {editingId === org.id ? (
               <form onSubmit={handleUpdate} className="space-y-3">
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground">Organization name</label>
-                  <input
+                  <Label>Organization name</Label>
+                  <Input
                     required
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
-                    className="w-full border border-input bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 transition-colors"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground">Description</label>
-                  <textarea
+                  <Label>Description</Label>
+                  <Textarea
                     value={editDescription}
                     onChange={(e) => setEditDescription(e.target.value)}
                     rows={2}
-                    className="w-full border border-input bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 transition-colors resize-none"
+                    className="resize-none"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground">Logo URL</label>
-                  <input
+                  <Label>Logo URL</Label>
+                  <Input
                     type="url"
                     value={editLogoUrl}
                     onChange={(e) => setEditLogoUrl(e.target.value)}
                     placeholder="https://example.com/logo.png"
-                    className="w-full border border-input bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 transition-colors"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground">Visibility</label>
-                  <select
-                    value={editVisibility}
-                    onChange={(e) => setEditVisibility(e.target.value as "public" | "private")}
-                    className="w-full border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 transition-colors"
-                  >
-                    <option value="public">Public</option>
-                    {privateOrgEnabled && <option value="private">Private</option>}
-                  </select>
+                  <Label>Visibility</Label>
+                  <Select value={editVisibility} onValueChange={(value) => setEditVisibility(value as "public" | "private")}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Visibility" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="public">Public</SelectItem>
+                      {privateOrgEnabled && <SelectItem value="private">Private</SelectItem>}
+                    </SelectContent>
+                  </Select>
                   {!privateOrgEnabled && <p className="text-xs text-muted-foreground mt-1">Private organizations are disabled</p>}
                 </div>
 
@@ -522,7 +536,7 @@ export function OrganizationsManager() {
           <div className="border border-border bg-muted/20 p-4 text-sm text-muted-foreground">No pending invitations.</div>
         )}
         {invitations?.map((inv) => (
-          <div key={inv.id} className="border border-border bg-card p-4">
+          <div key={inv.id} className="border border-border bg-card rounded-lg p-4">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="font-medium text-foreground">Organization invitation</p>
@@ -539,33 +553,44 @@ export function OrganizationsManager() {
       </div>
 
       {confirmingOrg && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-sm rounded-none border border-border bg-background p-5">
-            <div className="space-y-2">
-              <h3 className="font-heading text-base font-medium">Delete organization</h3>
-              <p className="text-sm text-muted-foreground">
+        <Dialog
+          open={!!confirmingOrg}
+          onOpenChange={(next) => {
+            if (!next) {
+              removeOrg.reset()
+              setConfirmingOrg(null)
+              setConfirmOrgNameInput("")
+            }
+          }}
+        >
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>Delete organization</DialogTitle>
+              <DialogDescription>
                 This will permanently delete &quot;{confirmingOrg.name}&quot;.
-              </p>
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-2">
               <p className="text-xs text-muted-foreground">
                 Type the full organization name to confirm: <span className="font-medium text-foreground">{confirmingOrg.name}</span>
               </p>
-              <input
+              <Input
                 value={confirmOrgNameInput}
                 onChange={(e) => setConfirmOrgNameInput(e.target.value)}
                 placeholder="Enter full organization name"
-                className="h-9 w-full border border-input bg-transparent px-3 text-sm outline-none transition-colors focus:border-ring"
                 autoFocus
               />
             </div>
 
             {removeErrorMsg && (
-              <p className="mt-3 text-xs text-destructive">
+              <p className="text-xs text-destructive">
                 {removeErrorMsg}
                 {removeErrorMsg.toLowerCase().includes("contains plates") && " Move plates out of this organization first."}
               </p>
             )}
 
-            <div className="mt-5 flex items-center justify-end gap-2">
+            <DialogFooter>
               <Button
                 variant="outline"
                 size="sm"
@@ -586,26 +611,34 @@ export function OrganizationsManager() {
               >
                 {removeOrg.isPending ? "Deleting..." : "Yes, delete"}
               </Button>
-            </div>
-          </div>
-        </div>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
 
       {confirmingLeaveOrg && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-sm rounded-none border border-border bg-background p-5">
-            <div className="space-y-2">
-              <h3 className="font-heading text-base font-medium">Leave organization</h3>
-              <p className="text-sm text-muted-foreground">
+        <Dialog
+          open={!!confirmingLeaveOrg}
+          onOpenChange={(next) => {
+            if (!next) {
+              leaveOrg.reset()
+              setConfirmingLeaveOrg(null)
+            }
+          }}
+        >
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>Leave organization</DialogTitle>
+              <DialogDescription>
                 Are you sure you want to leave &quot;{confirmingLeaveOrg.name}&quot;?
-              </p>
-            </div>
+              </DialogDescription>
+            </DialogHeader>
 
             {leaveErrorMsg && (
-              <p className="mt-3 text-xs text-destructive">{leaveErrorMsg}</p>
+              <p className="text-xs text-destructive">{leaveErrorMsg}</p>
             )}
 
-            <div className="mt-5 flex items-center justify-end gap-2">
+            <DialogFooter>
               <Button
                 variant="outline"
                 size="sm"
@@ -625,9 +658,9 @@ export function OrganizationsManager() {
               >
                 {leaveOrg.isPending ? "Leaving..." : "Yes, leave"}
               </Button>
-            </div>
-          </div>
-        </div>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
 
       <OrganizationMembersModal

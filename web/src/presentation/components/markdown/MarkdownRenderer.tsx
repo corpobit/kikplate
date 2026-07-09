@@ -67,7 +67,7 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
         return (
           <code
             {...props}
-            className="rounded-none border border-border bg-muted/80 px-2 py-1 font-mono text-xs text-foreground dark:bg-card"
+            className="rounded-md border border-border bg-muted/80 px-2 py-1 font-mono text-xs text-foreground dark:bg-card"
           >
             {children}
           </code>
@@ -105,7 +105,7 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
       prose-p:text-sm prose-p:leading-relaxed prose-p:text-foreground
       prose-a:text-blue-500 prose-a:no-underline hover:prose-a:underline
       prose-code:before:content-none prose-code:after:content-none
-      prose-pre:bg-transparent prose-pre:border-0 prose-pre:p-0 prose-pre:shadow-none
+      prose-pre:bg-transparent prose-pre:border-0 prose-pre:p-0
       prose-blockquote:border-l-4 prose-blockquote:border-border prose-blockquote:text-muted-foreground prose-blockquote:not-italic
       prose-table:text-sm prose-th:text-left prose-th:font-semibold prose-th:border prose-th:border-border prose-th:px-3 prose-th:py-2 prose-th:bg-muted
       prose-td:border prose-td:border-border prose-td:px-3 prose-td:py-2
