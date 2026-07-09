@@ -77,7 +77,7 @@ export function PlateRatingCard({ plateId, plateSlug, plateOwnerId, avgRating, u
   }
 
   return (
-    <div className="border border-border bg-card p-5">
+    <div className="border border-border bg-card rounded-lg p-5">
       <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Your Rating</p>
 
       {isOwnPlate && (
@@ -92,12 +92,14 @@ export function PlateRatingCard({ plateId, plateSlug, plateOwnerId, avgRating, u
             <CheckCircle2 className="h-4 w-4 text-amber-600 dark:text-amber-500" />
             <p className="text-xs font-medium text-amber-700 dark:text-amber-400">You rated this {userRating} star{userRating > 1 ? 's' : ''}</p>
           </div>
-          <button
+          <Button
             onClick={() => setUserRating(null)}
-            className="text-xs text-amber-600 dark:text-amber-400 hover:underline"
+            variant="ghost"
+            size="sm"
+            className="h-auto p-0 text-xs text-amber-600 dark:text-amber-400 hover:underline"
           >
             Change rating
-          </button>
+          </Button>
         </div>
       ) : !isOwnPlate ? (
         <>

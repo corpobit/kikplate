@@ -16,7 +16,7 @@ export function RelatedPlates({
   if (plates.length === 0) return null
 
   return (
-    <div className="border border-border bg-card p-5">
+    <div className="rounded-lg border border-border bg-card p-5">
       <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
         Related plates
       </p>
@@ -25,7 +25,7 @@ export function RelatedPlates({
           <li key={p.id}>
             <Link
               href={`/plates/${encodeURIComponent(p.slug)}`}
-              className="group block rounded-sm py-0.5 transition-colors hover:bg-muted/40"
+              className="group block rounded-md px-2 py-1 transition-colors hover:bg-muted/40"
             >
               <span className="line-clamp-2 text-sm font-semibold leading-snug text-foreground group-hover:text-primary">
                 {p.name}

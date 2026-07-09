@@ -32,12 +32,12 @@ function BadgeIcon({ plateBadge }: { plateBadge: PlateBadge }) {
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
     >
-      <span className="inline-flex items-center justify-center border border-foreground/20 bg-foreground/5 p-1.5 text-foreground cursor-default">
+      <span className="inline-flex items-center justify-center border border-foreground/20 bg-foreground/5 rounded-lg p-1.5 text-foreground cursor-default">
         <Icon className="h-3.5 w-3.5" />
       </span>
 
       {open && (
-        <span className="absolute left-1/2 top-full z-50 mt-2 w-56 -translate-x-1/2 border border-border bg-card p-3 shadow-lg">
+        <span className="absolute left-1/2 top-full z-50 mt-2 w-56 -translate-x-1/2 rounded-lg border border-border bg-card p-3">
           <span className="block text-sm font-semibold text-foreground">{badge.name}</span>
           {badge.description && (
             <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">

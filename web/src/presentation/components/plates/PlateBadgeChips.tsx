@@ -23,7 +23,7 @@ export function PlateBadgeChips({ badges, max = 3, className = "" }: Props) {
         return (
           <span
             key={pb.id}
-            className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] border font-medium ${tierColour(b.tier)}`}
+            className={`inline-flex items-center gap-1 px-2 py-1 text-[10px] border rounded-full font-medium ${tierColour(b.tier)}`}
           >
             <Icon className="h-2.5 w-2.5 shrink-0" />
             {b.name}

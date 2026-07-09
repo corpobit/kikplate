@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation"
 import { getPlateCategoryIcon } from "@/src/presentation/utils/plateCategoryIcons"
 import type { PlateCategory } from "@/src/domain/entities/Config"
+import { Button } from "@/components/ui/button"
 
 
 interface Props {
@@ -30,17 +31,19 @@ export function CategoriesGrid({ categories }: Props) {
               Find templates by domain, from backend services to AI pipelines and infrastructure.
             </p>
           </div>
-          <p className="text-xs tabular-nums text-muted-foreground border border-border bg-card px-3 py-1.5">{categories.length} domains</p>
+          <span className="rounded-md border border-border bg-card px-3 py-1.5 text-xs tabular-nums text-muted-foreground">{categories.length} domains</span>
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
           {categories.map(({ slug, label, description, icon }) => {
             const Icon = getPlateCategoryIcon(icon)
             return (
-              <button
+              <Button
                 key={slug}
+                type="button"
+                variant="ghost"
                 onClick={() => router.push(`/explore?category=${encodeURIComponent(slug)}`)}
-                className="group flex items-start gap-3 border border-border bg-card p-4 text-left transition-all hover:border-foreground/20 hover:bg-background hover:-translate-y-0.5"
+                className="group h-auto items-start justify-start gap-3 rounded-xl border border-border bg-card p-4 text-left transition-all hover:border-foreground/20 hover:bg-background hover:-translate-y-0.5"
               >
                 <div className="mt-0.5 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground">
                   <Icon className="h-4 w-4" />
@@ -49,7 +52,7 @@ export function CategoriesGrid({ categories }: Props) {
                   <p className="text-sm font-semibold text-foreground">{label}</p>
                   <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
                 </div>
-              </button>
+              </Button>
             )
             
           })}

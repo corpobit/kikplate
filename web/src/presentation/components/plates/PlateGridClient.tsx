@@ -10,6 +10,13 @@ import { ExploreFilterChips } from "./ExploreFilterChips"
 import { LoadingSpinner } from "@/src/presentation/components/common/LoadingSpinner"
 import { Button } from "@/components/ui/button"
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
   Sheet,
   SheetContent,
   SheetDescription,
@@ -17,10 +24,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 
-const PAGE_SIZE = 24
-
 interface Props {
-  limit?: number
   initialSearch?: string
   initialTag?: string
   initialCategory?: string
@@ -43,6 +47,7 @@ export function PlateGridClient({
   const [tags, setTags] = useState<string[]>(initialTag ? [initialTag] : [])
   const [badges, setBadges] = useState<string[]>(() => parseInitialListParam(initialBadge))
   const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(24)
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
 
   const { data: filterOptions } = usePlateFilterOptions()
@@ -57,16 +62,16 @@ export function PlateGridClient({
       name: b.name,
       count: 0,
     }))
-  }, [filterOptions?.badges?.length, catalogBadges?.length])
+  }, [filterOptions?.badges, catalogBadges])
 
   const badgeLabel = useCallback(
     (slug: string) => badgeFilterOptions.find((b) => b.slug === slug)?.name ?? slug,
-    [badgeFilterOptions.length]
+    [badgeFilterOptions]
   )
 
   useEffect(() => {
     setPage(1)
-  }, [search, categories, tags, badges])
+  }, [search, categories, tags, badges, pageSize])
 
   const { data, isLoading, isError } = usePlates({
     search,
@@ -74,11 +79,11 @@ export function PlateGridClient({
     categories: categories.length > 0 ? categories : undefined,
     badges: badges.length > 0 ? badges : undefined,
     page,
-    limit: PAGE_SIZE,
+    limit: pageSize,
   })
 
   const total = data?.total ?? 0
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+  const totalPages = Math.max(1, Math.ceil(total / pageSize))
 
   const clearAllFilters = useCallback(() => {
     setSearch("")
@@ -107,16 +112,16 @@ export function PlateGridClient({
 
   const hasActiveFilters = activeFilterCount > 0
 
-  const showPagination = total > 0 && totalPages > 1
+  const showPagination = true
   const showEmpty = !isLoading && !isError && data?.data?.length === 0
 
   return (
-    <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-10">
+    <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-9">
       <div className="lg:hidden">
         <Button
           type="button"
           variant="outline"
-          className="h-11 w-full justify-between gap-3 px-4"
+          className="h-11 w-full justify-between gap-3 rounded-lg px-4 hover:border-primary/30"
           onClick={() => setMobileFiltersOpen(true)}
         >
           <span className="flex items-center gap-2 font-medium">
@@ -124,7 +129,7 @@ export function PlateGridClient({
             Filters
           </span>
           {activeFilterCount > 0 ? (
-            <span className="flex h-6 min-w-6 items-center justify-center border border-primary bg-primary px-2 text-xs font-semibold text-primary-foreground">
+            <span className="flex h-6 min-w-6 items-center justify-center rounded-md border border-primary bg-primary px-2 text-xs font-semibold text-primary-foreground">
               {activeFilterCount}
             </span>
           ) : (
@@ -135,7 +140,7 @@ export function PlateGridClient({
         <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
           <SheetContent
             side="left"
-            className="flex h-full max-h-dvh w-[min(100%,22rem)] flex-col gap-0 bg-card p-0 text-card-foreground sm:max-w-md"
+            className="flex h-full max-h-dvh w-[min(100%,22rem)] flex-col gap-0 rounded-r-xl border-r bg-card p-0 text-card-foreground sm:max-w-md"
           >
             <SheetHeader className="shrink-0 border-b border-border px-4 py-4 text-left">
               <SheetTitle className="font-heading text-lg">Filters</SheetTitle>
@@ -150,8 +155,8 @@ export function PlateGridClient({
         </Sheet>
       </div>
 
-      <aside className="hidden w-70 shrink-0 lg:sticky lg:top-24 lg:block lg:max-h-[calc(100dvh-7rem)] lg:overflow-y-auto lg:pr-1 lg:pt-0.5">
-        <div className="border border-border bg-card p-4">
+      <aside className="hidden w-70 shrink-0 lg:sticky lg:top-24 lg:block lg:pr-1 lg:pt-0.5">
+        <div className="rounded-xl border border-border bg-card/90 p-4">
           <p className="mb-4 font-heading text-sm font-semibold text-foreground">Filter plates</p>
           <PlateFilters {...filterProps} />
         </div>
@@ -171,7 +176,7 @@ export function PlateGridClient({
           onClearAll={clearAllFilters}
         />
 
-        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-border pb-3">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 rounded-lg border border-border bg-muted/20 px-3 py-2.5">
           <p className="text-sm text-muted-foreground">
             {isLoading ? (
               <span className="inline-flex items-center gap-2">
@@ -200,13 +205,13 @@ export function PlateGridClient({
         )}
 
         {isError && (
-          <p className="rounded-none border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+          <p className="rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">
             Something went wrong while loading plates. Try again in a moment.
           </p>
         )}
 
         {showEmpty && (
-          <div className="rounded-none border border-dashed border-border bg-muted/10 px-6 py-16 text-center">
+          <div className="rounded-lg border border-dashed border-border bg-muted/10 px-6 py-16 text-center">
             <p className="font-medium text-foreground">No plates match these criteria</p>
             <p className="mt-2 text-sm text-muted-foreground">
               {hasActiveFilters
@@ -224,57 +229,76 @@ export function PlateGridClient({
         {!isLoading && !isError && data?.data && data.data.length > 0 && <PlateGrid plates={data.data} />}
 
         {showPagination && (
-          <div className="flex items-center justify-center gap-1 pt-4">
-            <button
-              type="button"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className="flex h-9 w-9 items-center justify-center border border-border text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
-              aria-label="Previous page"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-4">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
+                aria-label="Previous page"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
 
-            {Array.from({ length: totalPages }, (_, i) => i + 1)
-              .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 2)
-              .reduce<(number | "…")[]>((acc, p, idx, arr) => {
-                if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push("…")
-                acc.push(p)
-                return acc
-              }, [])
-              .map((p, i) =>
-                p === "…" ? (
-                  <span
-                    key={`ellipsis-${i}`}
-                    className="flex h-9 w-9 items-center justify-center text-xs text-muted-foreground"
-                  >
-                    …
-                  </span>
-                ) : (
-                  <button
-                    key={p}
-                    type="button"
-                    onClick={() => setPage(p as number)}
-                    className={`flex h-9 min-w-9 items-center justify-center border px-2 text-xs transition-colors ${
-                      p === page
-                        ? "border-foreground bg-foreground text-background"
-                        : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground"
-                    }`}
-                  >
-                    {p}
-                  </button>
-                )
-              )}
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">Per page</span>
+                <Select value={String(pageSize)} onValueChange={(value) => setPageSize(Number(value))}>
+                  <SelectTrigger size="sm" className="w-[110px]">
+                    <SelectValue placeholder="Per page" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="12">12</SelectItem>
+                    <SelectItem value="24">24</SelectItem>
+                    <SelectItem value="48">48</SelectItem>
+                    <SelectItem value="96">96 (max)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
 
-            <button
-              type="button"
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-              className="flex h-9 w-9 items-center justify-center border border-border text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
-              aria-label="Next page"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 2)
+                .reduce<(number | "…")[]>((acc, p, idx, arr) => {
+                  if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push("…")
+                  acc.push(p)
+                  return acc
+                }, [])
+                .map((p, i) =>
+                  p === "…" ? (
+                    <span
+                      key={`ellipsis-${i}`}
+                      className="flex h-9 w-9 items-center justify-center text-xs text-muted-foreground"
+                    >
+                      …
+                    </span>
+                  ) : (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => setPage(p as number)}
+                      className={`flex h-9 min-w-9 items-center justify-center rounded-md border px-2 text-xs transition-colors ${
+                        p === page
+                          ? "border-foreground bg-foreground text-background"
+                          : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  )
+                )}
+
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
+                aria-label="Next page"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         )}
       </div>
