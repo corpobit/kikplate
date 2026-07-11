@@ -10,7 +10,7 @@ export default function LoginPage() {
       <div className="pointer-events-none absolute -right-20 bottom-20 h-56 w-56 rounded-full border border-border/50 bg-card/40 blur-2xl" />
 
       <div className="relative mx-auto flex min-h-screen w-full max-w-5xl items-center justify-center px-4 py-10 sm:px-6">
-        <section className="w-full max-w-md rounded-2xl border border-border/80 bg-card/92 p-6 shadow-[0_18px_65px_hsl(var(--foreground)/0.08)] backdrop-blur sm:p-8">
+        <section className="w-full max-w-md rounded-2xl border border-foreground/20 dark:border-border/80 bg-card/92 p-6 shadow-[0_18px_65px_hsl(var(--foreground)/0.08)] backdrop-blur sm:p-8">
           <div className="mb-6 flex items-center justify-between">
             <Link href="/" className="inline-flex items-center gap-2.5 rounded-md transition-colors hover:text-primary">
               <Image
