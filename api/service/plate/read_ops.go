@@ -162,12 +162,7 @@ func (s *plateService) List(ctx context.Context, filter repository.PlateFilter, 
 		}
 	}
 
-	adjustedTotal := total
-	if total > len(visible) {
-		adjustedTotal = len(visible)
-	}
-
-	return visible, adjustedTotal, nil
+	return visible, total, nil
 }
 
 func (s *plateService) GetStats(ctx context.Context) (*repository.PlateStats, error) {
