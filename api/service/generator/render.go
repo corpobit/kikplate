@@ -1,6 +1,7 @@
 package generator
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -18,7 +19,7 @@ func renderProject(py *PlateYAML, values map[string]any) ([]byte, error) {
 
 	data := gen.BuildTemplateData(shared, values)
 
-	return gen.BuildZip(shared, data, func(ref string) (string, error) {
+	zipBytes, err := gen.BuildZip(shared, data, func(ref string) (string, error) {
 		if strings.HasPrefix(ref, "https://") || strings.HasPrefix(ref, "http://") {
 			content, err := fetchRemoteTemplate(ref)
 			if err != nil {
@@ -28,6 +29,13 @@ func renderProject(py *PlateYAML, values map[string]any) ([]byte, error) {
 		}
 		return ref, nil
 	})
+	if err != nil {
+		if errors.Is(err, ErrFetchFailed) {
+			return nil, err
+		}
+		return nil, fmt.Errorf("%w: %s", ErrTemplateFailed, err.Error())
+	}
+	return zipBytes, nil
 }
 
 func toShared(py *PlateYAML) *gen.PlateYAML {

@@ -86,9 +86,32 @@ var configViewCmd = &cobra.Command{
 	},
 }
 
+var configSetServerCmd = &cobra.Command{
+	Use:   "set-server <address>",
+	Short: "Set the server address",
+	Example: `  kik config set-server https://kikplate.dev/api
+  kik config set-server http://localhost:3001`,
+	Args: cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		path := resolveConfigPath(cmd)
+		cfg, err := config.Load(path)
+		if err != nil {
+			cfg = &CLIConfig{Server: ServerConfig{Address: args[0]}}
+		} else {
+			cfg.Server.Address = args[0]
+		}
+		if err := config.Save(path, cfg); err != nil {
+			return fmt.Errorf("cannot save config: %w", err)
+		}
+		fmt.Printf("Server set to %s\n", args[0])
+		return nil
+	},
+}
+
 func init() {
 	configInitCmd.Flags().StringP("file", "f", "", "Path for the config file (default: ~/.kikplate/config.yaml)")
 	configCmd.AddCommand(configInitCmd)
 	configCmd.AddCommand(configViewCmd)
+	configCmd.AddCommand(configSetServerCmd)
 	rootCmd.AddCommand(configCmd)
 }

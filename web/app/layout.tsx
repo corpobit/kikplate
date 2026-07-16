@@ -12,8 +12,15 @@ import { NavigationProgress } from "@/src/presentation/components/common/Navigat
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "kikplate — template registry",
+  title: {
+    default: "kikplate — template registry",
+    template: "%s",
+  },
   description: "Discover, share, and generate production-ready projects from reusable templates.",
+  openGraph: {
+    siteName: "kikplate",
+    type: "website",
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
