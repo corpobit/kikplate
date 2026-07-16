@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { cookies } from "next/headers"
 import Link from "next/link"
@@ -77,6 +78,47 @@ function normalizeGeneratorSchema(raw: RawGeneratorSchema | null): GeneratorSche
     schema: raw.schema ?? raw.Schema ?? {},
     modules: raw.modules ?? raw.Modules ?? {},
     files: raw.files ?? raw.Files ?? [],
+  }
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params
+  const rawSlug = Array.isArray(slug) ? slug.join("/") : slug
+  const normalizedSlug = (() => { try { return decodeURIComponent(rawSlug) } catch { return rawSlug } })()
+  const base = await getServerApiBaseUrl()
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://kikplate.dev"
+
+  try {
+    const res = await fetch(`${base}/plates/${encodeURIComponent(normalizedSlug)}`, { cache: "no-store" })
+    if (!res.ok) return {}
+    const plate = (await res.json()) as Plate
+
+    const title = `${plate.name} — kikplate`
+    const description = plate.description
+      ?? `${plate.name} is a ${plate.category} boilerplate on kikplate. Generate a production-ready project instantly.`
+    const tags = plate.tags?.map((t: { tag: string }) => t.tag) ?? []
+    const url = `${appUrl}/plates/${normalizedSlug}`
+
+    return {
+      title,
+      description,
+      keywords: [plate.name, plate.category, "boilerplate", "starter", "template", ...tags],
+      openGraph: {
+        title,
+        description,
+        url,
+        type: "website",
+        siteName: "kikplate",
+      },
+      twitter: {
+        card: "summary",
+        title,
+        description,
+      },
+      alternates: { canonical: url },
+    }
+  } catch {
+    return {}
   }
 }
 

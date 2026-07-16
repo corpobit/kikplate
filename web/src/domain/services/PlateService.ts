@@ -15,7 +15,7 @@ export const PlateService = {
       official:  "text-blue-600 border-blue-200 bg-blue-50",
       verified:  "text-green-600 border-green-200 bg-green-50",
       sponsored: "text-purple-600 border-purple-200 bg-purple-50",
-      community: "text-gray-600 border-gray-200 bg-gray-50",
+      community: "text-zinc-600 border-zinc-200 bg-zinc-50",
     }
     return map[tier]
   },
