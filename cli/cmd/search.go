@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/url"
 
@@ -8,9 +9,9 @@ import (
 )
 
 var searchCmd = &cobra.Command{
-	Use:   "search",
+	Use:   "search [query]",
 	Short: "Search plates on the server",
-	Args:  cobra.NoArgs,
+	Args:  cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		s, err := NewSession(cmd)
 		if err != nil {
@@ -18,7 +19,9 @@ var searchCmd = &cobra.Command{
 		}
 
 		q := url.Values{}
-		if v, _ := cmd.Flags().GetString("name"); v != "" {
+		if len(args) > 0 {
+			q.Set("search", args[0])
+		} else if v, _ := cmd.Flags().GetString("name"); v != "" {
 			q.Set("search", v)
 		}
 		if v, _ := cmd.Flags().GetString("category"); v != "" {
@@ -44,9 +47,18 @@ var searchCmd = &cobra.Command{
 			return nil
 		}
 
-		t := NewTable("SLUG", "NAME", "CATEGORY", "RATING", "VERIFIED")
+		t := NewTable("SLUG", "CATEGORY", "VISIBILITY", "SCHEMA", "RATING", "VERIFIED")
 		for _, p := range result.Data {
-			t.Row(p.Slug, p.Name, p.Category, fmt.Sprintf("%.1f", p.AvgRating), boolYesNo(p.IsVerified))
+			hasSchema := "no"
+			if len(p.RawMetadata) > 0 {
+				var meta struct {
+					Schema map[string]any `json:"schema"`
+				}
+				if json.Unmarshal(p.RawMetadata, &meta) == nil && len(meta.Schema) > 0 {
+					hasSchema = "yes"
+				}
+			}
+			t.Row(p.Slug, p.Category, p.Visibility, hasSchema, fmt.Sprintf("%.1f", p.AvgRating), boolYesNo(p.IsVerified))
 		}
 		t.PrintWithTotal(result.Total)
 		return nil
