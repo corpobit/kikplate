@@ -66,7 +66,7 @@ func run(cmd *cobra.Command, args []string) error {
 	} else {
 		slug = args[0]
 		if interactive {
-			schema, err := fetchServerSchema(cmd, slug)
+			schema, err := FetchServerSchema(cmd, slug)
 			if err != nil {
 				return fmt.Errorf("cannot fetch plate schema: %w", err)
 			}

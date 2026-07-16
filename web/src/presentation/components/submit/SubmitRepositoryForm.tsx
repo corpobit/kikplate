@@ -242,7 +242,11 @@ tags:
             onValueChange={(value) => setOrganizationId((value ?? "personal") === "personal" ? "" : (value ?? ""))}
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Personal (no organization)" />
+              <span>
+                {organizationId
+                  ? (organizations?.find((o) => o.id === organizationId)?.name ?? "Loading...")
+                  : "Personal (no organization)"}
+              </span>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="personal">Personal (no organization)</SelectItem>

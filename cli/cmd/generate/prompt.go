@@ -75,7 +75,7 @@ func promptSchema(py *plateYAML, values map[string]any) error {
 	return nil
 }
 
-func buildPrompt(key string, field schemaField) string {
+func buildPrompt(key string, field SchemaField) string {
 	var b strings.Builder
 	b.WriteString(key)
 	if field.Type != "" && field.Type != "string" {
