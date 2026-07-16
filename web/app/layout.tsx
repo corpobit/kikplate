@@ -1,5 +1,4 @@
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "next-themes"
 import { QueryProvider } from "@/src/presentation/providers/QueryProvider"
@@ -8,8 +7,6 @@ import { Navbar } from "@/src/presentation/components/layout/Navbar"
 import { Footer } from "@/src/presentation/components/layout/Footer"
 import { Toaster } from "@/components/ui/sonner"
 import { NavigationProgress } from "@/src/presentation/components/common/NavigationProgress"
-
-const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: {
@@ -26,7 +23,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
