@@ -1,7 +1,27 @@
+import type { Metadata } from "next"
 import { PlateGridClient } from "@/src/presentation/components/plates/PlateGridClient"
 
 interface Props {
   searchParams: Promise<{ search?: string; tag?: string; category?: string; badge?: string; type?: string }>
+}
+
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const params = await searchParams
+  let title = "Explore plates — kikplate"
+  let description = "Browse and discover production-ready boilerplates and starter templates. Filter by category, tags, and more."
+
+  if (params.category) {
+    title = `${params.category} plates — kikplate`
+    description = `Browse ${params.category} boilerplates and starter templates on kikplate.`
+  } else if (params.search) {
+    title = `"${params.search}" — kikplate`
+    description = `Search results for "${params.search}" on kikplate.`
+  } else if (params.tag) {
+    title = `#${params.tag} plates — kikplate`
+    description = `Browse plates tagged "${params.tag}" on kikplate.`
+  }
+
+  return { title, description }
 }
 
 export default async function ExplorePage({ searchParams }: Props) {

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -66,21 +67,21 @@ func (h GeneratorHandler) Generate(w http.ResponseWriter, r *http.Request) {
 
 func respondGeneratorError(w http.ResponseWriter, err error) {
 	switch {
-	case err == generator.ErrPlateNotFound:
+	case errors.Is(err, generator.ErrPlateNotFound):
 		respondError(w, http.StatusNotFound, err.Error())
-	case err == generator.ErrPlateNotApproved:
+	case errors.Is(err, generator.ErrPlateNotApproved):
 		respondError(w, http.StatusUnprocessableEntity, err.Error())
-	case err == generator.ErrNoRepoURL:
+	case errors.Is(err, generator.ErrNoRepoURL):
 		respondError(w, http.StatusUnprocessableEntity, err.Error())
-	case err == generator.ErrMissingYAML:
+	case errors.Is(err, generator.ErrMissingYAML):
 		respondError(w, http.StatusUnprocessableEntity, err.Error())
-	case err == generator.ErrFetchFailed:
+	case errors.Is(err, generator.ErrFetchFailed):
 		respondError(w, http.StatusBadGateway, err.Error())
-	case err == generator.ErrInvalidInput:
+	case errors.Is(err, generator.ErrInvalidInput):
 		respondError(w, http.StatusBadRequest, err.Error())
-	case err == generator.ErrTemplateFailed:
+	case errors.Is(err, generator.ErrTemplateFailed):
 		respondError(w, http.StatusUnprocessableEntity, err.Error())
 	default:
-		respondError(w, http.StatusInternalServerError, "generation failed")
+		respondError(w, http.StatusInternalServerError, err.Error())
 	}
 }

@@ -23,7 +23,7 @@ func resolveAddr(cmd *cobra.Command) (string, string, error) {
 	return cfg.Server.Address, cfg.Auth.Token, nil
 }
 
-func fetchServerSchema(cmd *cobra.Command, slug string) (*plateYAML, error) {
+func FetchServerSchema(cmd *cobra.Command, slug string) (*plateYAML, error) {
 	addr, token, err := resolveAddr(cmd)
 	if err != nil {
 		return nil, err

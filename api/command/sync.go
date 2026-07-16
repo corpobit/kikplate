@@ -270,14 +270,15 @@ func syncOnePlate(
 }
 
 type syncPlateManifestYAML struct {
-	Owner             string           `yaml:"owner"`
-	Name              string           `yaml:"name"`
-	Description       string           `yaml:"description"`
-	Category          string           `yaml:"category"`
-	VerificationToken string           `yaml:"verification_token"`
-	Tags              []string         `yaml:"tags"`
-	Variables         []map[string]any `yaml:"variables"`
-	Dependencies      []map[string]any `yaml:"dependencies"`
+	Owner             string           `yaml:"owner" json:"owner"`
+	Name              string           `yaml:"name" json:"name"`
+	Description       string           `yaml:"description" json:"description"`
+	Category          string           `yaml:"category" json:"category"`
+	VerificationToken string           `yaml:"verification_token" json:"verification_token"`
+	Tags              []string         `yaml:"tags" json:"tags"`
+	Schema            map[string]any   `yaml:"schema" json:"schema"`
+	Variables         []map[string]any `yaml:"variables" json:"variables"`
+	Dependencies      []map[string]any `yaml:"dependencies" json:"dependencies"`
 }
 
 func syncPlateManifest(

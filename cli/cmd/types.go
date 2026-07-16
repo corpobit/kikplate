@@ -1,12 +1,14 @@
 package cmd
 
 type PlateListItem struct {
-	Slug       string   `json:"slug"`
-	Name       string   `json:"name"`
-	Category   string   `json:"category"`
-	AvgRating  float64  `json:"avg_rating"`
-	IsVerified bool     `json:"is_verified"`
-	Tags       []TagObj `json:"tags"`
+	Slug        string   `json:"slug"`
+	Name        string   `json:"name"`
+	Category    string   `json:"category"`
+	Visibility  string   `json:"visibility"`
+	AvgRating   float64  `json:"avg_rating"`
+	IsVerified  bool     `json:"is_verified"`
+	Tags        []TagObj `json:"tags"`
+	RawMetadata []byte   `json:"metadata"`
 }
 
 type TagObj struct {
